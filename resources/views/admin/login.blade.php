@@ -43,7 +43,7 @@
             <p class="text-xs uppercase tracking-widest font-extrabold text-amber-700 mt-2">Administrative Gateway</p>
         </div>
 
-        <!-- Demo Account Shortcut Box -->
+        <!-- Demo Account Shortcut Box
         <div class="mb-6 bg-slate-900 text-white rounded-2xl p-4 shadow-md border border-slate-800 flex items-center justify-between">
             <div>
                 <div class="text-xs font-bold text-gold-400">Admin Demo Credentials</div>
@@ -52,7 +52,7 @@
             <button type="button" onclick="fillAdmin()" class="px-3 py-1.5 rounded-xl bg-amber-500 text-slate-950 font-black text-xs hover:brightness-110">
                 Auto Fill
             </button>
-        </div>
+        </div> -->
 
         <!-- Form Card Container -->
         <div class="bg-white border border-slate-200/90 rounded-3xl p-8 md:p-10 shadow-xl shadow-slate-200/60 relative overflow-hidden">

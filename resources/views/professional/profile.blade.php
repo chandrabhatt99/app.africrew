@@ -67,7 +67,7 @@
                 </div>
 
                 <!-- View Public Page Button -->
-                <a href="{{ route('crew.show', $professional->id) }}" target="_blank"
+                <a href="{{ route('crew.show', $professional) }}" target="_blank"
                     class="w-full sm:w-auto px-5 py-2.5 sm:py-3 rounded-xl sm:rounded-2xl bg-slate-900 hover:bg-slate-800 text-amber-400 text-xs font-black transition-all shadow-md border border-slate-800 flex items-center justify-center gap-2 shrink-0">
                     <span>🌐 View Public Profile</span>
                     <span>→</span>
@@ -207,35 +207,65 @@
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-6 text-xs font-bold">
 
                     <div>
-                        <label class="block text-slate-700 mb-1">First Name *</label>
+                        <label class="block text-slate-700 mb-1">
+                            First Name * 
+                            @if(!empty($firstName))
+                                <span class="text-amber-700 font-semibold text-[10px] ml-1">🔒 Registered Name (Fixed)</span>
+                            @endif
+                        </label>
                         <input type="text" name="first_name" value="{{ old('first_name', $firstName) }}"
-                            class="w-full bg-slate-50 border border-slate-200 rounded-2xl px-4 py-3 text-slate-900 font-bold outline-none focus:border-amber-500 focus:bg-white">
+                            @if(!empty($firstName)) readonly @endif
+                            class="w-full rounded-2xl px-4 py-3 text-xs font-bold outline-none {{ !empty($firstName) ? 'bg-slate-100 text-slate-500 border border-slate-200 cursor-not-allowed' : 'bg-slate-50 border border-slate-200 text-slate-900 focus:border-amber-500 focus:bg-white' }}">
                     </div>
 
                     <div>
-                        <label class="block text-slate-700 mb-1">Last Name *</label>
+                        <label class="block text-slate-700 mb-1">
+                            Last Name * 
+                            @if(!empty($lastName))
+                                <span class="text-amber-700 font-semibold text-[10px] ml-1">🔒 Registered Name (Fixed)</span>
+                            @endif
+                        </label>
                         <input type="text" name="last_name" value="{{ old('last_name', $lastName) }}"
-                            class="w-full bg-slate-50 border border-slate-200 rounded-2xl px-4 py-3 text-slate-900 font-bold outline-none focus:border-amber-500 focus:bg-white">
+                            @if(!empty($lastName)) readonly @endif
+                            class="w-full rounded-2xl px-4 py-3 text-xs font-bold outline-none {{ !empty($lastName) ? 'bg-slate-100 text-slate-500 border border-slate-200 cursor-not-allowed' : 'bg-slate-50 border border-slate-200 text-slate-900 focus:border-amber-500 focus:bg-white' }}">
                     </div>
 
                     <div>
-                        <label class="block text-slate-700 mb-1">Username *</label>
+                        <label class="block text-slate-700 mb-1">
+                            Username * 
+                            @if(!empty($professional->username))
+                                <span class="text-amber-700 font-semibold text-[10px] ml-1">🔒 Registered Handle (Fixed)</span>
+                            @endif
+                        </label>
                         <input type="text" name="username"
                             value="{{ old('username', $professional->username ?? Str::slug($firstName)) }}"
-                            class="w-full bg-slate-50 border border-slate-200 rounded-2xl px-4 py-3 text-slate-900 font-bold outline-none focus:border-amber-500 focus:bg-white">
+                            @if(!empty($professional->username)) readonly @endif
+                            class="w-full rounded-2xl px-4 py-3 text-xs font-bold outline-none {{ !empty($professional->username) ? 'bg-slate-100 text-slate-500 border border-slate-200 cursor-not-allowed' : 'bg-slate-50 border border-slate-200 text-slate-900 focus:border-amber-500 focus:bg-white' }}">
                     </div>
 
                     <div>
-                        <label class="block text-slate-700 mb-1">Email *</label>
+                        <label class="block text-slate-700 mb-1">
+                            Email * 
+                            @if(!empty($professional->email))
+                                <span class="text-amber-700 font-semibold text-[10px] ml-1">🔒 Registered Email (Fixed)</span>
+                            @endif
+                        </label>
                         <input type="email" name="email" value="{{ old('email', $professional->email) }}"
-                            class="w-full bg-slate-50 border border-slate-200 rounded-2xl px-4 py-3 text-slate-900 font-bold outline-none focus:border-amber-500 focus:bg-white">
+                            @if(!empty($professional->email)) readonly @endif
+                            class="w-full rounded-2xl px-4 py-3 text-xs font-bold outline-none {{ !empty($professional->email) ? 'bg-slate-100 text-slate-500 border border-slate-200 cursor-not-allowed' : 'bg-slate-50 border border-slate-200 text-slate-900 focus:border-amber-500 focus:bg-white' }}">
                     </div>
 
                     <div>
-                        <label class="block text-slate-700 mb-1">Phone Number *</label>
+                        <label class="block text-slate-700 mb-1">
+                            Phone Number * 
+                            @if(!empty($professional->phone))
+                                <span class="text-amber-700 font-semibold text-[10px] ml-1">🔒 Registered Phone (Fixed)</span>
+                            @endif
+                        </label>
                         <input type="tel" name="phone" value="{{ old('phone', $professional->phone) }}"
                             placeholder="+254 712 345 678"
-                            class="w-full bg-slate-50 border border-slate-200 rounded-2xl px-4 py-3 text-slate-900 font-bold outline-none focus:border-amber-500 focus:bg-white">
+                            @if(!empty($professional->phone)) readonly @endif
+                            class="w-full rounded-2xl px-4 py-3 text-xs font-bold outline-none {{ !empty($professional->phone) ? 'bg-slate-100 text-slate-500 border border-slate-200 cursor-not-allowed' : 'bg-slate-50 border border-slate-200 text-slate-900 focus:border-amber-500 focus:bg-white' }}">
                     </div>
 
                     <div>
@@ -250,16 +280,53 @@
                     </div>
 
                     <div>
-                        <label class="block text-slate-700 mb-1">Date of Birth <span class="text-amber-600 font-normal">(Age Auto-calculated)</span></label>
-                        <input type="date" name="date_of_birth"
-                            value="{{ old('date_of_birth', $professional->date_of_birth ? \Carbon\Carbon::parse($professional->date_of_birth)->format('Y-m-d') : '') }}"
+                        <label class="block text-slate-700 mb-1">
+                            Date of Birth <span class="text-amber-600 font-bold">(Age Must Be 18+)</span>
+                        </label>
+                        @php
+                            $dobVal = old('date_of_birth', $professional->date_of_birth ? \Carbon\Carbon::parse($professional->date_of_birth)->format('Y-m-d') : '');
+                            $maxDobLimit = \Carbon\Carbon::now()->subYears(18)->format('Y-m-d');
+                            $calculatedAge = null;
+                            if ($dobVal) {
+                                $calculatedAge = \Carbon\Carbon::parse($dobVal)->age;
+                            }
+                        @endphp
+                        <input type="date" id="date_of_birth_input" name="date_of_birth"
+                            value="{{ $dobVal }}"
+                            max="{{ $maxDobLimit }}"
+                            onchange="calculateAndValidateAge(this.value)"
                             class="w-full bg-slate-50 border border-slate-200 rounded-2xl px-4 py-3 text-slate-900 font-bold outline-none focus:border-amber-500 focus:bg-white">
+                        
+                        <div id="age-display-container" class="mt-1.5 flex items-center justify-between text-xs font-bold">
+                            @if($calculatedAge !== null)
+                                @if($calculatedAge >= 18)
+                                    <span id="age-calc-badge" class="px-2.5 py-1 rounded-full bg-emerald-100 text-emerald-800 font-black text-[11px] inline-flex items-center gap-1">
+                                        ✓ Age: {{ $calculatedAge }} years old (Eligible 18+)
+                                    </span>
+                                @else
+                                    <span id="age-calc-badge" class="px-2.5 py-1 rounded-full bg-rose-100 text-rose-800 font-black text-[11px] inline-flex items-center gap-1">
+                                        ⚠️ Age: {{ $calculatedAge }} years old (Must be 18+ years old)
+                                    </span>
+                                @endif
+                            @else
+                                <span id="age-calc-badge" class="text-slate-400 text-[11px] italic font-medium">Select DOB to auto-calculate age (Minimum 18 years old)</span>
+                            @endif
+                        </div>
                     </div>
 
                     <div>
-                        <label class="block text-slate-700 mb-1">Primary Crew Category *</label>
+                        <label class="block text-slate-700 mb-1">
+                            Primary Crew Category * 
+                            @if(!empty($professional->category))
+                                <span class="text-amber-700 font-semibold text-[10px] ml-1">🔒 Registered Category (Fixed)</span>
+                            @endif
+                        </label>
+                        @if(!empty($professional->category))
+                            <input type="hidden" name="category" value="{{ $professional->category }}">
+                        @endif
                         <select name="category"
-                            class="w-full bg-slate-50 border border-slate-200 rounded-2xl px-4 py-3 text-slate-900 font-bold outline-none focus:border-amber-500 focus:bg-white">
+                            @if(!empty($professional->category)) disabled @endif
+                            class="w-full rounded-2xl px-4 py-3 text-xs font-bold outline-none {{ !empty($professional->category) ? 'bg-slate-100 text-slate-500 border border-slate-200 cursor-not-allowed' : 'bg-slate-50 border border-slate-200 text-slate-900 focus:border-amber-500 focus:bg-white' }}">
                             @if(isset($categories) && $categories->count() > 0)
                                 @foreach($categories as $cat)
                                     <option value="{{ $cat->name }}" @selected($professional->category == $cat->name || strtolower($professional->category) == strtolower($cat->slug))>
@@ -927,6 +994,9 @@
                 </div>
 
                     <!-- Confirmed Booked Shifts Subsection -->
+                    @php
+                        $acceptedOffers = $acceptedOffers ?? (isset($assignments) ? $assignments->where('status', 'accepted') : collect());
+                    @endphp
                     @if($acceptedOffers->count() > 0)
                         <div class="pt-3 border-t border-slate-200 space-y-2">
                             <span class="text-[11px] font-black text-slate-900 uppercase tracking-wider block">✓ Confirmed
@@ -951,8 +1021,6 @@
                             </div>
                         </div>
                     @endif
-
-                </div>
 
                 <!-- Shift Preferences & Travel Radius Row -->
                 <div
@@ -991,73 +1059,48 @@
 
                 <!-- Interactive Working Calendar Suite -->
                 <div class="border border-slate-200 rounded-2xl p-6 bg-slate-50/50 space-y-5">
+                    <input type="hidden" name="availability_dates" id="hidden_availability_dates_input" value='{{ json_encode($professional->availability_dates ?? []) }}'>
 
                     <!-- Calendar Header & Navigation Controls -->
                     <div
                         class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-200/80 pb-4">
                         <div>
                             <div class="flex items-center gap-2">
-                                <h4 id="calendar-month-title" class="text-sm font-black text-slate-900">August 2026</h4>
+                                <h4 id="calendar-month-title" class="text-sm font-black text-slate-900">{{ date('F Y') }}</h4>
                                 <span
                                     class="px-2.5 py-0.5 rounded-full bg-amber-100 text-amber-900 text-[10px] font-black uppercase">Working
                                     Schedule</span>
                             </div>
-                            <p class="text-[11px] text-slate-500 font-medium mt-0.5">Click any date to toggle availability
-                                on or off</p>
+                            <p class="text-[11px] text-slate-500 font-medium mt-0.5">Click any future date to toggle availability
+                                on or off (Past and today's dates are locked)</p>
                         </div>
 
                         <div class="flex flex-wrap items-center gap-3">
                             <label
                                 class="flex items-center gap-1.5 text-xs font-bold text-slate-700 cursor-pointer bg-white px-3 py-1.5 rounded-xl border border-slate-200 shadow-xs">
                                 <input type="checkbox" id="checkbox-select-all-days" onchange="toggleSelectAllDates(this)"
-                                    class="w-4 h-4 text-amber-500 rounded">
-                                <span>Select all days</span>
+                                    class="w-4 h-4 text-amber-500 rounded cursor-pointer">
+                                <span>Select all future days</span>
                             </label>
                             <button type="button" onclick="selectWeekendsOnly()"
-                                class="px-3 py-1.5 rounded-xl bg-white border border-slate-200 hover:bg-slate-100 text-slate-800 font-extrabold text-xs shadow-xs">
-                                Weekends Only
+                                class="px-3 py-1.5 rounded-xl bg-white border border-slate-200 hover:bg-slate-100 text-slate-800 font-extrabold text-xs shadow-xs cursor-pointer">
+                                Future Weekends Only
                             </button>
                             <button type="button" onclick="clearAllDates()"
-                                class="px-3 py-1.5 rounded-xl bg-white border border-slate-200 hover:bg-slate-100 text-rose-700 font-extrabold text-xs shadow-xs">
+                                class="px-3 py-1.5 rounded-xl bg-white border border-slate-200 hover:bg-slate-100 text-rose-700 font-extrabold text-xs shadow-xs cursor-pointer">
                                 Clear
                             </button>
                             <div class="flex items-center gap-1">
-                                <button type="button" onclick="changeCalendarMonth(-1)"
-                                    class="w-8 h-8 rounded-xl bg-white border border-slate-200 font-bold text-xs hover:bg-slate-100 flex items-center justify-center">←</button>
-                                <button type="button" onclick="changeCalendarMonth(1)"
-                                    class="w-8 h-8 rounded-xl bg-white border border-slate-200 font-bold text-xs hover:bg-slate-100 flex items-center justify-center">→</button>
+                                <button type="button" id="calendar-prev-btn" onclick="changeCalendarMonth(-1)"
+                                    class="w-8 h-8 rounded-xl bg-white border border-slate-200 font-bold text-xs hover:bg-slate-100 flex items-center justify-center cursor-pointer">←</button>
+                                <button type="button" id="calendar-next-btn" onclick="changeCalendarMonth(1)"
+                                    class="w-8 h-8 rounded-xl bg-white border border-slate-200 font-bold text-xs hover:bg-slate-100 flex items-center justify-center cursor-pointer">→</button>
                             </div>
                         </div>
                     </div>
 
-                    <!-- Calendar Days Grid -->
-                    <div class="grid grid-cols-7 gap-2 text-center text-xs font-bold">
-                        @foreach(['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'] as $day)
-                            <div class="py-1 text-slate-400 uppercase text-[10px] font-black tracking-wider">{{ $day }}</div>
-                        @endforeach
-
-                        @for($d = 1; $d <= 31; $d++)
-                            @php 
-                                                                                    $isAvailable = in_array($d, [5, 6, 12, 13, 19, 20, 26, 27]);
-                                $isBooked = in_array($d, [14, 15]);
-                            @endphp
-                            @if($isBooked)
-                                <div class="py-2.5 rounded-xl border border-slate-900 bg-slate-900 text-amber-400 font-black shadow-xs cursor-not-allowed text-center"
-                                    title="Booked Shift Confirmed">
-                                    <span>{{ $d }}</span>
-                                    <span class="block text-[8px] uppercase tracking-tighter text-amber-300">Booked</span>
-                                </div>
-                            @else
-                                <div onclick="toggleCalendarDate(this, {{ $d }})" data-day="{{ $d }}"
-                                    class="calendar-date-cell py-2.5 rounded-xl border transition-all cursor-pointer font-black text-center shadow-xs select-none {{ $isAvailable ? 'bg-amber-400 border-amber-500 text-slate-950 ring-2 ring-amber-300/50' : 'bg-white border-slate-200 text-slate-700 hover:border-amber-400' }}">
-                                    <span class="date-num">{{ $d }}</span>
-                                    <span
-                                        class="date-status block text-[8px] uppercase tracking-tighter {{ $isAvailable ? 'text-slate-950 font-black' : 'text-slate-400 font-normal' }}">
-                                        {{ $isAvailable ? '✓ Available' : 'Off-duty' }}
-                                    </span>
-                                </div>
-                            @endif
-                        @endfor
+                    <!-- Calendar Days Grid Container -->
+                    <div id="calendar-days-grid" class="grid grid-cols-7 gap-2 text-center text-xs font-bold">
                     </div>
 
                     <!-- Legend & Availability Summary Counter Bar -->
@@ -1079,7 +1122,7 @@
                         </div>
 
                         <div class="text-right text-[11px] font-extrabold text-amber-900 bg-amber-100 px-3 py-1 rounded-xl">
-                            <span id="available-counter-text">8 Available Days Selected</span> • 2 Confirmed Shifts
+                            <span id="available-counter-text">0 Available Days Selected</span>
                         </div>
                     </div>
 
@@ -1116,10 +1159,7 @@
                         <label class="block text-slate-700 mb-1">Currency Preference *</label>
                         <select name="currency"
                             class="w-full bg-slate-50 border border-slate-200 rounded-2xl px-4 py-3 text-slate-900 font-bold outline-none focus:border-amber-500 focus:bg-white">
-                            <option value="USD" @selected(old('currency', $professional->currency ?? 'USD') == 'USD')>$ USD
-                                (US Dollars)</option>
-                            <option value="KES" @selected(old('currency', $professional->currency) == 'KES')>KSh KES (Kenyan
-                                Shillings)</option>
+                            <option value="KES" selected>KSh KES (Kenyan Shillings)</option>
                         </select>
                     </div>
 
@@ -1727,92 +1767,205 @@
             }
         }
 
-        function toggleCalendarDate(cell, day) {
-            const statusSpan = cell.querySelector('.date-status');
-            const isSelected = cell.classList.contains('bg-amber-400');
+        let currentViewYear = new Date().getFullYear();
+        let currentViewMonth = new Date().getMonth();
 
-            if (isSelected) {
-                cell.className = 'calendar-date-cell py-2.5 rounded-xl border transition-all cursor-pointer font-black text-center shadow-xs select-none bg-white border-slate-200 text-slate-700 hover:border-amber-400';
-                if (statusSpan) {
-                    statusSpan.innerText = 'Off-duty';
-                    statusSpan.className = 'date-status block text-[8px] uppercase tracking-tighter text-slate-400 font-normal';
-                }
-            } else {
-                cell.className = 'calendar-date-cell py-2.5 rounded-xl border transition-all cursor-pointer font-black text-center shadow-xs select-none bg-amber-400 border-amber-500 text-slate-950 ring-2 ring-amber-300/50';
-                if (statusSpan) {
-                    statusSpan.innerText = '✓ Available';
-                    statusSpan.className = 'date-status block text-[8px] uppercase tracking-tighter text-slate-950 font-black';
+        let selectedAvailabilityDates = [];
+        try {
+            const rawVal = document.getElementById('hidden_availability_dates_input')?.value;
+            selectedAvailabilityDates = rawVal ? JSON.parse(rawVal) : [];
+            if (!Array.isArray(selectedAvailabilityDates)) selectedAvailabilityDates = [];
+        } catch (e) {
+            selectedAvailabilityDates = [];
+        }
+
+        function renderDynamicCalendar() {
+            const grid = document.getElementById('calendar-days-grid');
+            const titleEl = document.getElementById('calendar-month-title');
+            if (!grid) return;
+
+            const monthNames = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+            if (titleEl) {
+                titleEl.innerText = `${monthNames[currentViewMonth]} ${currentViewYear}`;
+            }
+
+            let html = '';
+            const headers = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+            headers.forEach(h => {
+                html += `<div class="py-1 text-slate-400 uppercase text-[10px] font-black tracking-wider">${h}</div>`;
+            });
+
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+
+            const firstDayOfMonth = new Date(currentViewYear, currentViewMonth, 1);
+            const daysInMonth = new Date(currentViewYear, currentViewMonth + 1, 0).getDate();
+
+            let startingDay = (firstDayOfMonth.getDay() + 6) % 7;
+
+            for (let i = 0; i < startingDay; i++) {
+                html += `<div class="py-2.5 rounded-xl border border-transparent bg-slate-100/30 text-transparent opacity-0 select-none"></div>`;
+            }
+
+            for (let d = 1; d <= daysInMonth; d++) {
+                const cellDate = new Date(currentViewYear, currentViewMonth, d);
+                cellDate.setHours(0, 0, 0, 0);
+
+                const mStr = String(currentViewMonth + 1).padStart(2, '0');
+                const dStr = String(d).padStart(2, '0');
+                const isoDate = `${currentViewYear}-${mStr}-${dStr}`;
+
+                const isPast = cellDate < today;
+                const isToday = cellDate.getTime() === today.getTime();
+                const isAvailable = selectedAvailabilityDates.includes(isoDate);
+
+                if (isPast) {
+                    html += `
+                        <div class="py-2.5 rounded-xl border border-slate-200 bg-slate-100 text-slate-400 font-bold opacity-40 cursor-not-allowed text-center select-none" title="Past dates cannot be selected for future availability">
+                            <span>${d}</span>
+                            <span class="block text-[8px] uppercase tracking-tighter text-slate-400">Past</span>
+                        </div>
+                    `;
+                } else if (isToday) {
+                    html += `
+                        <div class="py-2.5 rounded-xl border border-amber-500 bg-amber-50 text-amber-900 font-black text-center shadow-2xs select-none" title="Today's date">
+                            <span>${d}</span>
+                            <span class="block text-[8px] uppercase tracking-tighter text-amber-700 font-black">Today</span>
+                        </div>
+                    `;
+                } else {
+                    if (isAvailable) {
+                        html += `
+                            <div onclick="toggleDateCell('${isoDate}')" data-date="${isoDate}"
+                                class="calendar-date-cell py-2.5 rounded-xl border transition-all cursor-pointer font-black text-center shadow-xs select-none bg-amber-400 border-amber-500 text-slate-950 ring-2 ring-amber-300/50">
+                                <span class="date-num">${d}</span>
+                                <span class="date-status block text-[8px] uppercase tracking-tighter text-slate-950 font-black">✓ Available</span>
+                            </div>
+                        `;
+                    } else {
+                        html += `
+                            <div onclick="toggleDateCell('${isoDate}')" data-date="${isoDate}"
+                                class="calendar-date-cell py-2.5 rounded-xl border transition-all cursor-pointer font-black text-center shadow-xs select-none bg-white border-slate-200 text-slate-700 hover:border-amber-400">
+                                <span class="date-num">${d}</span>
+                                <span class="date-status block text-[8px] uppercase tracking-tighter text-slate-400 font-normal">Off-duty</span>
+                            </div>
+                        `;
+                    }
                 }
             }
+
+            grid.innerHTML = html;
+
+            const prevBtn = document.getElementById('calendar-prev-btn');
+            const nowMonth = new Date().getMonth();
+            const nowYear = new Date().getFullYear();
+            if (prevBtn) {
+                if (currentViewYear < nowYear || (currentViewYear === nowYear && currentViewMonth <= nowMonth)) {
+                    prevBtn.disabled = true;
+                    prevBtn.classList.add('opacity-40', 'cursor-not-allowed');
+                } else {
+                    prevBtn.disabled = false;
+                    prevBtn.classList.remove('opacity-40', 'cursor-not-allowed');
+                }
+            }
+
             updateAvailableDaysCounter();
+        }
+
+        function toggleDateCell(isoDate) {
+            const idx = selectedAvailabilityDates.indexOf(isoDate);
+            if (idx > -1) {
+                selectedAvailabilityDates.splice(idx, 1);
+            } else {
+                selectedAvailabilityDates.push(isoDate);
+            }
+            saveAvailabilityDatesState();
+            renderDynamicCalendar();
+        }
+
+        function saveAvailabilityDatesState() {
+            const input = document.getElementById('hidden_availability_dates_input');
+            if (input) {
+                input.value = JSON.stringify(selectedAvailabilityDates);
+            }
+        }
+
+        function changeCalendarMonth(delta) {
+            currentViewMonth += delta;
+            if (currentViewMonth > 11) {
+                currentViewMonth = 0;
+                currentViewYear++;
+            } else if (currentViewMonth < 0) {
+                currentViewMonth = 11;
+                currentViewYear--;
+            }
+            renderDynamicCalendar();
         }
 
         function toggleSelectAllDates(checkbox) {
-            document.querySelectorAll('.calendar-date-cell').forEach((cell) => {
-                const statusSpan = cell.querySelector('.date-status');
-                if (checkbox.checked) {
-                    cell.className = 'calendar-date-cell py-2.5 rounded-xl border transition-all cursor-pointer font-black text-center shadow-xs select-none bg-amber-400 border-amber-500 text-slate-950 ring-2 ring-amber-300/50';
-                    if (statusSpan) {
-                        statusSpan.innerText = '✓ Available';
-                        statusSpan.className = 'date-status block text-[8px] uppercase tracking-tighter text-slate-950 font-black';
-                    }
-                } else {
-                    cell.className = 'calendar-date-cell py-2.5 rounded-xl border transition-all cursor-pointer font-black text-center shadow-xs select-none bg-white border-slate-200 text-slate-700 hover:border-amber-400';
-                    if (statusSpan) {
-                        statusSpan.innerText = 'Off-duty';
-                        statusSpan.className = 'date-status block text-[8px] uppercase tracking-tighter text-slate-400 font-normal';
+            const daysInMonth = new Date(currentViewYear, currentViewMonth + 1, 0).getDate();
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+
+            for (let d = 1; d <= daysInMonth; d++) {
+                const cellDate = new Date(currentViewYear, currentViewMonth, d);
+                cellDate.setHours(0, 0, 0, 0);
+                if (cellDate > today) {
+                    const mStr = String(currentViewMonth + 1).padStart(2, '0');
+                    const dStr = String(d).padStart(2, '0');
+                    const isoDate = `${currentViewYear}-${mStr}-${dStr}`;
+                    const idx = selectedAvailabilityDates.indexOf(isoDate);
+
+                    if (checkbox.checked && idx === -1) {
+                        selectedAvailabilityDates.push(isoDate);
+                    } else if (!checkbox.checked && idx > -1) {
+                        selectedAvailabilityDates.splice(idx, 1);
                     }
                 }
-            });
-            updateAvailableDaysCounter();
+            }
+            saveAvailabilityDatesState();
+            renderDynamicCalendar();
         }
 
         function selectWeekendsOnly() {
-            const allCells = document.querySelectorAll('.calendar-date-cell');
-            allCells.forEach((cell, idx) => {
-                const dayOfWeek = (idx + 1) % 7; // Mon=1, Sat=6, Sun=0
-                const isWeekend = dayOfWeek === 6 || dayOfWeek === 0;
-                const statusSpan = cell.querySelector('.date-status');
+            const daysInMonth = new Date(currentViewYear, currentViewMonth + 1, 0).getDate();
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
 
-                if (isWeekend) {
-                    cell.className = 'calendar-date-cell py-2.5 rounded-xl border transition-all cursor-pointer font-black text-center shadow-xs select-none bg-amber-400 border-amber-500 text-slate-950 ring-2 ring-amber-300/50';
-                    if (statusSpan) {
-                        statusSpan.innerText = '✓ Available';
-                        statusSpan.className = 'date-status block text-[8px] uppercase tracking-tighter text-slate-950 font-black';
-                    }
-                } else {
-                    cell.className = 'calendar-date-cell py-2.5 rounded-xl border transition-all cursor-pointer font-black text-center shadow-xs select-none bg-white border-slate-200 text-slate-700 hover:border-amber-400';
-                    if (statusSpan) {
-                        statusSpan.innerText = 'Off-duty';
-                        statusSpan.className = 'date-status block text-[8px] uppercase tracking-tighter text-slate-400 font-normal';
+            for (let d = 1; d <= daysInMonth; d++) {
+                const cellDate = new Date(currentViewYear, currentViewMonth, d);
+                cellDate.setHours(0, 0, 0, 0);
+                if (cellDate > today) {
+                    const dayOfWeek = cellDate.getDay();
+                    const isWeekend = (dayOfWeek === 0 || dayOfWeek === 6);
+                    const mStr = String(currentViewMonth + 1).padStart(2, '0');
+                    const dStr = String(d).padStart(2, '0');
+                    const isoDate = `${currentViewYear}-${mStr}-${dStr}`;
+                    const idx = selectedAvailabilityDates.indexOf(isoDate);
+
+                    if (isWeekend && idx === -1) {
+                        selectedAvailabilityDates.push(isoDate);
+                    } else if (!isWeekend && idx > -1) {
+                        selectedAvailabilityDates.splice(idx, 1);
                     }
                 }
-            });
-            updateAvailableDaysCounter();
+            }
+            saveAvailabilityDatesState();
+            renderDynamicCalendar();
         }
 
         function clearAllDates() {
-            const selectAllCheckbox = document.getElementById('checkbox-select-all-days');
-            if (selectAllCheckbox) selectAllCheckbox.checked = false;
-            toggleSelectAllDates({ checked: false });
+            const checkbox = document.getElementById('checkbox-select-all-days');
+            if (checkbox) checkbox.checked = false;
+            selectedAvailabilityDates = [];
+            saveAvailabilityDatesState();
+            renderDynamicCalendar();
         }
 
         function updateAvailableDaysCounter() {
-            const activeCount = document.querySelectorAll('.calendar-date-cell.bg-amber-400').length;
             const counterSpan = document.getElementById('available-counter-text');
             if (counterSpan) {
-                counterSpan.innerText = `${activeCount} Available Days Selected`;
-            }
-        }
-
-        const calendarMonths = ['August 2026', 'September 2026', 'October 2026'];
-        let currentMonthIdx = 0;
-
-        function changeCalendarMonth(delta) {
-            currentMonthIdx = (currentMonthIdx + delta + calendarMonths.length) % calendarMonths.length;
-            const titleEl = document.getElementById('calendar-month-title');
-            if (titleEl) {
-                titleEl.innerText = calendarMonths[currentMonthIdx];
+                counterSpan.innerText = `${selectedAvailabilityDates.length} Available Days Selected`;
             }
         }
 
@@ -1906,9 +2059,51 @@
         function toggleSpotifySkillTile(btn) { toggleSimpleSkillChip(btn); }
         function addCustomSpotifySkillTile() { addCustomSimpleSkillChip(); }
 
+        function calculateAndValidateAge(dobString) {
+            const container = document.getElementById('age-display-container');
+            if (!container) return;
+
+            if (!dobString) {
+                container.innerHTML = '<span id="age-calc-badge" class="text-slate-400 text-[11px] italic font-medium">Select DOB to auto-calculate age (Minimum 18 years old)</span>';
+                return;
+            }
+
+            const birthDate = new Date(dobString);
+            const today = new Date();
+            let age = today.getFullYear() - birthDate.getFullYear();
+            const monthDiff = today.getMonth() - birthDate.getMonth();
+            if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
+                age--;
+            }
+
+            if (isNaN(age)) {
+                container.innerHTML = '';
+                return;
+            }
+
+            if (age >= 18) {
+                container.innerHTML = `<span id="age-calc-badge" class="px-2.5 py-1 rounded-full bg-emerald-100 text-emerald-800 font-black text-[11px] inline-flex items-center gap-1">
+                    ✓ Age: ${age} years old (Eligible 18+)
+                </span>`;
+            } else {
+                container.innerHTML = `<span id="age-calc-badge" class="px-2.5 py-1 rounded-full bg-rose-100 text-rose-800 font-black text-[11px] inline-flex items-center gap-1">
+                    ⚠️ Age: ${age} years old (Must be at least 18 years old)
+                </span>`;
+                if (typeof Swal !== 'undefined') {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Age Limit Requirement (18+)',
+                        text: 'You must be at least 18 years old to operate as a crew member on AfriCrew.',
+                        confirmButtonColor: '#F59E0B'
+                    });
+                }
+            }
+        }
+
         document.addEventListener('DOMContentLoaded', () => {
             const bioTextarea = document.getElementById('bio-textarea');
             if (bioTextarea) updateBioCounter(bioTextarea);
+            if (typeof renderDynamicCalendar === 'function') renderDynamicCalendar();
             if (typeof updateAvailableDaysCounter === 'function') updateAvailableDaysCounter();
             if (typeof updateSpotifySkillsCount === 'function') updateSpotifySkillsCount();
 

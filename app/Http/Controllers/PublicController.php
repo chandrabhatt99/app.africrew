@@ -96,6 +96,16 @@ class PublicController extends Controller
 
         return view('home', compact('professionals', 'categories', 'locations', 'categoryLocations', 'allApprovedCrewList'));
     }
+
+    public function terms(): View
+    {
+        return view('terms');
+    }
+
+    public function privacy(): View
+    {
+        return view('privacy');
+    }
 }
 
 

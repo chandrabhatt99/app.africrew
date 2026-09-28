@@ -131,14 +131,9 @@
                                 </a>
 
                                 @if($p->status !== 'approved')
-                                    <form method="POST" action="{{ route('admin.professionals.status', $p) }}">
-                                        @csrf
-                                        @method('PATCH')
-                                        <input type="hidden" name="status" value="approved">
-                                        <button type="submit" class="px-2.5 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs shadow-xs" title="Approve Crew">
-                                            ✓ Approve
-                                        </button>
-                                    </form>
+                                    <button type="button" onclick="openAdminIndexInterviewModal('{{ $p->id }}', '{{ addslashes($p->full_name) }}')" class="px-2.5 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs shadow-xs" title="Schedule Interview & Approve">
+                                        ✓ Approve
+                                    </button>
                                 @endif
 
                                 @if($p->status !== 'deactivated')
@@ -183,6 +178,54 @@
     @method('DELETE')
 </form>
 
+<!-- Modal: Record Interview & Approve Crew -->
+<div id="modal-index-interview" class="fixed inset-0 bg-slate-950/70 z-50 flex items-center justify-center p-4 hidden backdrop-blur-xs">
+    <div class="bg-white rounded-3xl max-w-lg w-full p-6 sm:p-8 space-y-6 shadow-2xl">
+        <div class="flex items-center justify-between border-b border-slate-100 pb-4">
+            <h3 class="text-base font-black text-slate-900 flex items-center gap-2">
+                <span>🎙️ Record Vetting Interview & Approve Crew</span>
+            </h3>
+            <button onclick="closeAdminIndexInterviewModal()" class="w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-600 font-black flex items-center justify-center">✕</button>
+        </div>
+
+        <form id="form-index-interview" method="POST" action="" class="space-y-4 text-xs font-bold">
+            @csrf
+            @method('PATCH')
+            <input type="hidden" name="status" value="approved">
+
+            <div class="p-3 bg-amber-50 rounded-xl border border-amber-200 text-amber-900 text-xs">
+                Approving <strong id="index-modal-staff-name" class="text-slate-900">Crew Member</strong>. Please enter interview date, time, and interviewer name below:
+            </div>
+
+            <div class="grid grid-cols-2 gap-3">
+                <div>
+                    <label class="block text-slate-700 mb-1">Interview Date *</label>
+                    <input type="date" name="interview_date" required value="{{ date('Y-m-d') }}" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-slate-900 font-bold outline-none focus:border-amber-500">
+                </div>
+                <div>
+                    <label class="block text-slate-700 mb-1">Interview Time *</label>
+                    <input type="text" name="interview_time" required placeholder="e.g. 10:30 AM" value="10:00 AM" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-slate-900 font-bold outline-none focus:border-amber-500">
+                </div>
+            </div>
+
+            <div>
+                <label class="block text-slate-700 mb-1">Interviewer Name (Admin / Staff) *</label>
+                <input type="text" name="interviewer_name" required placeholder="e.g. Operations Lead" value="{{ Auth::user()?->name }}" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-slate-900 font-bold outline-none focus:border-amber-500">
+            </div>
+
+            <div>
+                <label class="block text-slate-700 mb-1">Interview Notes & Evaluation Remarks</label>
+                <textarea name="interview_notes" rows="3" placeholder="Notes on communication skills, grooming, background check..." class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-slate-900 font-medium outline-none focus:border-amber-500"></textarea>
+            </div>
+
+            <div class="pt-4 border-t border-slate-100 flex items-center justify-end gap-3">
+                <button type="button" onclick="closeAdminIndexInterviewModal()" class="px-5 py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-extrabold">Cancel</button>
+                <button type="submit" class="px-6 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-black shadow-md">Record Interview & Approve ⚡</button>
+            </div>
+        </form>
+    </div>
+</div>
+
 <script>
 function confirmDeleteStaff(staffId, staffName) {
     Swal.fire({
@@ -200,6 +243,17 @@ function confirmDeleteStaff(staffId, staffName) {
             form.submit();
         }
     });
+}
+
+function openAdminIndexInterviewModal(staffId, staffName) {
+    const form = document.getElementById('form-index-interview');
+    form.action = `/admin/professionals/${staffId}/status`;
+    document.getElementById('index-modal-staff-name').innerText = staffName;
+    document.getElementById('modal-index-interview').classList.remove('hidden');
+}
+
+function closeAdminIndexInterviewModal() {
+    document.getElementById('modal-index-interview').classList.add('hidden');
 }
 </script>
 @endsection

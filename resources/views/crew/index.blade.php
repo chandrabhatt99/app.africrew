@@ -51,30 +51,41 @@
                 </div>
             </div>
 
-            <!-- Sort By Dropdown Selector -->
-            <form method="GET" action="{{ route('crew.index') }}" class="m-0 shrink-0">
-                <input type="hidden" name="category" value="{{ request('category') }}">
-                <input type="hidden" name="city" value="{{ request('city') }}">
-                <input type="hidden" name="dates" value="{{ request('dates') }}">
-                <input type="hidden" name="exp_range" value="{{ request('exp_range') }}">
-                <input type="hidden" name="min_rating" value="{{ request('min_rating') }}">
+            <!-- Sort By & Mobile Filter Button Controls -->
+            <div class="flex items-center gap-2 shrink-0">
+                <!-- Mobile Filter Toggle Button -->
+                <button type="button" onclick="toggleMobileFilterModal()" class="lg:hidden px-3.5 py-2.5 rounded-2xl bg-white border border-slate-200 hover:border-amber-400 text-slate-900 font-extrabold text-xs shadow-2xs flex items-center gap-1.5 cursor-pointer">
+                    <span>🎛️</span>
+                    <span>Filter</span>
+                    @if(request('category') || request('city') || request('exp_range') || request('min_rating'))
+                        <span class="w-2 h-2 rounded-full bg-rose-500"></span>
+                    @endif
+                </button>
 
-                <div class="flex items-center gap-2">
-                    <label class="text-xs font-bold text-slate-500 whitespace-nowrap">Sort:</label>
-                    <select name="sort" onchange="this.form.submit()" class="bg-white border border-slate-200 rounded-2xl px-4 py-2.5 text-xs font-extrabold text-slate-900 outline-none focus:border-rose-500 shadow-2xs cursor-pointer">
-                        <option value="best_match" {{ request('sort', 'best_match') == 'best_match' ? 'selected' : '' }}>Best Match</option>
-                        <option value="rating" {{ request('sort') == 'rating' ? 'selected' : '' }}>Highest Rating</option>
-                        <option value="experience" {{ request('sort') == 'experience' ? 'selected' : '' }}>Most Experienced</option>
-                    </select>
-                </div>
-            </form>
+                <form method="GET" action="{{ route('crew.index') }}" class="m-0">
+                    <input type="hidden" name="category" value="{{ request('category') }}">
+                    <input type="hidden" name="city" value="{{ request('city') }}">
+                    <input type="hidden" name="dates" value="{{ request('dates') }}">
+                    <input type="hidden" name="exp_range" value="{{ request('exp_range') }}">
+                    <input type="hidden" name="min_rating" value="{{ request('min_rating') }}">
+
+                    <div class="flex items-center gap-2">
+                        <label class="text-xs font-bold text-slate-500 whitespace-nowrap hidden sm:inline">Sort:</label>
+                        <select name="sort" onchange="this.form.submit()" class="bg-white border border-slate-200 rounded-2xl px-3.5 py-2.5 text-xs font-extrabold text-slate-900 outline-none focus:border-rose-500 shadow-2xs cursor-pointer">
+                            <option value="best_match" {{ request('sort', 'best_match') == 'best_match' ? 'selected' : '' }}>Sort: Best Match</option>
+                            <option value="rating" {{ request('sort') == 'rating' ? 'selected' : '' }}>Sort: Highest Rating</option>
+                            <option value="experience" {{ request('sort') == 'experience' ? 'selected' : '' }}>Sort: Most Experienced</option>
+                        </select>
+                    </div>
+                </form>
+            </div>
         </div>
 
         <!-- MAIN CONTENT LAYOUT: SIDEBAR FILTERS LEFT + 3-COLUMN GRID RIGHT -->
         <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start pt-4">
             
-            <!-- LEFT SIDEBAR FILTER PANEL (PDF PAGE 3) -->
-            <div class="lg:col-span-3 space-y-6">
+            <!-- DESKTOP LEFT SIDEBAR FILTER PANEL -->
+            <div class="hidden lg:block lg:col-span-3 space-y-6">
                 <form method="GET" action="{{ route('crew.index') }}" class="bg-white border border-slate-200/90 rounded-3xl p-6 shadow-sm space-y-6 m-0">
                     <input type="hidden" name="dates" value="{{ request('dates') }}">
 
@@ -96,7 +107,7 @@
                         </select>
                     </div>
 
-                    <!-- Location / City Filter Dropdown (Reflects available crew locations for searched category) -->
+                    <!-- Location / City Filter Dropdown -->
                     <div class="space-y-2">
                         <label class="block text-xs font-bold text-slate-700">Location (Registered Crew)</label>
                         <select name="city" class="w-full bg-[#FAF9F6] border border-slate-200 rounded-xl px-3 py-2 text-xs font-bold text-slate-900 outline-none focus:border-rose-500">
@@ -150,7 +161,7 @@
                     </div>
 
                     <!-- Apply Filters Button -->
-                    <button type="submit" class="w-full py-3 rounded-2xl bg-gradient-to-r from-rose-500 to-amber-500 hover:opacity-95 text-white font-extrabold text-xs shadow-md shadow-rose-500/20 transition-all uppercase tracking-wider">
+                    <button type="submit" class="w-full py-3 rounded-2xl bg-gradient-to-r from-rose-500 to-amber-500 hover:opacity-95 text-white font-extrabold text-xs shadow-md shadow-rose-500/20 transition-all uppercase tracking-wider cursor-pointer">
                         Apply Filters
                     </button>
                 </form>
@@ -292,4 +303,109 @@
 
     </div>
 </div>
+
+<!-- MOBILE FILTER POPUP DRAWER MODAL -->
+<div id="mobile-filter-modal" class="fixed inset-0 z-50 hidden overflow-y-auto bg-slate-950/80 backdrop-blur-md transition-opacity duration-300">
+    <div class="min-h-screen px-4 text-center flex items-center justify-center py-6">
+        <div class="fixed inset-0" onclick="toggleMobileFilterModal()"></div>
+        <div class="inline-block w-full max-w-lg p-6 my-8 text-left align-middle transition-all transform bg-white shadow-2xl rounded-3xl relative z-10 border border-slate-200">
+            <div class="flex items-center justify-between border-b border-slate-100 pb-4 mb-4">
+                <div class="flex items-center gap-2">
+                    <span class="text-base">🎛️</span>
+                    <h3 class="text-base font-black text-slate-900">Filter Crew Results</h3>
+                </div>
+                <button type="button" onclick="toggleMobileFilterModal()" class="w-8 h-8 rounded-full bg-slate-100 text-slate-500 font-black text-xs hover:bg-slate-200 flex items-center justify-center cursor-pointer">✕</button>
+            </div>
+            
+            <form method="GET" action="{{ route('crew.index') }}" class="space-y-5">
+                <input type="hidden" name="sort" value="{{ request('sort', 'best_match') }}">
+                <input type="hidden" name="dates" value="{{ request('dates') }}">
+
+                <!-- Category -->
+                <div class="space-y-1.5">
+                    <label class="block text-xs font-bold text-slate-700">Category</label>
+                    <select name="category" class="w-full bg-[#FAF9F6] border border-slate-200 rounded-xl px-3.5 py-3 text-xs font-bold text-slate-900 outline-none focus:border-rose-500">
+                        <option value="">All Categories</option>
+                        @if(isset($categories) && count($categories) > 0)
+                            @foreach($categories as $cat)
+                                <option value="{{ $cat->name }}" {{ request('category') == $cat->name ? 'selected' : '' }}>{{ $cat->name }}</option>
+                            @endforeach
+                        @endif
+                    </select>
+                </div>
+
+                <!-- Location -->
+                <div class="space-y-1.5">
+                    <label class="block text-xs font-bold text-slate-700">Location (Registered Crew)</label>
+                    <select name="city" class="w-full bg-[#FAF9F6] border border-slate-200 rounded-xl px-3.5 py-3 text-xs font-bold text-slate-900 outline-none focus:border-rose-500">
+                        <option value="">All Locations</option>
+                        @if(isset($availableCities) && count($availableCities) > 0)
+                            @foreach($availableCities as $c)
+                                <option value="{{ $c }}" {{ request('city') == $c ? 'selected' : '' }}>{{ $c }}</option>
+                            @endforeach
+                        @endif
+                    </select>
+                </div>
+
+                <!-- Experience -->
+                <div class="space-y-2 pt-2 border-t border-slate-100">
+                    <label class="block text-xs font-extrabold text-slate-900">Experience</label>
+                    <div class="grid grid-cols-3 gap-2 text-xs font-medium">
+                        <label class="p-3 rounded-xl border text-center cursor-pointer {{ request('exp_range') == '1-3' ? 'bg-amber-400 border-amber-500 font-black text-slate-950' : 'bg-slate-50 border-slate-200 text-slate-700' }}">
+                            <input type="radio" name="exp_range" value="1-3" {{ request('exp_range') == '1-3' ? 'checked' : '' }} class="hidden">
+                            <span>1 - 3 yrs</span>
+                        </label>
+                        <label class="p-3 rounded-xl border text-center cursor-pointer {{ request('exp_range') == '4-7' ? 'bg-amber-400 border-amber-500 font-black text-slate-950' : 'bg-slate-50 border-slate-200 text-slate-700' }}">
+                            <input type="radio" name="exp_range" value="4-7" {{ request('exp_range') == '4-7' ? 'checked' : '' }} class="hidden">
+                            <span>4 - 7 yrs</span>
+                        </label>
+                        <label class="p-3 rounded-xl border text-center cursor-pointer {{ request('exp_range') == '8+' ? 'bg-amber-400 border-amber-500 font-black text-slate-950' : 'bg-slate-50 border-slate-200 text-slate-700' }}">
+                            <input type="radio" name="exp_range" value="8+" {{ request('exp_range') == '8+' ? 'checked' : '' }} class="hidden">
+                            <span>8+ yrs</span>
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Rating -->
+                <div class="space-y-2 pt-2 border-t border-slate-100">
+                    <label class="block text-xs font-extrabold text-slate-900">Minimum Rating</label>
+                    <div class="grid grid-cols-2 gap-2 text-xs font-medium">
+                        <label class="p-3 rounded-xl border text-center cursor-pointer {{ request('min_rating') == '4.5' ? 'bg-amber-400 border-amber-500 font-black text-slate-950' : 'bg-slate-50 border-slate-200 text-slate-700' }}">
+                            <input type="radio" name="min_rating" value="4.5" {{ request('min_rating') == '4.5' ? 'checked' : '' }} class="hidden">
+                            <span>★ 4.5 & up</span>
+                        </label>
+                        <label class="p-3 rounded-xl border text-center cursor-pointer {{ request('min_rating') == '4.0' ? 'bg-amber-400 border-amber-500 font-black text-slate-950' : 'bg-slate-50 border-slate-200 text-slate-700' }}">
+                            <input type="radio" name="min_rating" value="4.0" {{ request('min_rating') == '4.0' ? 'checked' : '' }} class="hidden">
+                            <span>★ 4.0 & up</span>
+                        </label>
+                    </div>
+                </div>
+
+                <div class="pt-4 flex items-center justify-between gap-3">
+                    <a href="{{ route('crew.index') }}" class="px-5 py-3 rounded-2xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-extrabold text-xs text-decoration-none">
+                        Reset All
+                    </a>
+                    <button type="submit" class="flex-grow py-3 rounded-2xl bg-gradient-to-r from-rose-500 to-amber-500 text-white font-extrabold text-xs uppercase tracking-wider shadow-md">
+                        Apply Filters
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+function toggleMobileFilterModal() {
+    const modal = document.getElementById('mobile-filter-modal');
+    if (modal) {
+        if (modal.classList.contains('hidden')) {
+            modal.classList.remove('hidden');
+            document.body.classList.add('overflow-hidden');
+        } else {
+            modal.classList.add('hidden');
+            document.body.classList.remove('overflow-hidden');
+        }
+    }
+}
+</script>
 @endsection

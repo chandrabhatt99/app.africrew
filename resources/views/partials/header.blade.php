@@ -43,17 +43,17 @@
                 </button>
 
                 <!-- Dynamic CRM Breadcrumb & Title -->
-                <div class="flex items-center gap-2">
-                    <span class="hidden sm:inline-block text-xs font-bold text-slate-400">AfriCrew Workspace</span>
+                <div class="flex items-center gap-2 min-w-0">
+                    <span class="hidden sm:inline-block text-xs font-bold text-slate-400 whitespace-nowrap">AfriCrew Workspace</span>
                     <span class="hidden sm:inline-block text-xs text-slate-300">/</span>
-                    <h1 class="text-sm sm:text-base font-black text-slate-950 tracking-tight m-0 leading-none">
+                    <h1 class="text-xs sm:text-sm md:text-base font-black text-slate-950 tracking-tight m-0 leading-none whitespace-nowrap truncate">
                         {{ $pageTitle }}
                     </h1>
                 </div>
             </div>
 
             <!-- Right: Notifications & User Profile -->
-            <div class="flex items-center gap-3">
+            <div class="flex items-center gap-3 shrink-0">
                 @if(Auth::check() && (Auth::user()->role === 'client' || request()->routeIs('client.*')))
                     <!-- Client Portal User Badge -->
                     <a href="{{ route('client.dashboard') }}" class="flex items-center gap-2 text-decoration-none group">

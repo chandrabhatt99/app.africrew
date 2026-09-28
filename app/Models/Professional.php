@@ -41,6 +41,24 @@ class Professional extends Model
         'wallet_withdrawn' => 'decimal:2',
     ];
 
+    public function getRouteKeyName()
+    {
+        return 'username';
+    }
+
+    public function getRouteKey()
+    {
+        return !empty($this->username) ? $this->username : $this->id;
+    }
+
+    public function resolveRouteBinding($value, $field = null)
+    {
+        return $this->where('username', $value)
+            ->orWhere('id', $value)
+            ->orWhere('full_name', $value)
+            ->first();
+    }
+
     public function assignments(): HasMany
     {
         return $this->hasMany(StaffingAssignment::class);

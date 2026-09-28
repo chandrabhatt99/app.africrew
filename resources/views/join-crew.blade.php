@@ -175,7 +175,7 @@
                     <input type="checkbox" name="terms" value="1" @checked(old('terms')) required
                         class="mt-1 w-4 h-4 text-amber-500 border-slate-300 rounded focus:ring-amber-400">
                     <span class="text-xs text-slate-600 leading-relaxed font-normal">
-                        I accept the <a href="#" class="text-amber-600 font-bold hover:underline">Terms & Conditions</a> and <a href="#" class="text-amber-600 font-bold hover:underline">Privacy Policy</a>.
+                        I accept the <a href="{{ route('terms') }}" target="_blank" class="text-amber-600 font-bold hover:underline">Terms & Conditions</a> and <a href="{{ route('privacy') }}" target="_blank" class="text-amber-600 font-bold hover:underline">Privacy Policy</a>.
                     </span>
                 </label>
             </div>

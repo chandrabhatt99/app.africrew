@@ -152,16 +152,25 @@ class ProfessionalController extends Controller
     {
         $model = null;
 
-        if (is_numeric($professional)) {
-            $model = Professional::where('id', $professional)->where('status', 'approved')->first();
+        // 1. Try resolving by username
+        $model = Professional::where('username', 'LIKE', $professional)->first();
+
+        // 2. Try resolving by numeric ID
+        if (!$model && is_numeric($professional)) {
+            $model = Professional::find($professional);
         }
 
+        // 3. Try resolving by full name
         if (!$model) {
-            $model = Professional::where('username', $professional)->where('status', 'approved')->first();
+            $model = Professional::where('full_name', 'LIKE', $professional)->first();
         }
 
-        if (!$model) {
-            $model = Professional::where('full_name', $professional)->where('status', 'approved')->first();
+        $sessionProfId = session('professional_id');
+        $isAdmin = auth()->check() && (auth()->user()->is_admin ?? false);
+
+        // Check approval unless viewing own profile or logged in as admin
+        if ($model && $model->status !== 'approved' && $sessionProfId != $model->id && !$isAdmin) {
+            $model = null;
         }
 
         if (!$model) {

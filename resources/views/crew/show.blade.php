@@ -700,18 +700,41 @@
 
     <script>
     function copyProfileLink() {
-        navigator.clipboard.writeText(window.location.href);
+        const targetUrl = "{{ route('crew.show', $professional) }}";
+        
         if (typeof Swal !== 'undefined') {
             Swal.fire({
-                toast: true,
-                position: 'top-end',
-                icon: 'success',
-                title: 'Profile link copied to clipboard!',
-                showConfirmButton: false,
-                timer: 2500
+                title: 'Share Profile',
+                html: `
+                    <div class="space-y-4 text-left p-1">
+                        <p class="text-xs text-slate-600 font-medium">Share this profile link with clients or event organizers:</p>
+                        <div class="p-3.5 bg-amber-50 rounded-2xl border border-amber-200/90 flex items-center justify-between gap-2">
+                            <span class="text-xs font-extrabold text-slate-900 truncate">${targetUrl}</span>
+                            <a href="${targetUrl}" target="_blank" class="text-xs font-black text-rose-600 hover:text-rose-700 shrink-0">Open →</a>
+                        </div>
+                    </div>
+                `,
+                icon: 'info',
+                showCancelButton: true,
+                confirmButtonText: '📋 Copy Link',
+                cancelButtonText: 'Close',
+                confirmButtonColor: '#F59E0B'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    navigator.clipboard.writeText(targetUrl);
+                    Swal.fire({
+                        toast: true,
+                        position: 'top-end',
+                        icon: 'success',
+                        title: 'Profile link copied to clipboard!',
+                        showConfirmButton: false,
+                        timer: 2500
+                    });
+                }
             });
         } else {
-            alert('Profile link copied to clipboard!');
+            navigator.clipboard.writeText(targetUrl);
+            alert(`Profile Link: ${targetUrl}\n(Copied to clipboard!)`);
         }
     }
 

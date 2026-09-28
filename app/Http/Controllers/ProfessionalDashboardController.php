@@ -156,9 +156,11 @@ class ProfessionalDashboardController extends Controller
             ->latest()
             ->get();
 
+        $acceptedOffers = $assignments->where('status', 'accepted');
+
         $categories = \App\Models\Category::where('is_active', true)->get();
 
-        return view('professional.profile', compact('professional', 'assignments', 'categories'));
+        return view('professional.profile', compact('professional', 'assignments', 'acceptedOffers', 'categories'));
     }
 
     public function messages(Request $request): View|RedirectResponse
@@ -188,7 +190,115 @@ class ProfessionalDashboardController extends Controller
             return $redirect;
         }
 
-        return view('professional.notifications', compact('professional'));
+        $notifications = collect();
+
+        // 1. Shift Assignments
+        $assignments = StaffingAssignment::with('staffingRequest')
+            ->where('professional_id', $professional->id)
+            ->latest()
+            ->get();
+
+        foreach ($assignments as $job) {
+            $req = $job->staffingRequest;
+            $eventName = $req ? ($req->title ?: 'Event Shift Request') : 'Event Shift Request';
+            $budget = $req ? ($req->budget ? 'KES ' . number_format($req->budget, 2) : 'Standard Rate') : 'Standard Rate';
+            $clientName = $req ? ($req->contact_person ?: ($req->user->name ?? 'Client')) : 'Event Organizer';
+
+            if ($job->status === 'assigned') {
+                $notifications->push([
+                    'id' => 'shift_' . $job->id,
+                    'type' => 'shifts',
+                    'icon' => '📅',
+                    'color' => 'amber',
+                    'title' => 'New Shift Booking Request: ' . $eventName,
+                    'description' => "{$clientName} requested to book you for this event. Offered Compensation: {$budget}.",
+                    'time' => $job->created_at ? $job->created_at->diffForHumans() : 'Recently',
+                    'is_unread' => true,
+                    'action_url' => route('professional.dashboard'),
+                    'action_text' => 'Respond to Shift Offer →'
+                ]);
+            } elseif ($job->status === 'accepted') {
+                $notifications->push([
+                    'id' => 'shift_acc_' . $job->id,
+                    'type' => 'shifts',
+                    'icon' => '✅',
+                    'color' => 'emerald',
+                    'title' => 'Shift Offer Confirmed: ' . $eventName,
+                    'description' => "You have accepted the shift assignment for {$eventName}. Get ready for the event date.",
+                    'time' => $job->updated_at ? $job->updated_at->diffForHumans() : 'Recently',
+                    'is_unread' => false,
+                    'action_url' => route('professional.shifts'),
+                    'action_text' => 'View Shift Schedule →'
+                ]);
+            }
+        }
+
+        // 2. Withdrawal / Payout Updates
+        $withdrawals = \App\Models\WithdrawalRequest::where('professional_id', $professional->id)
+            ->latest()
+            ->get();
+
+        foreach ($withdrawals as $w) {
+            $statusLabel = ucfirst($w->status);
+            $color = $w->status === 'approved' ? 'emerald' : ($w->status === 'rejected' ? 'rose' : 'blue');
+            $notifications->push([
+                'id' => 'withdrawal_' . $w->id,
+                'type' => 'payouts',
+                'icon' => $w->status === 'approved' ? '💰' : ($w->status === 'rejected' ? '⚠️' : '⏳'),
+                'color' => $color,
+                'title' => "Payout Request {$statusLabel}: KES " . number_format($w->amount, 2),
+                'description' => "Your withdrawal request for KES " . number_format($w->amount, 2) . " via {$w->account_details} is currently {$w->status}.",
+                'time' => $w->created_at ? $w->created_at->diffForHumans() : 'Recently',
+                'is_unread' => $w->status === 'pending',
+                'action_url' => route('professional.wallet'),
+                'action_text' => 'View Wallet →'
+            ]);
+        }
+
+        // 3. System Account & Verification Notification
+        if ($professional->status === 'approved') {
+            $notifications->push([
+                'id' => 'sys_approved',
+                'type' => 'system',
+                'icon' => '🛡️',
+                'color' => 'emerald',
+                'title' => 'Crew Profile Verified & Live',
+                'description' => 'Your government ID and ushering skills profile have been verified by AfriCrew Admin. Your public profile is active for event bookings!',
+                'time' => $professional->updated_at ? $professional->updated_at->diffForHumans() : 'Active',
+                'is_unread' => false,
+                'action_url' => route('crew.show', $professional),
+                'action_text' => 'View Live Profile →'
+            ]);
+        } else {
+            $notifications->push([
+                'id' => 'sys_pending',
+                'type' => 'system',
+                'icon' => '⏳',
+                'color' => 'amber',
+                'title' => 'Account Verification Under Review',
+                'description' => 'Your AfriCrew staff application is currently under review by our admin team. Ensure your 5-step profile details are complete.',
+                'time' => $professional->created_at ? $professional->created_at->diffForHumans() : 'Recently',
+                'is_unread' => true,
+                'action_url' => route('professional.profile'),
+                'action_text' => 'Check Profile Setup →'
+            ]);
+        }
+
+        // Default welcome alert
+        $notifications->push([
+            'id' => 'sys_welcome',
+            'type' => 'system',
+            'icon' => '💡',
+            'color' => 'blue',
+            'title' => 'Welcome to AfriCrew Crew Portal',
+            'description' => 'Set up your daily labour rates, availability calendar, and work experience to receive premium event shift invites.',
+            'time' => '1 day ago',
+            'is_unread' => false,
+            'action_url' => route('professional.profile'),
+            'action_text' => 'Update Labour Charges →'
+        ]);
+
+        return view('professional.notifications', compact('professional', 'notifications'));
     }
 
     public function updateJobStatus(Request $request, StaffingAssignment $job): RedirectResponse
@@ -249,7 +359,7 @@ class ProfessionalDashboardController extends Controller
             'phone' => ['nullable', 'string', 'max:30'],
             'email' => ['nullable', 'email', 'max:150'],
             'gender' => ['nullable', 'string', 'in:Male,Female,Other'],
-            'date_of_birth' => ['nullable', 'date'],
+            'date_of_birth' => ['nullable', 'date', 'before_or_equal:' . now()->subYears(18)->format('Y-m-d')],
             'category' => ['nullable', 'string', 'max:100'],
             'country' => ['nullable', 'string', 'max:100'],
             'state' => ['nullable', 'string', 'max:100'],
@@ -283,7 +393,21 @@ class ProfessionalDashboardController extends Controller
             $data['preferred_locations'] = array_map('trim', explode(',', $data['preferred_locations']));
         }
 
-        if (!empty($data['first_name']) || !empty($data['last_name'])) {
+        if (isset($request->availability_dates)) {
+            $availInput = $request->availability_dates;
+            if (is_string($availInput)) {
+                $decoded = json_decode($availInput, true);
+                $data['availability_dates'] = is_array($decoded) ? $decoded : [];
+            } elseif (is_array($availInput)) {
+                $data['availability_dates'] = $availInput;
+            }
+        }
+
+        if (!empty($professional->full_name)) {
+            $data['full_name'] = $professional->full_name;
+            $data['first_name'] = $professional->first_name;
+            $data['last_name'] = $professional->last_name;
+        } elseif (!empty($data['first_name']) || !empty($data['last_name'])) {
             $firstName = ucwords(mb_strtolower(trim($data['first_name'] ?? '')));
             $lastName = ucwords(mb_strtolower(trim($data['last_name'] ?? '')));
             $data['first_name'] = $firstName;
@@ -291,6 +415,19 @@ class ProfessionalDashboardController extends Controller
             $data['full_name'] = trim($firstName . ' ' . $lastName);
         } elseif (!empty($data['full_name'])) {
             $data['full_name'] = ucwords(mb_strtolower(trim($data['full_name'])));
+        }
+
+        if (!empty($professional->username)) {
+            $data['username'] = $professional->username;
+        }
+        if (!empty($professional->email)) {
+            $data['email'] = $professional->email;
+        }
+        if (!empty($professional->phone)) {
+            $data['phone'] = $professional->phone;
+        }
+        if (!empty($professional->category)) {
+            $data['category'] = $professional->category;
         }
 
         // Clean education array items (remove empty cards)

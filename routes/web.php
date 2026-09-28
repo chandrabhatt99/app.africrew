@@ -18,10 +18,14 @@ Route::get('/auth/{provider}/callback', [SocialAuthController::class, 'callback'
 
 // Public Pages
 Route::get('/', [PublicController::class, 'home'])->name('home');
+Route::get('/terms', [PublicController::class, 'terms'])->name('terms');
+Route::get('/privacy', [PublicController::class, 'privacy'])->name('privacy');
 
-// Public Vetted Staff Catalog & Profiles (app.eventushers.com/crew/Patrick, /hire-staff/Patrick, and /crew-select/...)
+// Public Vetted Staff Catalog & Profiles (app.eventushers.com/crew/Patrick, /hire-staff/Patrick, /mycv.ac/Patrick, and /crew-select/...)
 Route::get('/crew', [ProfessionalController::class, 'publicIndex'])->name('crew.index');
 Route::get('/crew/{professional}', [ProfessionalController::class, 'publicShow'])->name('crew.show');
+Route::get('/mycv.ac/{professional}', [ProfessionalController::class, 'publicShow'])->name('crew.mycv.alias');
+Route::get('/mycv/{professional}', [ProfessionalController::class, 'publicShow'])->name('crew.mycv.short');
 Route::get('/hire-staff/{professional}', [ProfessionalController::class, 'publicShow'])->name('crew.show.alias');
 Route::get('/crew-select/{professional}', [StaffingRequestController::class, 'createForProfessional'])->name('crew.select');
 Route::post('/crew/{professional}/review', [ProfessionalController::class, 'storeReview'])->name('crew.review.store');

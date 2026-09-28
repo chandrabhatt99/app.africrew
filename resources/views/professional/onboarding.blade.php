@@ -341,31 +341,18 @@
                 <p class="text-xs text-slate-500 mt-1">Configure your booking policy options and select available working days on the calendar.</p>
             </div>
 
-            <!-- Booking Policy Option Cards -->
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
-                
-                <label class="cursor-pointer">
-                    <input type="radio" name="booking_policy" value="instant" checked class="peer hidden">
-                    <div class="p-5 rounded-3xl border-2 border-slate-200 peer-checked:border-amber-500 peer-checked:bg-amber-50/50 transition-all">
-                        <div class="flex items-center justify-between mb-2">
-                            <span class="text-sm font-black text-slate-900">Option A: Instant Book</span>
-                            <span class="w-5 h-5 rounded-full border-2 border-slate-300 peer-checked:border-amber-500 peer-checked:bg-amber-500 flex items-center justify-center"></span>
-                        </div>
-                        <p class="text-xs text-slate-500 leading-relaxed font-normal"><em>"Organizers can book you automatically for open shifts."</em></p>
-                    </div>
-                </label>
+            <input type="hidden" name="booking_policy" value="approve">
 
-                <label class="cursor-pointer">
-                    <input type="radio" name="booking_policy" value="approve" class="peer hidden">
-                    <div class="p-5 rounded-3xl border-2 border-slate-200 peer-checked:border-amber-500 peer-checked:bg-amber-50/50 transition-all">
-                        <div class="flex items-center justify-between mb-2">
-                            <span class="text-sm font-black text-slate-900">Option B: Request Approval</span>
-                            <span class="w-5 h-5 rounded-full border-2 border-slate-300 peer-checked:border-amber-500 peer-checked:bg-amber-500 flex items-center justify-center"></span>
-                        </div>
-                        <p class="text-xs text-slate-500 leading-relaxed font-normal"><em>"Organizers must ask if they can book you before confirming."</em></p>
-                    </div>
-                </label>
-
+            <!-- Preferred Working Location Field (Moved to Availability Part) -->
+            <div class="p-5 rounded-2xl bg-slate-50 border border-slate-200 space-y-2">
+                <label class="block text-xs font-black text-slate-900">Preferred Working Location(s) <span class="text-slate-400 font-normal">(Comma Separated)</span></label>
+                @php
+                    $prefLocs = is_array($professional->preferred_locations) ? implode(', ', $professional->preferred_locations) : $professional->preferred_locations;
+                @endphp
+                <input type="text" name="preferred_locations" value="{{ old('preferred_locations', $prefLocs) }}"
+                    placeholder="e.g. Nairobi, Mombasa, Kisumu, Diani"
+                    class="w-full bg-white border border-slate-200 rounded-xl px-4 py-3 text-slate-900 text-xs font-bold outline-none focus:border-amber-500">
+                <p class="text-[11px] text-slate-500 font-medium">Specify cities or counties where you prefer to accept shift assignments.</p>
             </div>
 
             <!-- Availability Calendar Matrix Section -->
@@ -394,6 +381,7 @@
                             $monthTime = strtotime("+{$m} month");
                             $monthName = date('F Y', $monthTime);
                             $daysInMonth = date('t', $monthTime);
+                            $todayStr = date('Y-m-d');
                         @endphp
                         <div class="bg-slate-50 border border-slate-200 rounded-3xl p-4 space-y-3 text-center">
                             <div class="text-xs font-black text-slate-900 border-b border-slate-200 pb-2">{{ $monthName }}</div>
@@ -404,12 +392,20 @@
                                 @for($d = 1; $d <= $daysInMonth; $d++)
                                     @php
                                         $dateStr = date('Y-m-', $monthTime) . sprintf('%02d', $d);
+                                        $isPastOrToday = ($dateStr <= $todayStr);
                                         $isSelected = in_array($dateStr, $professional->availability_dates ?? []);
                                     @endphp
-                                    <button type="button" onclick="toggleDate(this, '{{ $dateStr }}')"
-                                        class="calendar-day-btn h-8 rounded-xl text-xs font-bold transition-all {{ $isSelected ? 'bg-emerald-500 text-white shadow-sm' : 'bg-white border border-slate-200 text-slate-700 hover:border-amber-400' }}">
-                                        {{ $d }}
-                                    </button>
+                                    @if($isPastOrToday)
+                                        <button type="button" disabled title="Past and today's dates cannot be selected"
+                                            class="h-8 rounded-xl text-xs font-bold bg-slate-100 text-slate-400 cursor-not-allowed opacity-40 select-none border border-slate-200">
+                                            {{ $d }}
+                                        </button>
+                                    @else
+                                        <button type="button" onclick="toggleDate(this, '{{ $dateStr }}')"
+                                            class="calendar-day-btn h-8 rounded-xl text-xs font-bold transition-all {{ $isSelected ? 'bg-emerald-500 text-white shadow-sm' : 'bg-white border border-slate-200 text-slate-700 hover:border-amber-400' }}">
+                                            {{ $d }}
+                                        </button>
+                                    @endif
                                 @endfor
                             </div>
                         </div>

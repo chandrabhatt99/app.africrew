@@ -110,9 +110,10 @@
                 <!-- 5. Date of Birth -->
                 <div>
                     <label for="date_of_birth" class="block text-xs sm:text-sm font-semibold text-slate-700 mb-1.5">
-                        Date of Birth
+                        Date of Birth <span class="text-amber-600 font-bold text-xs">(Must Be 18+ Years Old)</span>
                     </label>
                     <input type="date" id="date_of_birth" name="date_of_birth" value="{{ old('date_of_birth') }}"
+                        max="{{ \Carbon\Carbon::now()->subYears(18)->format('Y-m-d') }}"
                         class="w-full bg-white border border-[#d9dee5] focus:border-indigo-600 focus:ring-2 focus:ring-indigo-600/20 rounded-lg px-4 h-11 sm:h-12 text-slate-900 text-sm font-medium transition-all shadow-2xs outline-none @error('date_of_birth') border-rose-500 bg-rose-50/20 @enderror">
                     @error('date_of_birth')
                         <p class="text-xs text-rose-600 font-medium mt-1 flex items-center gap-1">
