@@ -9,8 +9,6 @@
         <div class="w-full max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-3">
             <div class="flex items-center gap-2 flex-wrap">
                 <span>&copy; {{ date('Y') }} AFRICREW. All rights reserved.</span>
-                <span class="hidden sm:inline text-slate-300">|</span>
-                <span class="hidden sm:inline text-slate-400">Developed by <a href="https://databrainit.com" target="_blank" rel="noopener noreferrer" class="font-bold text-amber-600 hover:text-amber-700 hover:underline">Databrain Technology Pvt. Ltd.</a></span>
             </div>
             <div class="flex items-center gap-4 text-[11px] text-slate-400 font-medium">
                 <a href="{{ route('privacy') }}" class="hover:text-slate-700 cursor-pointer text-decoration-none text-slate-400">Privacy Policy</a>
@@ -136,4 +134,3 @@
         </div>
     </footer>
 @endif
-

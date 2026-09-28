@@ -393,6 +393,15 @@ class ProfessionalDashboardController extends Controller
             $data['preferred_locations'] = array_map('trim', explode(',', $data['preferred_locations']));
         }
 
+        if (isset($data['skills'])) {
+            $skillsArr = is_array($data['skills']) ? $data['skills'] : array_map('trim', explode(',', (string)$data['skills']));
+            $skillsArr = array_values(array_filter($skillsArr));
+            if (count($skillsArr) > 3) {
+                $skillsArr = array_slice($skillsArr, 0, 3);
+            }
+            $data['skills'] = implode(', ', $skillsArr);
+        }
+
         if (isset($request->availability_dates)) {
             $availInput = $request->availability_dates;
             if (is_string($availInput)) {

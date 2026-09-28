@@ -662,11 +662,11 @@
                     <div class="border-0 sm:border border-slate-200/80 rounded-xl sm:rounded-2xl p-0 sm:p-5 bg-transparent sm:bg-slate-50/50 space-y-4">
                         <div class="flex items-center justify-between flex-wrap gap-2">
                             <div>
-                                <h4 class="text-sm font-black text-slate-900">Select your Key Skills</h4>
-                                <p class="text-xs text-slate-500 font-medium">Click on skill tags below to select or deselect your key capabilities.</p>
+                                <h4 class="text-sm font-black text-slate-900">Select your Key Skills <span class="text-amber-600 font-bold text-xs">(Select up to 3)</span></h4>
+                                <p class="text-xs text-slate-500 font-medium">Click on skill tags below to select up to 3 key skills for your profile.</p>
                             </div>
                             <span id="spotify-skills-counter" class="px-3.5 py-1 rounded-full bg-slate-100 text-slate-700 font-black text-xs border border-slate-200">
-                                0 Selected
+                                0 / 3 Selected
                             </span>
                         </div>
 
@@ -694,7 +694,7 @@
                                 ];
                                 $currentSkills = old('skills', $professional->skills);
                                 $selectedSkillsArr = is_array($currentSkills) ? $currentSkills : array_map('trim', explode(',', (string)$currentSkills));
-                                $selectedSkillsArr = array_values(array_filter($selectedSkillsArr));
+                                $selectedSkillsArr = array_slice(array_values(array_filter($selectedSkillsArr)), 0, 3);
                             @endphp
 
                             @foreach($presetSkills as $skillName)
@@ -730,71 +730,6 @@
                         <div class="pt-2 flex items-center gap-2">
                             <input type="text" id="custom-skill-input" placeholder="Type a custom skill (e.g. Protocol Officer) and click Add..." class="flex-1 bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-xs font-bold text-slate-900 outline-none focus:border-amber-500">
                             <button type="button" onclick="addCustomSimpleSkillChip()" class="px-5 py-2.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-amber-400 font-black text-xs shrink-0 transition-all cursor-pointer">+ Add Skill</button>
-                        </div>
-                    </div>
-
-                    <!-- Capabilities & Services Offered Card -->
-                    <div class="border-0 sm:border border-slate-200/80 rounded-xl sm:rounded-2xl p-0 sm:p-5 bg-transparent sm:bg-slate-50/50 space-y-4">
-                        <div class="flex items-center justify-between">
-                            <div>
-                                <h4 class="text-sm font-black text-slate-900">Capabilities & Services Offered</h4>
-                                <p class="text-[11px] text-slate-500 font-medium">Add service cards that display under "Key Skills & What I Can Help You With"</p>
-                            </div>
-                        </div>
-
-                        <div id="services-container" class="space-y-3">
-                            @php $servicesList = $professional->services ?: []; @endphp
-                            @if(empty($servicesList) || count($servicesList) === 0)
-                                <p class="text-xs text-slate-400 italic py-4 text-center">No custom capabilities added yet. Default service cards based on your skills will display.</p>
-                            @else
-                                @foreach($servicesList as $index => $svc)
-                                    @php $sItem = is_string($svc) ? json_decode($svc, true) : $svc; @endphp
-                                    <div class="p-3.5 sm:p-4 bg-white border border-slate-200/90 rounded-xl space-y-3 text-xs relative shadow-xs">
-                                        <div class="flex items-center justify-between border-b border-slate-100 pb-2">
-                                            <span class="text-[10px] font-extrabold uppercase text-slate-400">Service Card #{{ $index + 1 }}</span>
-                                            <button type="button" onclick="this.closest('.p-4').remove()" class="text-rose-500 font-extrabold text-[10px] hover:underline">✕ Delete Card</button>
-                                        </div>
-                                        <div class="grid grid-cols-1 sm:grid-cols-12 gap-3">
-                                            <div class="sm:col-span-3">
-                                                <label class="block text-[10px] font-bold text-slate-500 mb-0.5">Icon Emoji</label>
-                                                <input type="text" id="svc_icon_{{ $index }}" name="services[{{ $index }}][icon]"
-                                                    value="{{ $sItem['icon'] ?? '👥' }}" placeholder="e.g. 👥, 👑, 🍸, 🛡️"
-                                                    class="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 font-bold text-slate-900 text-center">
-                                                <div class="flex items-center gap-1 mt-1.5 flex-wrap justify-center">
-                                                    @foreach(['👥', '👑', '🍸', '🎙️', '🛡️', '📋', '🌟', '💼'] as $emoji)
-                                                        <button type="button" onclick="document.getElementById('svc_icon_{{ $index }}').value = '{{ $emoji }}'" class="w-6 h-6 rounded bg-slate-100 hover:bg-amber-100 text-xs flex items-center justify-center" title="Select {{ $emoji }}">{{ $emoji }}</button>
-                                                    @endforeach
-                                                </div>
-                                            </div>
-                                            <div class="sm:col-span-5">
-                                                <label class="block text-[10px] font-bold text-slate-500 mb-0.5">Service Heading / Title *</label>
-                                                <input type="text" name="services[{{ $index }}][title]"
-                                                    value="{{ $sItem['title'] ?? ($sItem['name'] ?? '') }}" placeholder="e.g. Corporate Event Ushering"
-                                                    class="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 font-bold text-slate-900">
-                                            </div>
-                                            <div class="sm:col-span-4">
-                                                <label class="block text-[10px] font-bold text-slate-500 mb-0.5">Tagline / Badge (Optional)</label>
-                                                <input type="text" name="services[{{ $index }}][tagline]"
-                                                    value="{{ $sItem['tagline'] ?? '' }}" placeholder="e.g. VIP Protocol, Lead Usher"
-                                                    class="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 font-bold text-slate-900">
-                                            </div>
-                                            <div class="sm:col-span-12">
-                                                <label class="block text-[10px] font-bold text-slate-500 mb-0.5">Service Description / Details</label>
-                                                <textarea name="services[{{ $index }}][description]" rows="2"
-                                                    placeholder="Describe what you provide for this service..."
-                                                    class="w-full bg-slate-50 border border-slate-200 rounded-lg p-2.5 font-medium text-slate-900 text-xs">{{ $sItem['description'] ?? '' }}</textarea>
-                                            </div>
-                                        </div>
-                                    </div>
-                                @endforeach
-                            @endif
-                        </div>
-
-                        <div class="pt-2 flex justify-center sm:justify-start">
-                            <button type="button" onclick="addServiceRow()"
-                                class="w-full sm:w-auto px-5 py-3 rounded-xl bg-white hover:bg-slate-50 border-2 border-dashed border-slate-300 hover:border-amber-400 text-slate-800 font-black text-xs shadow-xs transition-all flex items-center justify-center gap-2">
-                                <span>➕ Add Service Card</span>
-                            </button>
                         </div>
                     </div>
 
@@ -1997,7 +1932,7 @@
             
             const counterEl = document.getElementById('spotify-skills-counter');
             if (counterEl) {
-                counterEl.textContent = `${skills.length} Selected`;
+                counterEl.textContent = `${skills.length} / 3 Selected`;
                 if (skills.length > 0) {
                     counterEl.className = 'px-3.5 py-1 rounded-full bg-amber-500/10 text-amber-900 font-black text-xs border border-amber-300';
                 } else {
@@ -2007,7 +1942,7 @@
         }
 
         function toggleSimpleSkillChip(btn) {
-            const isSelected = btn.classList.contains('bg-slate-900');
+            const isSelected = btn.classList.contains('bg-slate-900') || btn.getAttribute('data-selected') === 'true';
             const iconSpan = btn.querySelector('.chip-icon');
 
             if (isSelected) {
@@ -2016,6 +1951,21 @@
                 btn.removeAttribute('data-selected');
                 if (iconSpan) iconSpan.textContent = '⚡';
             } else {
+                const currentSelected = document.querySelectorAll('.simple-skill-chip.bg-slate-900, .simple-skill-chip[data-selected="true"]');
+                if (currentSelected.length >= 3) {
+                    if (typeof Swal !== 'undefined') {
+                        Swal.fire({
+                            icon: 'warning',
+                            title: 'Skill Limit Reached',
+                            text: 'You can select a maximum of 3 key skills.',
+                            confirmButtonColor: '#F59E0B'
+                        });
+                    } else {
+                        alert('You can select a maximum of 3 key skills.');
+                    }
+                    return;
+                }
+
                 btn.classList.remove('bg-slate-100/90', 'hover:bg-slate-200', 'text-slate-700', 'border-slate-200');
                 btn.classList.add('bg-slate-900', 'text-amber-400', 'border-amber-400', 'shadow-md', 'ring-2', 'ring-amber-400/30');
                 btn.setAttribute('data-selected', 'true');
@@ -2038,6 +1988,21 @@
                     toggleSimpleSkillChip(existingBtn);
                 }
                 input.value = '';
+                return;
+            }
+
+            const currentSelected = document.querySelectorAll('.simple-skill-chip.bg-slate-900, .simple-skill-chip[data-selected="true"]');
+            if (currentSelected.length >= 3) {
+                if (typeof Swal !== 'undefined') {
+                    Swal.fire({
+                        icon: 'warning',
+                        title: 'Skill Limit Reached',
+                        text: 'You can select a maximum of 3 key skills.',
+                        confirmButtonColor: '#F59E0B'
+                    });
+                } else {
+                    alert('You can select a maximum of 3 key skills.');
+                }
                 return;
             }
 

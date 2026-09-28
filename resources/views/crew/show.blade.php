@@ -252,92 +252,31 @@
                             @endif
                         </div>
 
-                        <!-- Key Skills & Capabilities (What I Can Help You With) -->
-                        <div id="skills-section" class="pt-8 border-t border-slate-100 space-y-6">
+                        <!-- Key Skills -->
+                        <div id="skills-section" class="pt-8 border-t border-slate-100 space-y-4">
                             <div class="flex items-center justify-between">
                                 <div>
-                                    <span class="text-[11px] font-black uppercase tracking-widest text-rose-500 block mb-0.5">CAPABILITIES</span>
-                                    <h3 class="text-xl sm:text-2xl font-black text-slate-900 tracking-tight">Key Skills & What I Can Help You With</h3>
+                                    <span class="text-[11px] font-black uppercase tracking-widest text-amber-600 block mb-0.5">KEY SKILLS</span>
+                                    <h3 class="text-xl sm:text-2xl font-black text-slate-900 tracking-tight">Key Skills & Expertise</h3>
                                 </div>
                             </div>
 
-                            <!-- Key Skills Badges -->
+                            <!-- Key Skills Badges (Max 3 Skills) -->
                             @if(!empty($professional->skills))
                                 @php
                                     $skillsList = is_array($professional->skills) ? $professional->skills : array_map('trim', explode(',', $professional->skills));
+                                    $skillsList = array_slice(array_values(array_filter($skillsList)), 0, 3);
                                 @endphp
                                 <div class="flex flex-wrap gap-2.5">
                                     @foreach($skillsList as $sk)
                                         @if(trim($sk))
-                                            <span class="px-4 py-2 rounded-2xl bg-slate-900 text-white font-black text-xs flex items-center gap-2 shadow-xs hover:bg-slate-800 transition-colors">
+                                            <span class="px-4.5 py-2.5 rounded-2xl bg-slate-900 text-white font-black text-xs flex items-center gap-2 shadow-xs hover:bg-slate-800 transition-colors border border-slate-800">
                                                 <span class="text-amber-400">⚡</span> {{ trim($sk) }}
                                             </span>
                                         @endif
                                     @endforeach
                                 </div>
                             @endif
-
-                            <!-- Capabilities / What I Can Help You With Cards Grid -->
-                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2">
-                                @if(!empty($professional->services) && is_array($professional->services) && count($professional->services) > 0)
-                                    @foreach($professional->services as $idx => $svc)
-                                        @php
-                                            $sItem = is_string($svc) ? json_decode($svc, true) : $svc;
-                                            if (!is_array($sItem)) {
-                                                $sItem = ['title' => is_string($svc) ? $svc : 'Event Service'];
-                                            }
-                                            $rawIcon = trim($sItem['icon'] ?? '');
-                                            $iconDisplay = (mb_strlen($rawIcon) > 0 && mb_strlen($rawIcon) <= 4)
-                                                ? $rawIcon
-                                                : ($idx % 4 === 0 ? '👥' : ($idx % 4 === 1 ? '👑' : ($idx % 4 === 2 ? '⚡' : '🎙️')));
-                                            $taglineDisplay = !empty($sItem['tagline']) ? $sItem['tagline'] : (mb_strlen($rawIcon) > 4 ? $rawIcon : '');
-                                            $titleDisplay = $sItem['title'] ?? ($sItem['name'] ?? 'Event Service');
-                                            $descDisplay = $sItem['description'] ?? 'Professional crewing service delivered with precision, etiquette, and hospitality excellence.';
-                                        @endphp
-                                        <div class="p-6 rounded-2xl bg-slate-50/80 border border-slate-200/90 hover:border-amber-400 hover:bg-white transition-all flex flex-col justify-between space-y-4 shadow-2xs group">
-                                            <div class="space-y-3">
-                                                <div class="flex items-center justify-between gap-2 flex-wrap">
-                                                    <div class="w-11 h-11 rounded-2xl bg-slate-900 text-amber-400 flex items-center justify-center text-xl font-black shrink-0 shadow-xs border border-slate-800 group-hover:scale-105 transition-transform">
-                                                        {{ $iconDisplay }}
-                                                    </div>
-                                                    @if(!empty($taglineDisplay))
-                                                        <span class="px-3 py-1 rounded-full bg-amber-500/10 text-amber-900 border border-amber-500/20 text-[10px] font-black uppercase">
-                                                            {{ $taglineDisplay }}
-                                                        </span>
-                                                    @endif
-                                                </div>
-                                                <h4 class="text-sm font-black text-slate-900 leading-snug">{{ $titleDisplay }}</h4>
-                                                <p class="text-xs text-slate-600 font-medium leading-relaxed">
-                                                    {{ $descDisplay }}
-                                                </p>
-                                            </div>
-                                        </div>
-                                    @endforeach
-                                @elseif(!empty($professional->skills))
-                                    @php
-                                        $skillsListForCards = is_array($professional->skills) ? $professional->skills : array_map('trim', explode(',', $professional->skills));
-                                    @endphp
-                                    @foreach(array_slice($skillsListForCards, 0, 4) as $idx => $sk)
-                                        <div class="p-6 rounded-2xl bg-slate-50/80 border border-slate-200/90 hover:border-amber-400 hover:bg-white transition-all flex flex-col justify-between space-y-4 shadow-2xs group">
-                                            <div class="space-y-3">
-                                                <div class="w-11 h-11 rounded-2xl bg-slate-900 text-amber-400 flex items-center justify-center text-xl font-black shrink-0 shadow-xs border border-slate-800 group-hover:scale-105 transition-transform">
-                                                    {{ $idx % 2 === 0 ? '👥' : '👑' }}
-                                                </div>
-                                                <h4 class="text-sm font-black text-slate-900">{{ $sk }}</h4>
-                                                <p class="text-xs text-slate-600 font-medium leading-relaxed">
-                                                    Professional {{ strtolower($sk) }} services tailored for corporate galas, VIP guest reception, and stage management.
-                                                </p>
-                                            </div>
-                                        </div>
-                                    @endforeach
-                                @else
-                                    <div class="p-6 rounded-2xl bg-slate-50 border border-slate-200/90 text-center space-y-2 col-span-full">
-                                        <span class="text-2xl block">⚡</span>
-                                        <h4 class="text-sm font-black text-slate-900">Services & Capabilities</h4>
-                                        <p class="text-xs text-slate-500 max-w-sm mx-auto">No specific services listed yet. Select this crew member to inquire about custom event roles.</p>
-                                    </div>
-                                @endif
-                            </div>
                         </div>
 
                         <!-- Optional Education Background Section -->
