@@ -18,7 +18,7 @@ class AfriCrewDemoSeeder extends Seeder
             ['email' => 'admin@africrew.com'],
             [
                 'name' => 'AfriCrew Admin',
-                'password' => Hash::make('password'),
+                'password' => Hash::make('Admin@123'),
                 'is_admin' => true,
                 'role' => 'admin',
                 'email_verified_at' => now(),
