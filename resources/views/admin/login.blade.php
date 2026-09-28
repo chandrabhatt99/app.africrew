@@ -43,17 +43,6 @@
             <p class="text-xs uppercase tracking-widest font-extrabold text-amber-700 mt-2">Administrative Gateway</p>
         </div>
 
-        <!-- Demo Account Shortcut Box
-        <div class="mb-6 bg-slate-900 text-white rounded-2xl p-4 shadow-md border border-slate-800 flex items-center justify-between">
-            <div>
-                <div class="text-xs font-bold text-gold-400">Admin Demo Credentials</div>
-                <div class="text-xs text-slate-300 mt-0.5">admin@africrew.com · password</div>
-            </div>
-            <button type="button" onclick="fillAdmin()" class="px-3 py-1.5 rounded-xl bg-amber-500 text-slate-950 font-black text-xs hover:brightness-110">
-                Auto Fill
-            </button>
-        </div> -->
-
         <!-- Form Card Container -->
         <div class="bg-white border border-slate-200/90 rounded-3xl p-8 md:p-10 shadow-xl shadow-slate-200/60 relative overflow-hidden">
             
@@ -108,7 +97,7 @@
                                value="{{ old('email') }}" 
                                required 
                                autofocus
-                               placeholder="admin@africrew.com"
+                               placeholder="you@company.com"
                                class="w-full pl-11 pr-4 py-3.5 bg-slate-50 border border-slate-200 rounded-2xl text-slate-900 placeholder-slate-400 text-sm focus:outline-none focus:border-amber-500 focus:ring-2 focus:ring-amber-500/20 transition-all duration-200" />
                     </div>
                 </div>
@@ -178,11 +167,6 @@
     </div>
 
     <script>
-        function fillAdmin() {
-            document.getElementById('email').value = 'admin@africrew.com';
-            document.getElementById('password').value = 'password';
-        }
-
         function togglePasswordVisibility() {
             const input = document.getElementById('password');
             const icon = document.getElementById('eye-icon');

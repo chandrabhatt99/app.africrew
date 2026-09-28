@@ -173,8 +173,8 @@
                             📍
                         </div>
                         <div>
-                            <div class="text-xs font-extrabold text-slate-900" id="map-indicator-title">Finding available crew near your event...</div>
-                            <div class="text-[10px] font-bold text-slate-500" id="map-indicator-sub">Nairobi • Event Ushers</div>
+                            <div class="text-xs font-extrabold text-slate-900" id="map-indicator-title">Select crew category, date & location to search</div>
+                            <div class="text-[10px] font-bold text-slate-500" id="map-indicator-sub">Nairobi • All Categories</div>
                         </div>
                     </div>
                     
@@ -383,6 +383,23 @@ function initLeafletMap() {
     });
 
     leafletMarker = L.marker(initialCoords, { icon: customIcon }).addTo(leafletMap);
+
+    leafletMap.on('click', function(e) {
+        const clickedLat = e.latlng.lat;
+        const clickedLng = e.latlng.lng;
+        let closestCity = 'Nairobi';
+        let minDistance = Infinity;
+
+        for (const [cityName, coords] of Object.entries(locationCoordinates)) {
+            const dist = Math.hypot(coords[0] - clickedLat, coords[1] - clickedLng);
+            if (dist < minDistance) {
+                minDistance = dist;
+                closestCity = cityName;
+            }
+        }
+
+        selectLocationPill(closestCity, '- Selected Area');
+    });
 }
 
 function getEffectiveCategory() {
