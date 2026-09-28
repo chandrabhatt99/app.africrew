@@ -1,5 +1,6 @@
 @php
-    $isCrmPanel = request()->routeIs('client.*') || request()->routeIs('professional.*') || request()->routeIs('messages') || request()->routeIs('admin.*');
+    $isAuthRoute = request()->routeIs('client.login') || request()->routeIs('client.register') || request()->routeIs('staff.login') || request()->routeIs('admin.login');
+    $isCrmPanel = !$isAuthRoute && (request()->routeIs('client.*') || request()->routeIs('professional.*') || request()->routeIs('messages') || request()->routeIs('admin.*'));
 @endphp
 
 @if($isCrmPanel)

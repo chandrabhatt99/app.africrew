@@ -5,7 +5,8 @@
     $username = $currentProf ? ($currentProf->username ?? Str::slug(strtok($currentProf->full_name ?? 'User', ' '))) : null;
     $avatarUrl = $currentProf ? $currentProf->profile_photo_url : null;
 
-    $isCrmPanel = request()->routeIs('client.*') || request()->routeIs('professional.*') || request()->routeIs('messages') || request()->routeIs('admin.*');
+    $isAuthRoute = request()->routeIs('client.login') || request()->routeIs('client.register') || request()->routeIs('staff.login') || request()->routeIs('admin.login');
+    $isCrmPanel = !$isAuthRoute && (request()->routeIs('client.*') || request()->routeIs('professional.*') || request()->routeIs('messages') || request()->routeIs('admin.*'));
 
     $pageTitle = 'Dashboard';
     if (request()->routeIs('client.dashboard')) {

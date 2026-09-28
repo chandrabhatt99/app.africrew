@@ -1,8 +1,12 @@
 @extends('layouts.app')
 
 @section('content')
-<div class="bg-slate-50 text-slate-900 min-h-screen py-16 px-4 sm:px-6 flex items-center justify-center">
-    <div class="max-w-md w-full bg-white border border-slate-200/90 rounded-3xl p-8 shadow-xl space-y-6">
+<div class="min-h-[calc(100vh-140px)] flex items-center justify-center py-10 px-4 sm:px-6 bg-slate-50 text-slate-900 relative overflow-hidden">
+    <!-- Ambient Background Glows -->
+    <div class="absolute -top-40 -left-40 w-96 h-96 bg-amber-500/10 rounded-full blur-3xl pointer-events-none"></div>
+    <div class="absolute -bottom-40 -right-40 w-96 h-96 bg-amber-600/10 rounded-full blur-3xl pointer-events-none"></div>
+
+    <div class="max-w-md w-full bg-white border border-slate-200/90 rounded-3xl p-8 shadow-xl space-y-6 relative z-10">
         
         <div class="text-center">
             <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-500/10 border border-amber-500/20 text-amber-700 text-xs font-black uppercase mb-3">
