@@ -104,7 +104,7 @@ class SocialAuthController extends Controller
                     $idColumn => $socialId,
                     'auth_provider' => $provider,
                     'profile_photo' => $avatar,
-                    'status' => 'approved',
+                    'status' => 'pending',
                     'is_onboarded' => false,
                     'email_verified_at' => now(),
                 ]);

@@ -32,7 +32,7 @@ class ProfessionalController extends Controller
         $minRating = $request->query('min_rating');
         $sort = $request->query('sort', 'best_match');
 
-        $query = Professional::where('status', 'approved');
+        $query = Professional::where('status', 'approved')->where('is_onboarded', true);
 
         if (!empty($category) && $category !== 'All') {
             $query->where(function ($q) use ($category) {
@@ -126,6 +126,7 @@ class ProfessionalController extends Controller
         $categories = \App\Models\Category::where('is_active', true)->get();
 
         $availableCities = Professional::where('status', 'approved')
+            ->where('is_onboarded', true)
             ->when(!empty($category) && $category !== 'All', function ($q) use ($category) {
                 $q->where(function ($sq) use ($category) {
                     $sq->where('category', $category)

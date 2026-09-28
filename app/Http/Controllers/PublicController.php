@@ -10,12 +10,14 @@ class PublicController extends Controller
     public function home(): View
     {
         $professionals = Professional::where('status', 'approved')
+            ->where('is_onboarded', true)
             ->orderByDesc('experience_years')
             ->take(10)
             ->get();
 
         if ($professionals->isEmpty()) {
             $professionals = Professional::where('status', 'approved')
+                ->where('is_onboarded', true)
                 ->latest()
                 ->take(10)
                 ->get();
@@ -25,6 +27,7 @@ class PublicController extends Controller
 
         // Get approved crew with non-empty city
         $approvedCrew = Professional::where('status', 'approved')
+            ->where('is_onboarded', true)
             ->whereNotNull('city')
             ->where('city', '!=', '')
             ->get(['id', 'category', 'city']);
@@ -71,7 +74,7 @@ class PublicController extends Controller
             $categoryLocations[$catName] = empty($matchingCities) ? $allCities : $matchingCities;
         }
 
-        $allApprovedCrewList = Professional::where('status', 'approved')->get()->map(function ($p) {
+        $allApprovedCrewList = Professional::where('status', 'approved')->where('is_onboarded', true)->get()->map(function ($p) {
             return [
                 'id' => $p->id,
                 'full_name' => $p->full_name,
