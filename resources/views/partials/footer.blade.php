@@ -71,20 +71,18 @@
                         @if($footerCategories->count() > 0)
                             @foreach($footerCategories as $fCat)
                                 <li>
-                                    <a href="{{ route('crew.index', ['category' => $fCat->name]) }}" class="hover:text-amber-600 transition-colors text-decoration-none flex items-center gap-1.5">
-                                        @if($fCat->icon)
-                                            <span>{{ $fCat->icon }}</span>
-                                        @endif
-                                        <span>{{ $fCat->name }}</span>
+                                    <a href="{{ route('crew.index', ['category' => $fCat->name]) }}" class="hover:text-amber-600 transition-colors text-decoration-none block">
+                                        {{ $fCat->name }}
                                     </a>
                                 </li>
                             @endforeach
                         @else
-                            <li><a href="{{ route('crew.index', ['category' => 'Event Ushers']) }}" class="hover:text-amber-600 transition-colors text-decoration-none">Event Ushers</a></li>
-                            <li><a href="{{ route('crew.index', ['category' => 'VIP Hostesses']) }}" class="hover:text-amber-600 transition-colors text-decoration-none">VIP Hostesses</a></li>
-                            <li><a href="{{ route('crew.index', ['category' => 'Protocol Officers']) }}" class="hover:text-amber-600 transition-colors text-decoration-none">Protocol Officers</a></li>
-                            <li><a href="{{ route('crew.index', ['category' => 'Security & Bouncers']) }}" class="hover:text-amber-600 transition-colors text-decoration-none">Security & Bouncers</a></li>
-                            <li><a href="{{ route('crew.index', ['category' => 'Mixologists & Bartenders']) }}" class="hover:text-amber-600 transition-colors text-decoration-none">Mixologists & Bartenders</a></li>
+                            <li><a href="{{ route('crew.index', ['category' => 'Ushers']) }}" class="hover:text-amber-600 transition-colors text-decoration-none block">Ushers</a></li>
+                            <li><a href="{{ route('crew.index', ['category' => 'Host']) }}" class="hover:text-amber-600 transition-colors text-decoration-none block">Host</a></li>
+                            <li><a href="{{ route('crew.index', ['category' => 'Anchor / MC']) }}" class="hover:text-amber-600 transition-colors text-decoration-none block">Anchor / MC</a></li>
+                            <li><a href="{{ route('crew.index', ['category' => 'DJ / Sound Engineer']) }}" class="hover:text-amber-600 transition-colors text-decoration-none block">DJ / Sound Engineer</a></li>
+                            <li><a href="{{ route('crew.index', ['category' => 'Security Staff']) }}" class="hover:text-amber-600 transition-colors text-decoration-none block">Security Staff</a></li>
+                            <li><a href="{{ route('crew.index', ['category' => 'Photographer / Videographer']) }}" class="hover:text-amber-600 transition-colors text-decoration-none block">Photographer / Videographer</a></li>
                         @endif
                     </ul>
                 </div>
