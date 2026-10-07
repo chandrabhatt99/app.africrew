@@ -211,20 +211,42 @@
                             @endif
                         </div>
 
-                        <!-- Preferred Working Locations & Social Links -->
+                        <!-- Preferred Working Locations, Languages & Event Preferences -->
+                        @php
+                            $citiesArr = is_array($professional->other_cities) ? $professional->other_cities : (is_string($professional->other_cities) ? array_map('trim', explode(',', $professional->other_cities)) : []);
+                            $prefLocsArr = is_array($professional->preferred_locations) ? $professional->preferred_locations : (is_string($professional->preferred_locations) ? array_map('trim', explode(',', $professional->preferred_locations)) : []);
+                            $allCitiesCombined = array_values(array_unique(array_filter(array_merge([$professional->city ?: 'Nairobi'], $citiesArr, $prefLocsArr))));
+                            $allCitiesStr = implode(' • ', $allCitiesCombined);
+
+                            $langsArr = is_array($professional->languages) ? $professional->languages : (is_string($professional->languages) ? array_map('trim', explode(',', $professional->languages)) : []);
+                            $langsStr = implode(' • ', array_filter($langsArr));
+
+                            $assignTypesArr = is_array($professional->assignment_types) ? $professional->assignment_types : (is_string($professional->assignment_types) ? array_map('trim', explode(',', $professional->assignment_types)) : []);
+                            $assignTypesStr = implode(' • ', array_filter($assignTypesArr));
+                        @endphp
+
                         <div class="pt-4 border-t border-slate-100 grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
-                            @if(!empty($professional->preferred_locations))
-                                @php
-                                    $pLocs = is_array($professional->preferred_locations) ? implode(', ', $professional->preferred_locations) : $professional->preferred_locations;
-                                @endphp
+                            <div class="p-4 rounded-2xl bg-slate-50 border border-slate-200/80 space-y-1">
+                                <span class="text-[10px] font-black uppercase tracking-wider text-slate-400 block">📍 Working Cities / Locations</span>
+                                <span class="font-extrabold text-slate-900 block">{{ $allCitiesStr ?: 'Nairobi, Kenya' }}</span>
+                            </div>
+
+                            @if($langsStr)
                                 <div class="p-4 rounded-2xl bg-slate-50 border border-slate-200/80 space-y-1">
-                                    <span class="text-[10px] font-black uppercase tracking-wider text-slate-400 block">📍 Preferred Working Locations</span>
-                                    <span class="font-extrabold text-slate-900 block">{{ $pLocs }}</span>
+                                    <span class="text-[10px] font-black uppercase tracking-wider text-slate-400 block">🗣️ Languages Spoken</span>
+                                    <span class="font-extrabold text-slate-900 block">{{ $langsStr }}</span>
+                                </div>
+                            @endif
+
+                            @if($assignTypesStr)
+                                <div class="p-4 rounded-2xl bg-slate-50 border border-slate-200/80 space-y-1 sm:col-span-2">
+                                    <span class="text-[10px] font-black uppercase tracking-wider text-slate-400 block">🎯 Preferred Event Types & Assignments</span>
+                                    <span class="font-extrabold text-slate-900 block">{{ $assignTypesStr }}</span>
                                 </div>
                             @endif
 
                             @if(!empty($professional->social_links) && is_array($professional->social_links) && count(array_filter($professional->social_links)) > 0)
-                                <div class="p-4 rounded-2xl bg-amber-50/60 border border-amber-200/80 space-y-2">
+                                <div class="p-4 rounded-2xl bg-amber-50/60 border border-amber-200/80 space-y-2 sm:col-span-2">
                                     <span class="text-[10px] font-black uppercase tracking-wider text-amber-900 block">🌐 Social Media Profiles</span>
                                     <div class="flex items-center gap-2 flex-wrap">
                                         @if(!empty($professional->social_links['instagram']))
@@ -261,16 +283,17 @@
                                 </div>
                             </div>
 
-                            <!-- Key Skills Badges (Max 3 Skills) -->
-                            @if(!empty($professional->skills))
-                                @php
-                                    $skillsList = is_array($professional->skills) ? $professional->skills : array_map('trim', explode(',', $professional->skills));
-                                    $skillsList = array_slice(array_values(array_filter($skillsList)), 0, 3);
-                                @endphp
+                            <!-- Key Skills Badges -->
+                            @php
+                                $rawSkills = is_array($professional->skills) ? $professional->skills : array_map('trim', explode(',', $professional->skills ?: ''));
+                                $featuredSkillsArr = is_array($professional->featured_skills) ? $professional->featured_skills : [];
+                                $allSkillsList = array_values(array_unique(array_filter(array_merge($rawSkills, $featuredSkillsArr))));
+                            @endphp
+                            @if(count($allSkillsList) > 0)
                                 <div class="flex flex-wrap gap-2.5">
-                                    @foreach($skillsList as $sk)
+                                    @foreach($allSkillsList as $sk)
                                         @if(trim($sk))
-                                            <span class="px-4.5 py-2.5 rounded-2xl bg-slate-900 text-white font-black text-xs flex items-center gap-2 shadow-xs hover:bg-slate-800 transition-colors border border-slate-800">
+                                            <span class="px-4 py-2 rounded-2xl bg-slate-900 text-white font-black text-xs flex items-center gap-2 shadow-xs hover:bg-slate-800 transition-colors border border-slate-800">
                                                 <span class="text-amber-400">⚡</span> {{ trim($sk) }}
                                             </span>
                                         @endif
@@ -279,8 +302,56 @@
                             @endif
                         </div>
 
+                        <!-- Service Rates & Multi-Day Packages Card -->
+                        <div class="pt-8 border-t border-slate-100 space-y-4">
+                            <div class="flex items-center justify-between">
+                                <div>
+                                    <span class="text-[11px] font-black uppercase tracking-widest text-rose-500 block mb-0.5">SERVICE RATES</span>
+                                    <h3 class="text-xl sm:text-2xl font-black text-slate-900 tracking-tight">Service Rates & Package Terms</h3>
+                                </div>
+                                <span class="text-[10px] font-extrabold uppercase tracking-wider text-emerald-800 bg-emerald-100 px-3 py-1 rounded-xl border border-emerald-300">
+                                    ✓ Transparent Pricing
+                                </span>
+                            </div>
+
+                            <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 text-xs">
+                                <div class="p-4 rounded-2xl bg-slate-50 border border-slate-200/90 space-y-1">
+                                    <span class="text-[10px] font-black uppercase tracking-wider text-slate-400 block">Full-Day Shift Rate</span>
+                                    <span class="text-lg font-black text-slate-900 block">
+                                        {{ $professional->currency ?: 'KES' }} {{ number_format($professional->one_day_rate ?? ($professional->full_day_rate ?? 5000)) }}
+                                    </span>
+                                </div>
+
+                                @if($professional->hourly_rate > 0)
+                                    <div class="p-4 rounded-2xl bg-slate-50 border border-slate-200/90 space-y-1">
+                                        <span class="text-[10px] font-black uppercase tracking-wider text-slate-400 block">Hourly Rate</span>
+                                        <span class="text-lg font-black text-slate-900 block">
+                                            {{ $professional->currency ?: 'KES' }} {{ number_format($professional->hourly_rate) }} / hr
+                                        </span>
+                                    </div>
+                                @endif
+
+                                @if($professional->rehearsal_option)
+                                    <div class="p-4 rounded-2xl bg-amber-50/70 border border-amber-200/90 space-y-1">
+                                        <span class="text-[10px] font-black uppercase tracking-wider text-amber-900 block">Rehearsals & Briefings</span>
+                                        <span class="font-extrabold text-amber-950 block">Available for pre-event rehearsal</span>
+                                    </div>
+                                @endif
+                            </div>
+
+                            @if($professional->has_multi_day_discount)
+                                <div class="p-4 rounded-2xl bg-emerald-50 border border-emerald-200 text-emerald-950 text-xs font-bold flex items-center gap-3">
+                                    <span class="text-xl">🎁</span>
+                                    <div>
+                                        <span class="font-black text-emerald-900 block">Multi-Day Event Discount Available!</span>
+                                        <span>Enjoy <strong>{{ $professional->multi_day_discount_pct ?: 10 }}% OFF</strong> total rates on bookings for <strong>{{ $professional->multi_day_min_days ?: 3 }}+ consecutive days</strong>.</span>
+                                    </div>
+                                </div>
+                            @endif
+                        </div>
+
                         <!-- Optional Education Background Section -->
-                        @if(!empty($professional->education) && is_array($professional->education) && count($professional->education) > 0)
+                        @if(!empty($professional->education) && is_array($professional->education) && count($professional->education) > 0 && ($professional->show_education_on_cv ?? true))
                             <div class="pt-8 border-t border-slate-100 space-y-5">
                                 <div class="flex items-center justify-between">
                                     <div>
@@ -320,6 +391,38 @@
                                 </div>
                             </div>
                         @endif
+
+                        <!-- Professional Referees Status Section -->
+                        @if(!empty($professional->referees) && is_array($professional->referees) && count($professional->referees) > 0)
+                            <div class="pt-8 border-t border-slate-100 space-y-4">
+                                <div class="flex items-center justify-between">
+                                    <div>
+                                        <span class="text-[11px] font-black uppercase tracking-widest text-slate-500 block mb-0.5">VERIFIED REFERENCES</span>
+                                        <h3 class="text-xl sm:text-2xl font-black text-slate-900 tracking-tight">Professional Referees</h3>
+                                    </div>
+                                    <span class="text-[10px] font-extrabold uppercase tracking-wider text-slate-700 bg-slate-100 px-3 py-1 rounded-xl border border-slate-200">
+                                        🔒 Private Contact Protection
+                                    </span>
+                                </div>
+
+                                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                    @foreach($professional->referees as $rIdx => $ref)
+                                        @php $rItem = is_string($ref) ? json_decode($ref, true) : $ref; @endphp
+                                        <div class="p-4.5 rounded-2xl bg-slate-50 border border-slate-200/90 flex items-center justify-between gap-3">
+                                            <div class="space-y-0.5">
+                                                <span class="text-[10px] font-black uppercase tracking-wider text-slate-400 block">Reference #{{ $rIdx + 1 }}</span>
+                                                <h4 class="text-xs font-black text-slate-900">{{ $rItem['name'] ?? 'Professional Event Supervisor' }}</h4>
+                                                <span class="text-[11px] text-slate-500 font-semibold block">{{ $rItem['organization'] ?? 'Corporate Event Organizer' }} • {{ $rItem['relationship'] ?? 'Supervisor' }}</span>
+                                            </div>
+                                            <span class="px-2.5 py-1 rounded-xl bg-emerald-50 text-emerald-700 font-extrabold text-[10px] border border-emerald-200 shrink-0">
+                                                ✓ Verified
+                                            </span>
+                                        </div>
+                                    @endforeach
+                                </div>
+                            </div>
+                        @endif
+                    </section>
                     </section>
 
                     <!-- SECTION 2: WORK EXPERIENCE (OBSIDIAN DARK CONTAINER) -->
