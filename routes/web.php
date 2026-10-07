@@ -62,14 +62,18 @@ Route::get('/users/message', [\App\Http\Controllers\MessageController::class, 'i
 Route::get('/client/messages', [\App\Http\Controllers\MessageController::class, 'index'])->name('client.messages.alt');
 
 // Public Staff Registration (Join Crew)
-Route::get('/join-our-crew', [ProfessionalController::class, 'create'])->name('crew.create');
-Route::post('/join-our-crew', [ProfessionalController::class, 'store'])->name('crew.store');
+Route::get('/join-africrew', [ProfessionalController::class, 'create'])->name('crew.create');
+Route::post('/join-africrew', [ProfessionalController::class, 'store'])->name('crew.store');
+Route::redirect('/join-our-crew', '/join-africrew');
+Route::get('/api/check-username', [ProfessionalController::class, 'checkUsername'])->name('api.check-username');
 
 // Staff Portal Login & Authentication
 Route::get('/staff/login', [StaffAuthController::class, 'showLogin'])->name('staff.login');
 Route::post('/staff/login', [StaffAuthController::class, 'login'])->name('staff.login.submit');
 Route::post('/staff/logout', [StaffAuthController::class, 'logout'])->name('staff.logout');
 Route::get('/staff/verify-notice', [StaffAuthController::class, 'showVerifyNotice'])->name('staff.verify.notice');
+Route::post('/staff/resend-verification', [StaffAuthController::class, 'resendVerification'])->name('staff.verify.resend');
+Route::post('/staff/update-email', [StaffAuthController::class, 'updateEmail'])->name('staff.verify.updateEmail');
 Route::get('/staff/verify-email/{token}', [StaffAuthController::class, 'verifyEmail'])->name('staff.verify.email');
 
 // General Login Redirect
@@ -152,7 +156,7 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
     Route::get('/reports/professionals/export', [\App\Http\Controllers\Admin\AdminReportController::class, 'exportProfessionals'])->name('reports.professionals.export');
 });
 
-    // Protected Staff Portal Routes
+// Protected Staff Portal Routes
 Route::prefix('professional')->name('professional.')->group(function () {
     Route::get('/', function () {
         return redirect()->route('professional.dashboard');
@@ -162,6 +166,9 @@ Route::prefix('professional')->name('professional.')->group(function () {
     Route::match(['get', 'post'], '/onboarding', [ProfessionalDashboardController::class, 'storeOnboarding'])->name('onboarding.store');
     Route::get('/profile', [ProfessionalDashboardController::class, 'profile'])->name('profile');
     Route::match(['post', 'patch'], '/profile', [ProfessionalDashboardController::class, 'updateProfile'])->name('profile.update');
+    Route::post('/suggest-skill', [ProfessionalDashboardController::class, 'suggestSkill'])->name('suggest-skill');
+    Route::post('/submit-review-request', [ProfessionalDashboardController::class, 'submitReviewRequest'])->name('submit-review-request');
+    Route::post('/referees/request-verification', [ProfessionalDashboardController::class, 'requestRefereeVerification'])->name('referees.request-verification');
     Route::post('/gallery/delete', [ProfessionalDashboardController::class, 'deleteGalleryPhoto'])->name('gallery.delete');
     Route::get('/shifts', [ProfessionalDashboardController::class, 'shifts'])->name('shifts');
     Route::get('/messages', [\App\Http\Controllers\MessageController::class, 'index'])->name('messages');
@@ -177,6 +184,9 @@ Route::prefix('professional')->name('professional.')->group(function () {
     Route::get('/wallet', [ProfessionalDashboardController::class, 'wallet'])->name('wallet');
     Route::post('/wallet/withdraw', [ProfessionalDashboardController::class, 'storeWithdrawal'])->name('wallet.withdraw');
     Route::post('/payment-details', [ProfessionalDashboardController::class, 'updatePaymentDetails'])->name('payment-details.update');
+    Route::get('/reviews', [ProfessionalDashboardController::class, 'reviewsTab'])->name('reviews');
+    Route::post('/reviews/{review}/respond', [ProfessionalDashboardController::class, 'respondToReview'])->name('reviews.respond');
+    Route::post('/reviews/{review}/report', [ProfessionalDashboardController::class, 'reportReview'])->name('reviews.report');
     Route::post('/reviews/{review}/toggle-visibility', [ProfessionalDashboardController::class, 'toggleReviewVisibility'])->name('reviews.toggle-visibility');
 });
 

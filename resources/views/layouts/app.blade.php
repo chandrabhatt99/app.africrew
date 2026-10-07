@@ -42,9 +42,11 @@
                 }
             }
         }
-    </script>
     <!-- SweetAlert2 CDN -->
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    
+    <!-- Meta Pixel Code -->
+    @include('partials.meta-pixel')
 </head>
 <body id="app-body" class="h-full font-sans bg-slate-50 text-slate-900 flex flex-col selection:bg-gold-500 selection:text-slate-950 transition-colors duration-200">
 

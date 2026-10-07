@@ -26,7 +26,7 @@
         </div>
     @endif
 
-    <!-- 5-Field Initial Registration Card -->
+    <!-- Registration Card -->
     <div class="bg-white border border-slate-200/90 rounded-3xl p-8 shadow-xl space-y-6">
 
         <!-- Social Sign Up Options -->
@@ -72,36 +72,64 @@
                     class="w-full bg-slate-50 border border-slate-200 text-slate-900 placeholder-slate-400 text-sm rounded-xl px-4 py-3 outline-none focus:border-amber-500 focus:bg-white transition-colors">
             </div>
 
-            <!-- Username & Category -->
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div>
-                    <label class="block text-xs font-extrabold uppercase tracking-wider text-slate-700 mb-1.5">
-                        Username / Handle <span class="text-amber-600">*</span>
-                    </label>
-                    <input type="text" name="username" value="{{ old('username') }}" required placeholder="e.g. janedoe"
+            <!-- Username / Handle with Live Short-Link Preview -->
+            <div>
+                <label class="block text-xs font-extrabold uppercase tracking-wider text-slate-700 mb-1.5">
+                    Username / Handle <span class="text-amber-600">*</span>
+                </label>
+                <div class="relative">
+                    <input type="text" id="username-input" name="username" value="{{ old('username') }}" required placeholder="e.g. janedoe"
+                        oninput="onUsernameInput(this.value)"
                         class="w-full bg-slate-50 border border-slate-200 text-slate-900 placeholder-slate-400 text-sm rounded-xl px-4 py-3 outline-none focus:border-amber-500 focus:bg-white transition-colors">
+                    <div id="username-status-spinner" class="hidden absolute right-3 top-3.5 text-xs text-slate-400">
+                        ⏳
+                    </div>
                 </div>
-                <div>
-                    <label class="block text-xs font-extrabold uppercase tracking-wider text-slate-700 mb-1.5">
-                        Primary Category <span class="text-amber-600">*</span>
-                    </label>
-                    <select name="category" required class="w-full bg-slate-50 border border-slate-200 text-slate-900 text-sm rounded-xl px-4 py-3 outline-none focus:border-amber-500 focus:bg-white transition-colors">
-                        @if(isset($categories) && $categories->count() > 0)
-                            @foreach($categories as $cat)
-                                <option value="{{ $cat->name }}" {{ old('category') == $cat->name ? 'selected' : '' }}>
-                                    {{ $cat->icon ? $cat->icon . ' ' : '' }}{{ $cat->name }}
-                                </option>
-                            @endforeach
-                        @else
-                            <option value="Event Ushers">⚡ Event Ushers</option>
-                            <option value="VIP Hostesses">👑 VIP Hostesses</option>
-                            <option value="Security & Bouncers">🛡️ Security & Bouncers</option>
-                            <option value="Mixologists & Bartenders">🍸 Mixologists & Bartenders</option>
-                            <option value="Protocol Officers">🏛️ Protocol Officers</option>
-                            <option value="Brand Ambassadors">🌟 Brand Ambassadors</option>
-                        @endif
-                    </select>
+
+                <!-- Live Short-Link Preview Badge & Tooltip -->
+                <div class="mt-2 p-3 bg-amber-50/80 border border-amber-200/80 rounded-xl flex items-start gap-2.5 text-xs">
+                    <span class="text-base leading-none">🔗</span>
+                    <div class="flex-1 min-w-0">
+                        <div class="font-extrabold text-slate-800 flex items-center gap-1.5 flex-wrap">
+                            <span>Your Short Link Preview:</span>
+                            <span id="shortlink-preview" class="font-mono text-amber-700 bg-white px-2 py-0.5 rounded border border-amber-200">
+                                mycv.ac/<span id="shortlink-handle">{{ old('username') ?: 'username' }}</span>
+                            </span>
+                        </div>
+                        <p class="text-[11px] text-slate-600 mt-1 leading-snug group relative cursor-help inline-block">
+                            ℹ️ Hover to learn when your link becomes active
+                            <span class="hidden group-hover:block absolute left-0 bottom-full mb-1 w-64 bg-slate-900 text-white text-[11px] p-2.5 rounded-lg shadow-xl z-20">
+                                Your Digital CV link becomes active after AfriCrew approves your profile.
+                            </span>
+                        </p>
+                        <div id="username-validation-msg" class="text-[11px] font-bold mt-1"></div>
+                    </div>
                 </div>
+            </div>
+
+            <!-- Primary Category -->
+            <div>
+                <label class="block text-xs font-extrabold uppercase tracking-wider text-slate-700 mb-1.5">
+                    Primary Category <span class="text-amber-600">*</span>
+                </label>
+                <select name="category" required class="w-full bg-slate-50 border border-slate-200 text-slate-900 text-sm rounded-xl px-4 py-3 outline-none focus:border-amber-500 focus:bg-white transition-colors">
+                    @if(isset($categories) && $categories->count() > 0)
+                        @foreach($categories as $cat)
+                            <option value="{{ $cat->name }}" {{ old('category') == $cat->name ? 'selected' : '' }}>
+                                {{ $cat->icon ? $cat->icon . ' ' : '' }}{{ $cat->name }}
+                            </option>
+                        @endforeach
+                    @else
+                        <option value="Event Ushers">⚡ Event Ushers</option>
+                        <option value="VIP Hostesses">👑 VIP Hostesses</option>
+                        <option value="Security & Bouncers">🛡️ Security & Bouncers</option>
+                        <option value="Mixologists & Bartenders">🍸 Mixologists & Bartenders</option>
+                        <option value="Protocol Officers">🏛️ Protocol Officers</option>
+                        <option value="Brand Ambassadors">🌟 Brand Ambassadors</option>
+                        <option value="Sound & Stage Technicians">🔊 Sound & Stage Technicians</option>
+                        <option value="Event Photographers">📷 Event Photographers</option>
+                    @endif
+                </select>
             </div>
 
             <!-- Email Address & Phone Number -->
@@ -140,48 +168,38 @@
                     class="w-full bg-slate-50 border border-slate-200 text-slate-900 placeholder-slate-400 text-sm rounded-xl px-4 py-3 outline-none focus:border-amber-500 focus:bg-white transition-colors">
             </div>
 
-            <!-- Social Media Handles / Links (Optional) -->
-            <div class="space-y-3 pt-2 border-t border-slate-100">
-                <label class="block text-xs font-extrabold uppercase tracking-wider text-slate-700">
-                    Social Media Profiles <span class="text-slate-400 font-normal lowercase">(Optional)</span>
-                </label>
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
-                    <div>
-                        <label class="block text-[11px] font-bold text-slate-600 mb-1">Instagram</label>
-                        <input type="text" name="social_links[instagram]" value="{{ old('social_links.instagram') }}" placeholder="e.g. @janedoe or instagram.com/janedoe"
-                            class="w-full bg-slate-50 border border-slate-200 text-slate-900 placeholder-slate-400 text-xs rounded-xl px-3.5 py-2.5 outline-none focus:border-amber-500 focus:bg-white transition-colors">
-                    </div>
-                    <div>
-                        <label class="block text-[11px] font-bold text-slate-600 mb-1">LinkedIn</label>
-                        <input type="text" name="social_links[linkedin]" value="{{ old('social_links.linkedin') }}" placeholder="e.g. linkedin.com/in/janedoe"
-                            class="w-full bg-slate-50 border border-slate-200 text-slate-900 placeholder-slate-400 text-xs rounded-xl px-3.5 py-2.5 outline-none focus:border-amber-500 focus:bg-white transition-colors">
-                    </div>
-                    <div>
-                        <label class="block text-[11px] font-bold text-slate-600 mb-1">Facebook</label>
-                        <input type="text" name="social_links[facebook]" value="{{ old('social_links.facebook') }}" placeholder="e.g. facebook.com/janedoe"
-                            class="w-full bg-slate-50 border border-slate-200 text-slate-900 placeholder-slate-400 text-xs rounded-xl px-3.5 py-2.5 outline-none focus:border-amber-500 focus:bg-white transition-colors">
-                    </div>
-                    <div>
-                        <label class="block text-[11px] font-bold text-slate-600 mb-1">TikTok / X (Twitter)</label>
-                        <input type="text" name="social_links[tiktok]" value="{{ old('social_links.tiktok') }}" placeholder="e.g. @janedoe"
-                            class="w-full bg-slate-50 border border-slate-200 text-slate-900 placeholder-slate-400 text-xs rounded-xl px-3.5 py-2.5 outline-none focus:border-amber-500 focus:bg-white transition-colors">
-                    </div>
+            <!-- Accessible Terms & Conditions Scrollable Box -->
+            <div class="space-y-2 pt-3 border-t border-slate-100">
+                <div class="flex items-center justify-between text-xs font-extrabold text-slate-700">
+                    <span>📜 Terms & Conditions Summary</span>
+                    <span id="scroll-hint-badge" class="text-[10px] text-amber-700 bg-amber-100 px-2 py-0.5 rounded-full">
+                        Scroll to bottom to unlock checkbox
+                    </span>
+                </div>
+
+                <div id="terms-scroll-container" onscroll="checkTermsScroll(this)"
+                    class="h-32 overflow-y-auto bg-slate-50 border border-slate-200 rounded-xl p-3.5 text-xs text-slate-600 space-y-2 leading-relaxed">
+                    <p class="font-bold text-slate-800">AfriCrew Member Platform Agreement Summary:</p>
+                    <p>1. <strong>Verification & Approval:</strong> Registering an account allows you to build your profile & resume. Profiles are reviewed by AfriCrew administrators before public discovery and booking enablement.</p>
+                    <p>2. <strong>Professional Conduct:</strong> You agree to provide accurate qualifications, work history, and referee details. False information may lead to account suspension.</p>
+                    <p>3. <strong>Quotations & Fees:</strong> Your rates serve as reference figures when preparing event quotations. Final fees depend on agreed client contracts.</p>
+                    <p>4. <strong>Privacy:</strong> Contact information, Date of Birth, and referee contact details remain strictly private and protected under our Privacy Policy.</p>
+                    <p class="font-bold text-amber-700">--- End of Terms Summary. Thank you for reviewing our terms! ---</p>
+                </div>
+
+                <div class="pt-2">
+                    <label class="flex items-start gap-3 cursor-pointer">
+                        <input type="checkbox" id="terms-checkbox" name="terms" value="1" disabled onchange="toggleSubmitButton()"
+                            class="mt-1 w-4 h-4 text-amber-500 border-slate-300 rounded focus:ring-amber-400 disabled:opacity-50 disabled:cursor-not-allowed">
+                        <span class="text-xs text-slate-700 leading-relaxed font-semibold">
+                            I have read and accept the <a href="{{ route('terms') }}" target="_blank" class="text-amber-600 font-bold hover:underline">Terms & Conditions</a> and <a href="{{ route('privacy') }}" target="_blank" class="text-amber-600 font-bold hover:underline">Privacy Policy</a>.
+                        </span>
+                    </label>
                 </div>
             </div>
 
-            <!-- Terms and Conditions Checkbox -->
-            <div class="pt-2">
-                <label class="flex items-start gap-3 cursor-pointer">
-                    <input type="checkbox" name="terms" value="1" @checked(old('terms')) required
-                        class="mt-1 w-4 h-4 text-amber-500 border-slate-300 rounded focus:ring-amber-400">
-                    <span class="text-xs text-slate-600 leading-relaxed font-normal">
-                        I accept the <a href="{{ route('terms') }}" target="_blank" class="text-amber-600 font-bold hover:underline">Terms & Conditions</a> and <a href="{{ route('privacy') }}" target="_blank" class="text-amber-600 font-bold hover:underline">Privacy Policy</a>.
-                    </span>
-                </label>
-            </div>
-
             <!-- Submit Button -->
-            <button type="submit" class="w-full py-4 px-6 bg-slate-900 hover:bg-slate-800 text-white font-extrabold text-base rounded-2xl shadow-xl transition-all flex items-center justify-center gap-2 mt-4">
+            <button type="submit" id="submit-btn" disabled class="w-full py-4 px-6 bg-slate-900 text-white font-extrabold text-base rounded-2xl shadow-xl transition-all flex items-center justify-center gap-2 mt-4 disabled:opacity-50 disabled:cursor-not-allowed hover:bg-slate-800">
                 <span>Create Account</span>
                 <svg class="w-5 h-5 text-gold-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
             </button>
@@ -193,4 +211,61 @@
         </div>
     </div>
 </section>
+
+<script>
+    let usernameTimeout = null;
+
+    function onUsernameInput(val) {
+        const handleSpan = document.getElementById('shortlink-handle');
+        const validationMsg = document.getElementById('username-validation-msg');
+        const spinner = document.getElementById('username-status-spinner');
+        
+        const cleanVal = val.trim().toLowerCase().replace(/[^a-z0-9_\-]/g, '');
+        handleSpan.innerText = cleanVal || 'username';
+
+        if (!val.trim()) {
+            validationMsg.innerText = '';
+            return;
+        }
+
+        spinner.classList.remove('hidden');
+        clearTimeout(usernameTimeout);
+
+        usernameTimeout = setTimeout(() => {
+            fetch(`/api/check-username?username=${encodeURIComponent(val.trim())}`)
+                .then(res => res.json())
+                .then(data => {
+                    spinner.classList.add('hidden');
+                    if (data.valid) {
+                        validationMsg.className = 'text-[11px] font-bold text-emerald-600 mt-1';
+                        validationMsg.innerText = '✓ ' + data.message;
+                    } else {
+                        validationMsg.className = 'text-[11px] font-bold text-rose-600 mt-1';
+                        validationMsg.innerText = '✕ ' + data.message;
+                    }
+                })
+                .catch(() => {
+                    spinner.classList.add('hidden');
+                });
+        }, 400);
+    }
+
+    function checkTermsScroll(elem) {
+        const scrollBottom = elem.scrollHeight - elem.scrollTop - elem.clientHeight;
+        const checkbox = document.getElementById('terms-checkbox');
+        const hintBadge = document.getElementById('scroll-hint-badge');
+
+        if (scrollBottom <= 10) {
+            checkbox.disabled = false;
+            hintBadge.className = 'text-[10px] text-emerald-800 bg-emerald-100 px-2 py-0.5 rounded-full font-bold';
+            hintBadge.innerText = '✓ Checkbox unlocked! Please tick to agree';
+        }
+    }
+
+    function toggleSubmitButton() {
+        const checkbox = document.getElementById('terms-checkbox');
+        const submitBtn = document.getElementById('submit-btn');
+        submitBtn.disabled = !checkbox.checked;
+    }
+</script>
 @endsection

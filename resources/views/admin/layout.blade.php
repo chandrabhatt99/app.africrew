@@ -38,6 +38,9 @@
             font-size: 14px !important;
         }
     </style>
+
+    <!-- Meta Pixel Code -->
+    @include('partials.meta-pixel')
 </head>
 <body class="h-full font-sans bg-slate-50 text-slate-900 flex min-h-screen">
     

@@ -29,7 +29,7 @@ This module assumes Laravel 10/11/12 style routing and Blade views. It uses the 
 
 - `/` - AfriCrew landing page
 - `/hire-staff` - Hire Staff form
-- `/join-our-crew` - Professional registration
+- `/join-africrew` - Professional registration
 - `/admin/login` - Admin login
 - `/admin` - Admin dashboard
 - `/professional/dashboard` - Professional dashboard

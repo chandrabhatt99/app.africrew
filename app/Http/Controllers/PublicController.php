@@ -95,9 +95,12 @@ class PublicController extends Controller
             ];
         })->values();
 
+        $backendCategoryList = \App\Models\Category::where('is_active', true)->pluck('name')->toArray();
+        $crewCategoryNames = Professional::whereNotNull('category')->where('category', '!=', '')->pluck('category')->toArray();
+        $backendCategoriesList = array_values(array_unique(array_filter(array_merge($backendCategoryList, $crewCategoryNames))));
         $locations = $allCities;
 
-        return view('home', compact('professionals', 'categories', 'locations', 'categoryLocations', 'allApprovedCrewList'));
+        return view('home', compact('professionals', 'categories', 'backendCategoriesList', 'locations', 'categoryLocations', 'allApprovedCrewList'));
     }
 
     public function terms(): View

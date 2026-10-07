@@ -35,163 +35,205 @@
 </div>
 
 <!-- ========================================================= -->
-<!-- HERO SECTION (PDF PAGE 1 SPECIFICATION) -->
+<!-- HERO SECTION (MATCHING SCREENSHOT MOCKUP SPECIFICATION) -->
 <!-- ========================================================= -->
 <section class="relative overflow-hidden bg-[#FAF9F6] py-8 sm:py-12 border-b border-slate-200/80">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         
-        <!-- Header Text -->
-        <div class="mb-8 space-y-2">
+        <!-- Header Title -->
+        <div class="mb-6 space-y-1">
             <h1 class="text-3xl sm:text-5xl font-black text-slate-950 tracking-tight leading-none">
                 Welcome to AfriCrew
             </h1>
-            <p class="text-lg sm:text-xl font-bold text-slate-700">
+            <p class="text-base sm:text-lg font-bold text-slate-600">
                 Find vetted event professionals available where and when you need them.
             </p>
         </div>
 
-        <!-- Main Hero Layout Grid: Search Card Left + Map Container Right -->
-        <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-stretch">
-            
-            <!-- LEFT: Search Card Container -->
-            <div class="lg:col-span-6 bg-white border border-slate-200/90 rounded-[32px] p-6 sm:p-8 shadow-xl space-y-6 flex flex-col justify-between">
+        <!-- Main Unified Card Layout -->
+        <div class="bg-white border border-slate-200/90 rounded-[32px] p-4 sm:p-6 lg:p-8 shadow-xl">
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8 items-stretch">
                 
-                <form id="hero_search_form" onsubmit="onHeroFormSubmit(event)" action="{{ route('crew.index') }}" method="GET" class="space-y-4 m-0">
+                <!-- LEFT: Interactive Map with Integrated Top & Bottom Search Controls -->
+                <div class="lg:col-span-7 relative rounded-[28px] overflow-hidden border border-slate-200/90 shadow-lg bg-slate-950 min-h-[460px] lg:min-h-[500px] flex flex-col justify-between">
                     
-                    <!-- STEP 1: WHO DO YOU NEED? Parent Category Select (Google Pill Style) -->
-                    <div class="space-y-1.5">
-                        <label class="block text-[11px] font-extrabold uppercase tracking-wider text-slate-400 pl-1">
-                            WHO DO YOU NEED?
-                        </label>
-                        <div class="relative group">
-                            <span class="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 text-base pointer-events-none group-focus-within:text-rose-500 transition-colors">⚡</span>
-                            <select id="hero_parent_category" name="parent_category" onchange="onParentCategoryChanged()" class="w-full bg-slate-50 hover:bg-white border border-slate-200/90 rounded-full pl-11 pr-10 py-3 text-slate-900 font-extrabold text-sm outline-none focus:border-rose-500 focus:bg-white focus:ring-4 focus:ring-rose-500/10 shadow-xs transition-all appearance-none cursor-pointer">
-                                <option value="" selected disabled hidden>Select category...</option>
-                                <option value="All">All Parent Categories</option>
-                                <option value="Ushers">Ushers</option>
-                                <option value="Technical Crew">Technical Crew</option>
-                                <option value="Decorations">Decorations</option>
-                                <option value="Entertainers">Entertainers</option>
-                                <option value="Multi-Media & Brand Activations">Multi-Media & Brand Activations</option>
-                            </select>
-                            <span class="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 text-xs pointer-events-none">▼</span>
-                        </div>
-                    </div>
-
-                    <!-- STEP 2: REVEALED SUB-CATEGORY / SPECIALIZATION (Dynamic Google Pill) -->
-                    <div id="hero_subcategory_wrapper" class="hidden space-y-1.5 transition-all duration-300 transform scale-95 opacity-0">
-                        <label class="block text-[11px] font-extrabold uppercase tracking-wider text-rose-500 pl-1 flex items-center gap-1">
-                            <span>🎯 SPECIFIC ROLE / SPECIALIZATION</span>
-                        </label>
-                        <div class="relative group">
-                            <span class="absolute left-4 top-1/2 -translate-y-1/2 text-rose-500 text-base pointer-events-none">🪄</span>
-                            <select id="hero_subcategory" name="category" onchange="onSubCategoryChanged()" class="w-full bg-rose-50/50 hover:bg-white border border-rose-200 rounded-full pl-11 pr-10 py-3 text-slate-900 font-extrabold text-sm outline-none focus:border-rose-500 focus:bg-white focus:ring-4 focus:ring-rose-500/10 shadow-xs transition-all appearance-none cursor-pointer">
-                                <!-- Populated dynamically based on chosen parent category -->
-                            </select>
-                            <span class="absolute right-4 top-1/2 -translate-y-1/2 text-rose-400 text-xs pointer-events-none">▼</span>
-                        </div>
-                    </div>
-
-                    <!-- WHEN IS YOUR EVENT? Date Range Selector -->
-                    <div class="space-y-1.5">
-                        <label class="block text-[11px] font-extrabold uppercase tracking-wider text-slate-400 pl-1">
-                            WHEN IS YOUR EVENT?
-                        </label>
-                        <div class="relative group">
-                            <span class="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 text-base pointer-events-none group-focus-within:text-rose-500 transition-colors">📅</span>
-                            <input type="text" id="hero_dates" name="dates" value="" onchange="updateSearchPills()" placeholder="Select event date(s)..." class="w-full bg-slate-50 hover:bg-white border border-slate-200/90 rounded-full pl-11 pr-6 py-3 text-slate-900 font-bold text-sm outline-none focus:border-rose-500 focus:bg-white focus:ring-4 focus:ring-rose-500/10 shadow-xs transition-all cursor-pointer">
-                        </div>
-                    </div>
-
-                    <!-- WHERE IS YOUR EVENT? Registered Location Pills -->
-                    <div class="space-y-1.5">
-                        <div class="flex items-center justify-between pl-1">
-                            <label class="block text-[11px] font-extrabold uppercase tracking-wider text-slate-400">
-                                WHERE IS YOUR EVENT?
-                            </label>
-                            <span class="text-[10px] text-slate-400 font-semibold">Registered Crew Locations</span>
-                        </div>
+                    <!-- TOP MAP OVERLAY: Crew Category & Event Date Selection Buttons -->
+                    <div class="absolute top-4 left-4 right-4 z-20 flex flex-wrap items-center gap-2 pointer-events-auto">
                         
-                        <input type="hidden" id="hero_location" name="city" value="Nairobi">
-                        
-                        <div class="flex flex-wrap gap-2 pt-0.5" id="location-pills-container">
-                            <!-- Dynamically populated based on registered crew of searched category -->
+                        <!-- 1. CREW CATEGORY SELECTOR BUTTON -->
+                        <div class="relative">
+                            <button type="button" id="map-category-btn" onclick="toggleCategoryMenu()" class="px-4 py-2.5 rounded-2xl bg-slate-900/90 hover:bg-slate-900 text-white border border-slate-700/80 backdrop-blur-md shadow-xl text-xs font-black flex items-center gap-2 cursor-pointer transition-all hover:border-amber-400">
+                                <span class="text-amber-400 text-sm">👥</span>
+                                <span id="map-category-label">CREW CATEGORY</span>
+                                <span class="text-[10px] text-slate-400 ml-1">▼</span>
+                            </button>
+
+                            <!-- Category Dropdown Menu (Populated dynamically from Backend) -->
+                            <div id="map-category-menu" class="hidden absolute top-full left-0 mt-2 w-72 bg-slate-950/95 backdrop-blur-xl border border-slate-800 rounded-2xl p-2.5 shadow-2xl z-50 text-white space-y-1 max-h-72 overflow-y-auto">
+                                <div class="px-3 py-1.5 text-[10px] font-extrabold uppercase tracking-wider text-slate-400 flex items-center justify-between">
+                                    <span>Backend Categories</span>
+                                    <span class="text-rose-400 font-bold">Step 1</span>
+                                </div>
+                                @if(isset($backendCategoriesList) && count($backendCategoriesList) > 0)
+                                    @foreach($backendCategoriesList as $catName)
+                                        <button type="button" onclick="selectCategory('{{ addslashes($catName) }}')" class="w-full text-left px-3.5 py-2.5 rounded-xl text-xs font-bold hover:bg-rose-500 hover:text-white transition-all flex items-center justify-between group">
+                                            <span class="flex items-center gap-2">
+                                                <span>⚡</span>
+                                                <span>{{ $catName }}</span>
+                                            </span>
+                                            <span class="text-[10px] opacity-70 group-hover:opacity-100">Select</span>
+                                        </button>
+                                    @endforeach
+                                @else
+                                    @foreach(['Ushers', 'Host', 'Anchor / MC', 'DJ / Sound Engineer', 'Security Staff', 'Photographer / Videographer'] as $catName)
+                                        <button type="button" onclick="selectCategory('{{ addslashes($catName) }}')" class="w-full text-left px-3.5 py-2.5 rounded-xl text-xs font-bold hover:bg-rose-500 hover:text-white transition-all flex items-center justify-between group">
+                                            <span class="flex items-center gap-2">
+                                                <span>⚡</span>
+                                                <span>{{ $catName }}</span>
+                                            </span>
+                                            <span class="text-[10px] opacity-70 group-hover:opacity-100">Select</span>
+                                        </button>
+                                    @endforeach
+                                @endif
+                                <button type="button" onclick="selectCategory('All')" class="w-full text-left px-3.5 py-2.5 rounded-xl text-xs font-bold hover:bg-rose-500 hover:text-white transition-all flex items-center justify-between border-t border-slate-800 mt-1 pt-2">
+                                    <span class="flex items-center gap-2"><span>✨</span><span>All Categories</span></span>
+                                </button>
+                            </div>
                         </div>
+
+                        <!-- 2. EVENT DATE SELECTOR BUTTON -->
+                        <div class="relative">
+                            <button type="button" id="map-date-btn" onclick="openDatePicker()" class="px-4 py-2.5 rounded-2xl bg-slate-900/90 hover:bg-slate-900 text-white border border-slate-700/80 backdrop-blur-md shadow-xl text-xs font-black flex items-center gap-2 cursor-pointer transition-all hover:border-amber-400">
+                                <span class="text-amber-400 text-sm">📅</span>
+                                <span id="map-date-label">EVENT DATE</span>
+                                <span class="text-[10px] text-slate-400 ml-1">▼</span>
+                            </button>
+                            <input type="text" id="hero_dates_input" class="sr-only" placeholder="Select dates">
+                        </div>
+
                     </div>
 
-                    <!-- Find Available Crew Button (Google Rounded Pill CTA) -->
-                    <button type="submit" class="w-full py-3.5 rounded-full bg-gradient-to-r from-rose-500 via-pink-500 to-amber-500 hover:opacity-95 text-white font-black text-sm tracking-wider shadow-lg shadow-pink-500/25 hover:shadow-pink-500/40 transition-all flex items-center justify-center gap-2 uppercase cursor-pointer">
-                        <span>FIND AVAILABLE CREW</span>
-                        <span>→</span>
-                    </button>
-                </form>
-
-                <!-- Search Filter Tags Preview Bar -->
-                <div class="pt-3 border-t border-slate-100 flex items-center gap-2 flex-wrap text-xs font-bold text-slate-600">
-                    <span id="pill-tag-category" class="px-3 py-1 rounded-full bg-slate-100 text-slate-700">All Categories</span>
-                    <span id="pill-tag-location" class="px-3 py-1 rounded-full bg-slate-100 text-slate-700">Nairobi</span>
-                    <span id="pill-tag-dates" class="px-3 py-1 rounded-full bg-slate-100 text-slate-700">Flexible Dates</span>
-                </div>
-
-            </div>
-
-            <!-- RIGHT: Dual-View Interactive Container (Live Map + Animated Crew Results) -->
-            <div class="lg:col-span-6 relative rounded-[32px] overflow-hidden border border-slate-200 shadow-xl bg-slate-900 min-h-[440px] lg:min-h-[500px] flex flex-col justify-between">
-                
-                <!-- Header Tab Switcher Bar -->
-                <div class="relative z-20 p-3.5 bg-slate-950/90 backdrop-blur-md border-b border-slate-800 flex items-center justify-between gap-2">
-                    <div class="flex items-center gap-2">
-                        <button type="button" id="tab-btn-map" onclick="switchHeroRightView('map')" class="px-3.5 py-1.5 rounded-xl text-xs font-black transition-all bg-rose-500 text-white shadow-md flex items-center gap-1.5 cursor-pointer">
-                            <span>🗺️ Live Map</span>
-                        </button>
-                        <button type="button" id="tab-btn-crew" onclick="switchHeroRightView('crew')" class="px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all bg-slate-800 text-slate-300 hover:bg-slate-700 flex items-center gap-1.5 cursor-pointer">
-                            <span>👥 Available Crew</span>
-                            <span id="crew-count-pill" class="px-1.5 py-0.5 rounded-md bg-rose-500/20 text-rose-400 font-extrabold text-[10px]">0</span>
-                        </button>
-                    </div>
-
-                    <div id="map-pinned-count" class="bg-white/95 backdrop-blur-md px-3 py-1 rounded-xl border border-slate-200 text-slate-950 font-black text-[11px] shadow-sm flex items-center gap-1.5 animate-bounce">
-                        <span class="w-2 h-2 rounded-full bg-emerald-500 animate-ping"></span>
-                        <span id="map-crew-count-text">Crew Available • Nairobi</span>
-                    </div>
-                </div>
-
-                <!-- VIEW 1: LEAFLET MAP CANVAS -->
-                <div id="hero-view-map" class="relative w-full h-full flex-1 min-h-[360px]">
+                    <!-- LEAFLET MAP CANVAS -->
                     <div id="hero-leaflet-map" class="absolute inset-0 w-full h-full z-0"></div>
-                </div>
 
-                <!-- VIEW 2: ANIMATED MATCHING CREW CARDS RESULTS -->
-                <div id="hero-view-crew" class="hidden relative w-full h-full flex-1 p-4 overflow-y-auto max-h-[420px] bg-slate-950/95 space-y-3">
-                    <!-- Animated matching crew result cards populated via JavaScript -->
-                </div>
+                    <!-- BOTTOM MAP OVERLAY: Location Select Pill & Search Button -->
+                    <div class="absolute bottom-4 left-4 right-4 z-20 pointer-events-auto">
+                        <div class="p-2.5 bg-slate-950/90 backdrop-blur-xl border border-slate-800 rounded-2xl shadow-2xl flex items-center justify-between gap-3">
+                            
+                            <!-- Location Dropdown Pill -->
+                            <div class="relative flex-1">
+                                <button type="button" id="map-location-btn" onclick="toggleLocationMenu()" class="w-full text-left px-3.5 py-2.5 rounded-xl bg-slate-900 text-slate-400 border border-slate-800 text-xs font-bold flex items-center gap-3 transition-all cursor-not-allowed opacity-80">
+                                    <div class="w-8 h-8 rounded-lg bg-rose-500/10 text-rose-500 flex items-center justify-center text-sm shrink-0" id="location-icon-box">
+                                        🔒
+                                    </div>
+                                    <div class="truncate">
+                                        <div id="map-location-title" class="font-extrabold text-xs text-white truncate">Select Event Location</div>
+                                        <div id="map-location-sub" class="text-[10px] text-slate-400 truncate">Select Category & Date first</div>
+                                    </div>
+                                </button>
 
-                <!-- Bottom Floating Location Indicator Card -->
-                <div class="relative z-20 p-3.5 m-3 bg-white/95 backdrop-blur-md border border-slate-200 rounded-2xl text-slate-900 shadow-xl flex items-center justify-between gap-3">
-                    <div class="flex items-center gap-3">
-                        <div class="w-9 h-9 rounded-xl bg-rose-500/10 text-rose-600 flex items-center justify-center text-lg shrink-0">
-                            📍
-                        </div>
-                        <div>
-                            <div class="text-xs font-extrabold text-slate-900" id="map-indicator-title">Select crew category, date & location to search</div>
-                            <div class="text-[10px] font-bold text-slate-500" id="map-indicator-sub">Nairobi • All Categories</div>
+                                <!-- Popular Cities in Kenya Dropdown -->
+                                <div id="map-location-menu" class="hidden absolute bottom-full left-0 mb-2 w-80 bg-slate-950/95 backdrop-blur-xl border border-slate-800 rounded-2xl p-3 shadow-2xl z-50 text-white space-y-2 max-h-80 overflow-y-auto">
+                                    
+                                    <!-- Auto-Detect Geolocation Button -->
+                                    <button type="button" onclick="detectUserLocation()" class="w-full text-left px-3.5 py-2.5 rounded-xl bg-gradient-to-r from-rose-500/20 to-amber-500/20 border border-rose-500/40 text-rose-300 font-extrabold text-xs hover:bg-rose-500 hover:text-white transition-all flex items-center justify-between group">
+                                        <span class="flex items-center gap-2">
+                                            <span class="animate-pulse">📍</span>
+                                            <span id="location-detect-text">Detect My Location (GPS)</span>
+                                        </span>
+                                        <span class="text-[10px] bg-rose-500/40 px-2 py-0.5 rounded-md text-white font-extrabold">Auto</span>
+                                    </button>
+
+                                    <div class="px-2 pt-1 border-t border-slate-800 text-[10px] font-extrabold uppercase tracking-wider text-slate-400 flex items-center justify-between">
+                                        <span>Popular Cities in Kenya</span>
+                                        <span>Available Crew</span>
+                                    </div>
+
+                                    <div id="kenya-cities-list" class="space-y-1">
+                                        <!-- Rendered dynamically -->
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- SEARCH CTA Button -->
+                            <button type="button" id="hero-search-submit-btn" onclick="onHeroFormSubmit(event)" disabled class="px-6 py-3 rounded-xl bg-slate-800 text-slate-500 font-black text-xs uppercase tracking-wider opacity-50 cursor-not-allowed shadow-none transition-all shrink-0 flex items-center gap-2">
+                                <span id="search-btn-label">SEARCH 🔒</span>
+                            </button>
+
                         </div>
                     </div>
+
+                </div>
+
+                <!-- RIGHT: Dynamic State Text & Stats Counter Panel -->
+                <div class="lg:col-span-5 bg-gradient-to-br from-rose-50/40 via-amber-50/20 to-slate-50 border border-slate-200/80 rounded-[28px] p-6 sm:p-8 flex flex-col justify-between space-y-6">
                     
-                    <a id="hero-catalog-btn" href="{{ route('crew.index') }}" class="px-3.5 py-1.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-white font-extrabold text-[11px] transition-all text-decoration-none shrink-0">
-                        View Catalog →
-                    </a>
+                    <div class="space-y-4">
+                        <!-- Dynamic State Pill Tag -->
+                        <div class="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-white border border-slate-200 shadow-2xs text-[11px] font-extrabold text-slate-800" id="hero-state-badge">
+                            <span class="w-2 h-2 rounded-full bg-rose-500 animate-pulse"></span>
+                            <span id="hero-state-badge-text">PLAN YOUR BIG DAY WITH EASE</span>
+                        </div>
+
+                        <!-- Dynamic Title -->
+                        <h2 class="text-3xl sm:text-4xl lg:text-5xl font-black text-slate-950 tracking-tight leading-[1.1]" id="hero-state-title">
+                            Find Your Perfect <span class="bg-gradient-to-r from-rose-500 via-pink-500 to-amber-500 bg-clip-text text-transparent">Event Crew</span>
+                        </h2>
+
+                        <!-- Dynamic Description -->
+                        <p class="text-sm sm:text-base font-medium text-slate-600 leading-relaxed" id="hero-state-sub">
+                            Tell us who you need and when — we'll match you with vetted, available professionals near your event.
+                        </p>
+                    </div>
+
+                    <!-- Dynamic Steps Guidance Indicator -->
+                    <div class="p-4 rounded-2xl bg-white/80 border border-slate-200/80 backdrop-blur-xs space-y-2" id="hero-steps-box">
+                        <div class="text-[11px] font-black uppercase tracking-wider text-slate-400 flex items-center justify-between">
+                            <span>Search Requirement Checklist</span>
+                            <span id="hero-steps-progress" class="text-rose-500 font-extrabold">0/3 Completed</span>
+                        </div>
+                        <div class="grid grid-cols-3 gap-2 text-[11px] font-extrabold">
+                            <div id="step-pill-1" class="py-2 px-2 rounded-xl bg-slate-100 text-slate-400 text-center transition-all border border-slate-200">
+                                1. Category
+                            </div>
+                            <div id="step-pill-2" class="py-2 px-2 rounded-xl bg-slate-100 text-slate-400 text-center transition-all border border-slate-200">
+                                2. Date
+                            </div>
+                            <div id="step-pill-3" class="py-2 px-2 rounded-xl bg-slate-100 text-slate-400 text-center transition-all border border-slate-200">
+                                3. Location
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Stats Counters Row -->
+                    <div class="pt-6 border-t border-slate-200/80 grid grid-cols-3 gap-3">
+                        <div>
+                            <div class="text-xl sm:text-2xl font-black text-slate-950" id="hero-stat-1-val">42+</div>
+                            <div class="text-[10px] sm:text-[11px] font-extrabold uppercase tracking-wider text-slate-400" id="hero-stat-1-lbl">CREW IN NAIROBI</div>
+                        </div>
+                        <div class="border-l border-slate-200/80 pl-3">
+                            <div class="text-xl sm:text-2xl font-black text-slate-950 flex items-center gap-1">
+                                <span>4.9</span>
+                                <span class="text-amber-500 text-base">★</span>
+                            </div>
+                            <div class="text-[10px] sm:text-[11px] font-extrabold uppercase tracking-wider text-slate-400">AVG. RATING</div>
+                        </div>
+                        <div class="border-l border-slate-200/80 pl-3">
+                            <div class="text-xl sm:text-2xl font-black text-slate-950">2hr</div>
+                            <div class="text-[10px] sm:text-[11px] font-extrabold uppercase tracking-wider text-slate-400">AVG. RESPONSE</div>
+                        </div>
+                    </div>
+
                 </div>
 
             </div>
-
         </div>
 
-        <!-- MATCHING CREW CARDS SECTION DIRECTLY UNDER SEARCH (HIDDEN UNTIL USER SEARCHES) -->
+        <!-- SEARCH RESULTS CONTAINER (REVEALED WHEN SEARCH IS EXECUTED) -->
         <div id="home-search-results-section" class="hidden mt-10 pt-8 border-t border-slate-200/80 space-y-6">
             <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                 <div>
-                    <span class="text-[11px] font-black uppercase tracking-widest text-rose-500 block mb-0.5">SEARCH RESULTS</span>
+                    <span class="text-[11px] font-black uppercase tracking-widest text-rose-500 block mb-0.5">MATCHING CREW FOUND</span>
                     <h2 id="home-results-title" class="text-xl sm:text-3xl font-black text-slate-950 tracking-tight">
                         Available Crew in Nairobi
                     </h2>
@@ -205,9 +247,9 @@
                 </a>
             </div>
 
-            <!-- Dynamic Crew Cards Grid under Search Box -->
+            <!-- Dynamic Crew Cards Grid -->
             <div id="home-crew-cards-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                <!-- Dynamically rendered via JavaScript based on selected Category and Location -->
+                <!-- Populated via JavaScript -->
             </div>
         </div>
 
@@ -253,7 +295,7 @@
 
 
 <!-- ========================================================= -->
-<!-- SECTION 4: CALL TO ACTION BANNER (PDF PAGE 2 SPECIFICATION) -->
+<!-- SECTION 4: CALL TO ACTION BANNER -->
 <!-- ========================================================= -->
 <section class="py-16 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
     <div class="bg-slate-950 text-white rounded-[32px] p-8 sm:p-14 shadow-2xl relative overflow-hidden flex flex-col md:flex-row items-center justify-between gap-8 border border-slate-800">
@@ -279,92 +321,47 @@
     </div>
 </section>
 
-<!-- Leaflet Map & Flatpickr Date Picker Script Handlers -->
+<!-- Leaflet Map & Flatpickr Scripts -->
 <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
 <script>
 let leafletMap = null;
-let leafletMarker = null;
+let leafletMarkersGroup = null;
+let flatpickrInstance = null;
 
-const categoryLocationsMap = @json($categoryLocations ?? []);
 const allApprovedCrew = @json($allApprovedCrewList ?? []);
 
-const locationCoordinates = {
-    'Nairobi': [-1.286389, 36.817223],
-    'Mombasa': [-4.043477, 39.668206],
-    'Kisumu': [-0.091702, 34.767956],
-    'Nakuru': [-0.303099, 36.080025],
-    'Eldoret': [0.514277, 35.269779]
-};
+// Popular Kenyan Cities with Coordinates
+const kenyaCities = [
+    { name: 'Nairobi', coords: [-1.286389, 36.817223], region: 'Capital' },
+    { name: 'Mombasa', coords: [-4.043477, 39.668206], region: 'Coast' },
+    { name: 'Kisumu', coords: [-0.091702, 34.767956], region: 'Nyanza' },
+    { name: 'Nakuru', coords: [-0.303099, 36.080025], region: 'Rift Valley' },
+    { name: 'Eldoret', coords: [0.514277, 35.269779], region: 'North Rift' },
+    { name: 'Naivasha', coords: [-0.7167, 36.4333], region: 'Rift Valley' },
+    { name: 'Diani', coords: [-4.2796, 39.5947], region: 'South Coast' },
+    { name: 'Malindi', coords: [-3.2192, 40.1169], region: 'North Coast' },
+    { name: 'Thika', coords: [-1.0333, 37.0667], region: 'Central' },
+    { name: 'Machakos', coords: [-1.5167, 37.2667], region: 'Eastern' }
+];
 
-const categoryHierarchy = {
-    'Ushers': [
-        'All Ushers Specializations',
-        'Protocol & VIP Ushers',
-        'Registration Desk Staff',
-        'Guest Relations & Ticketing',
-        'Door & Seat Coordinators'
-    ],
-    'Technical Crew': [
-        'All Technical Specializations',
-        'Sound Engineers / Audio Technicians',
-        'Lighting Technicians & Operators',
-        'Stage Managers / Hands',
-        'Riggers & AV Crew'
-    ],
-    'Decorations': [
-        'All Decoration Specializations',
-        'Floral & Stage Designers',
-        'Balloon & Backdrop Stylists',
-        'Lighting Decorators',
-        'Set Builders & Prop Setup'
-    ],
-    'Entertainers': [
-        'All Entertainer Specializations',
-        'MCs & Stage Hosts',
-        'DJs & Music Curators',
-        'Live Bands & Vocalists',
-        'Dancers & Performance Artists'
-    ],
-    'Multi-Media & Brand Activations': [
-        'All Media & Activation Specializations',
-        'Photographers',
-        'Videographers & Drone Pilots',
-        'Brand Ambassadors & Promo Models',
-        'Content Creators & Livestreaming Crew'
-    ]
-};
+// Interactive Form State Variables
+let selectedCategory = '';
+let selectedDates = '';
+let selectedCity = '';
 
 document.addEventListener('DOMContentLoaded', () => {
     initLeafletMap();
-    onParentCategoryChanged();
-
-    if (typeof flatpickr !== 'undefined') {
-        flatpickr('#hero_dates', {
-            mode: 'range',
-            dateFormat: 'd M Y',
-            minDate: 'today',
-            onChange: function(selectedDates, dateStr, instance) {
-                if (selectedDates.length === 2) {
-                    const diffMs = Math.abs(selectedDates[1].getTime() - selectedDates[0].getTime());
-                    const daysCount = Math.round(diffMs / (1000 * 60 * 60 * 24)) + 1;
-                    const startStr = instance.formatDate(selectedDates[0], 'd M Y');
-                    const endStr = instance.formatDate(selectedDates[1], 'd M Y');
-                    instance.input.value = `${startStr} - ${endStr} (${daysCount} ${daysCount === 1 ? 'Day' : 'Days'})`;
-                } else if (selectedDates.length === 1) {
-                    const startStr = instance.formatDate(selectedDates[0], 'd M Y');
-                    instance.input.value = `${startStr} (1 Day)`;
-                }
-                updateSearchPills();
-            }
-        });
-    }
+    initDatePicker();
+    renderCitiesDropdown();
+    updateStateUI();
 });
 
+// Initialize Leaflet Map
 function initLeafletMap() {
     const container = document.getElementById('hero-leaflet-map');
     if (!container) return;
 
-    const initialCoords = locationCoordinates['Nairobi'];
+    const initialCoords = kenyaCities[0].coords; // Default Nairobi
     leafletMap = L.map('hero-leaflet-map', {
         center: initialCoords,
         zoom: 12,
@@ -375,209 +372,359 @@ function initLeafletMap() {
         attribution: '&copy; OpenStreetMap'
     }).addTo(leafletMap);
 
-    const customIcon = L.divIcon({
-        className: 'custom-map-pin',
-        html: `<div style="background-color:#FF2D55; width:24px; height:24px; border-radius:50%; border:3px solid white; box-shadow:0 10px 20px rgba(0,0,0,0.3); transform: scale(1.2);"></div>`,
-        iconSize: [24, 24],
-        iconAnchor: [12, 12]
-    });
-
-    leafletMarker = L.marker(initialCoords, { icon: customIcon }).addTo(leafletMap);
+    leafletMarkersGroup = L.layerGroup().addTo(leafletMap);
+    renderMapMarkers('Nairobi');
 
     leafletMap.on('click', function(e) {
-        const clickedLat = e.latlng.lat;
-        const clickedLng = e.latlng.lng;
-        let closestCity = 'Nairobi';
-        let minDistance = Infinity;
-
-        for (const [cityName, coords] of Object.entries(locationCoordinates)) {
-            const dist = Math.hypot(coords[0] - clickedLat, coords[1] - clickedLng);
-            if (dist < minDistance) {
-                minDistance = dist;
-                closestCity = cityName;
-            }
+        if (!selectedCategory || !selectedDates) {
+            alert('Please select Crew Category and Event Date first to unlock location selection on the map!');
+            return;
         }
 
-        selectLocationPill(closestCity, '- Selected Area');
+        const clickedLat = e.latlng.lat;
+        const clickedLng = e.latlng.lng;
+        let closestCity = kenyaCities[0];
+        let minDistance = Infinity;
+
+        kenyaCities.forEach(city => {
+            const dist = Math.hypot(city.coords[0] - clickedLat, city.coords[1] - clickedLng);
+            if (dist < minDistance) {
+                minDistance = dist;
+                closestCity = city;
+            }
+        });
+
+        selectCity(closestCity.name);
     });
 }
 
-function getEffectiveCategory() {
-    const parentVal = document.getElementById('hero_parent_category')?.value || 'All';
-    const subWrapper = document.getElementById('hero_subcategory_wrapper');
-    const subVal = document.getElementById('hero_subcategory')?.value;
+function renderMapMarkers(cityToCenter) {
+    if (!leafletMap || !leafletMarkersGroup) return;
+    leafletMarkersGroup.clearLayers();
 
-    if (subWrapper && !subWrapper.classList.contains('hidden') && subVal && !subVal.startsWith('All ')) {
-        return subVal;
-    }
-    return parentVal;
+    const matchedCity = kenyaCities.find(c => c.name.toLowerCase() === cityToCenter.toLowerCase()) || kenyaCities[0];
+    
+    // Custom Red Pin for City Center
+    const centerIcon = L.divIcon({
+        className: 'custom-map-center-pin',
+        html: `<div style="background-color:#FF2D55; width:28px; height:28px; border-radius:50%; border:3px solid white; box-shadow:0 10px 25px rgba(255,45,85,0.6); display:flex; align-items:center; justify-content:center; color:white; font-weight:bold; font-size:10px;">AC</div>`,
+        iconSize: [28, 28],
+        iconAnchor: [14, 14]
+    });
+
+    L.marker(matchedCity.coords, { icon: centerIcon }).addTo(leafletMarkersGroup);
+
+    // Add surrounding micro pins for crew members in this city
+    const crewInCity = allApprovedCrew.filter(c => (c.city || '').toLowerCase().trim() === cityToCenter.toLowerCase().trim());
+    
+    crewInCity.slice(0, 10).forEach((crew, idx) => {
+        // Offset coords slightly around city center
+        const latOffset = (Math.sin(idx + 1) * 0.025);
+        const lngOffset = (Math.cos(idx + 1) * 0.025);
+        const pinCoords = [matchedCity.coords[0] + latOffset, matchedCity.coords[1] + lngOffset];
+
+        const crewIcon = L.divIcon({
+            className: 'custom-crew-pin',
+            html: `<div style="background-color:#0F172A; width:22px; height:22px; border-radius:50%; border:2px solid #F59E0B; box-shadow:0 4px 10px rgba(0,0,0,0.4); display:flex; align-items:center; justify-content:center; color:#F59E0B; font-weight:900; font-size:9px;">★</div>`,
+            iconSize: [22, 22],
+            iconAnchor: [11, 11]
+        });
+
+        L.marker(pinCoords, { icon: crewIcon }).addTo(leafletMarkersGroup);
+    });
+
+    leafletMap.flyTo(matchedCity.coords, 12, { duration: 1.2 });
 }
 
-function onParentCategoryChanged() {
-    const parentSelect = document.getElementById('hero_parent_category');
-    const subWrapper = document.getElementById('hero_subcategory_wrapper');
-    const subSelect = document.getElementById('hero_subcategory');
+// Initialize Flatpickr Date Picker
+function initDatePicker() {
+    if (typeof flatpickr !== 'undefined') {
+        flatpickrInstance = flatpickr('#hero_dates_input', {
+            mode: 'range',
+            dateFormat: 'd M Y',
+            minDate: 'today',
+            onChange: function(selectedDatesArr, dateStr, instance) {
+                if (selectedDatesArr.length === 2) {
+                    const diffMs = Math.abs(selectedDatesArr[1].getTime() - selectedDatesArr[0].getTime());
+                    const daysCount = Math.round(diffMs / (1000 * 60 * 60 * 24)) + 1;
+                    const startStr = instance.formatDate(selectedDatesArr[0], 'd M');
+                    const endStr = instance.formatDate(selectedDatesArr[1], 'd M Y');
+                    selectedDates = `${startStr} - ${endStr} (${daysCount}d)`;
+                } else if (selectedDatesArr.length === 1) {
+                    selectedDates = instance.formatDate(selectedDatesArr[0], 'd M Y');
+                } else {
+                    selectedDates = '';
+                }
 
-    const parentVal = parentSelect?.value || 'All';
-
-    if (parentVal && parentVal !== 'All' && categoryHierarchy[parentVal]) {
-        if (subSelect) {
-            subSelect.innerHTML = '';
-            categoryHierarchy[parentVal].forEach(sub => {
-                const opt = document.createElement('option');
-                opt.value = sub;
-                opt.textContent = sub;
-                subSelect.appendChild(opt);
-            });
-        }
-        if (subWrapper) {
-            subWrapper.classList.remove('hidden');
-            setTimeout(() => {
-                subWrapper.classList.remove('opacity-0', 'scale-95');
-                subWrapper.classList.add('opacity-100', 'scale-100');
-            }, 10);
-        }
-    } else {
-        if (subWrapper) {
-            subWrapper.classList.remove('opacity-100', 'scale-100');
-            subWrapper.classList.add('opacity-0', 'scale-95');
-            setTimeout(() => {
-                subWrapper.classList.add('hidden');
-            }, 200);
-        }
-        if (subSelect) subSelect.innerHTML = '';
+                document.getElementById('map-date-label').textContent = selectedDates ? selectedDates : 'EVENT DATE';
+                updateStateUI();
+            }
+        });
     }
-
-    const effectiveCat = getEffectiveCategory();
-    renderLocationPills(parentVal);
-    updateSearchPills();
-    const city = document.getElementById('hero_location')?.value || 'Nairobi';
-    renderMatchingCrewCards(effectiveCat, city);
 }
 
-function onSubCategoryChanged() {
-    const effectiveCat = getEffectiveCategory();
-    updateSearchPills();
-    const city = document.getElementById('hero_location')?.value || 'Nairobi';
-    renderMatchingCrewCards(effectiveCat, city);
+function openDatePicker() {
+    if (flatpickrInstance) {
+        flatpickrInstance.open();
+    }
 }
 
-function renderLocationPills(selectedCategory) {
-    const container = document.getElementById('location-pills-container');
-    if (!container) return;
+// Category Selection Handlers
+function toggleCategoryMenu() {
+    const menu = document.getElementById('map-category-menu');
+    const locMenu = document.getElementById('map-location-menu');
+    if (locMenu) locMenu.classList.add('hidden');
+    if (menu) menu.classList.toggle('hidden');
+}
 
-    let availableCities = categoryLocationsMap[selectedCategory];
+function selectCategory(cat) {
+    selectedCategory = cat;
+    document.getElementById('map-category-label').textContent = (cat === 'All' ? '⚡ ALL CATEGORIES' : cat.toUpperCase());
+    const menu = document.getElementById('map-category-menu');
+    if (menu) menu.classList.add('hidden');
 
-    if (!availableCities) {
-        const matchingKey = Object.keys(categoryLocationsMap).find(k => k.toLowerCase() === selectedCategory.toLowerCase());
-        if (matchingKey) {
-            availableCities = categoryLocationsMap[matchingKey];
-        }
-    }
+    updateStateUI();
+}
 
-    if (!availableCities && selectedCategory === 'All') {
-        availableCities = categoryLocationsMap['All'] || [];
-    }
-
-    container.innerHTML = '';
-
-    if (!availableCities || availableCities.length === 0) {
-        container.innerHTML = `
-            <div class="w-full py-2.5 px-3.5 rounded-2xl bg-amber-50 border border-amber-200/80 text-amber-800 text-xs font-extrabold flex items-center gap-2">
-                <span>📍</span>
-                <span>No registered crew available for "${selectedCategory}" yet.</span>
-            </div>
-        `;
-        const heroLoc = document.getElementById('hero_location');
-        if (heroLoc) heroLoc.value = '';
-        updateSearchPills();
-        renderMatchingCrewCards(selectedCategory, '');
+// Location Selector Dropdown & Geolocation
+function toggleLocationMenu() {
+    if (!selectedCategory || !selectedDates) {
+        alert('🔒 Location Selection is locked!\n\nPlease select Crew Category (Step 1) and Event Date (Step 2) first.');
         return;
     }
 
-    const currentSelectedCity = document.getElementById('hero_location')?.value;
-    let cityToSelect = availableCities.includes(currentSelectedCity) ? currentSelectedCity : availableCities[0];
+    const menu = document.getElementById('map-location-menu');
+    const catMenu = document.getElementById('map-category-menu');
+    if (catMenu) catMenu.classList.add('hidden');
+    if (menu) menu.classList.toggle('hidden');
+}
 
-    availableCities.forEach((city, index) => {
-        const isSelected = (city === cityToSelect);
-        const sub = (index === 0) ? '- Near you' : '';
+function renderCitiesDropdown() {
+    const container = document.getElementById('kenya-cities-list');
+    if (!container) return;
+
+    container.innerHTML = '';
+    kenyaCities.forEach(city => {
+        const count = allApprovedCrew.filter(c => (c.city || '').toLowerCase().trim() === city.name.toLowerCase().trim()).length;
         const btn = document.createElement('button');
         btn.type = 'button';
-        btn.setAttribute('data-city', city);
-        btn.onclick = () => selectLocationPill(city, sub);
-
-        if (isSelected) {
-            btn.className = 'location-pill active-pill px-4 py-2 rounded-2xl text-xs font-black transition-all bg-rose-500 text-white shadow-md';
-        } else {
-            btn.className = 'location-pill px-4 py-2 rounded-2xl text-xs font-bold transition-all bg-slate-100 text-slate-700 hover:bg-slate-200';
-        }
-
-        btn.textContent = sub ? `${city} ${sub}` : city;
+        btn.onclick = () => selectCity(city.name);
+        btn.className = 'w-full text-left px-3.5 py-2 rounded-xl text-xs font-bold hover:bg-slate-800 transition-all flex items-center justify-between group';
+        btn.innerHTML = `
+            <span class="flex items-center gap-2">
+                <span class="text-slate-500 group-hover:text-rose-400">📍</span>
+                <span>${city.name}</span>
+                <span class="text-[10px] text-slate-500 font-normal">(${city.region})</span>
+            </span>
+            <span class="text-[10px] px-2 py-0.5 rounded-md ${count > 0 ? 'bg-emerald-500/20 text-emerald-400 font-extrabold' : 'bg-slate-800 text-slate-500'}">
+                ${count} Crew
+            </span>
+        `;
         container.appendChild(btn);
     });
-
-    selectLocationPill(cityToSelect, (availableCities[0] === cityToSelect ? '- Near you' : ''));
 }
 
-function selectLocationPill(city, subtitle) {
-    const heroLoc = document.getElementById('hero_location');
-    if (heroLoc) heroLoc.value = city;
+function selectCity(cityName, isAutoGps = false) {
+    selectedCity = cityName;
+    
+    document.getElementById('map-location-title').textContent = `${cityName} ${isAutoGps ? '(GPS Detected)' : ''}`;
+    document.getElementById('map-location-sub').textContent = 'Location Selected • Ready';
 
-    document.querySelectorAll('.location-pill').forEach(btn => {
-        const btnCity = btn.getAttribute('data-city') || btn.textContent.trim().split(' ')[0];
-        if (btnCity === city) {
-            btn.className = 'location-pill active-pill px-4 py-2 rounded-2xl text-xs font-black transition-all bg-rose-500 text-white shadow-md';
-        } else {
-            btn.className = 'location-pill px-4 py-2 rounded-2xl text-xs font-bold transition-all bg-slate-100 text-slate-700 hover:bg-slate-200';
-        }
-    });
+    const menu = document.getElementById('map-location-menu');
+    if (menu) menu.classList.add('hidden');
 
-    updateSearchPills();
+    renderMapMarkers(cityName);
+    updateStateUI();
+}
 
-    if (leafletMap && city && locationCoordinates[city]) {
-        const coords = locationCoordinates[city];
-        leafletMap.flyTo(coords, 12, { duration: 1.5 });
-        if (leafletMarker) {
-            leafletMarker.setLatLng(coords);
-        }
+function detectUserLocation() {
+    if (!navigator.geolocation) {
+        alert('Geolocation is not supported by your browser.');
+        return;
     }
 
-    const cat = getEffectiveCategory();
-    renderMatchingCrewCards(cat, city);
+    const detectText = document.getElementById('location-detect-text');
+    if (detectText) detectText.textContent = 'Detecting GPS...';
+
+    navigator.geolocation.getCurrentPosition(
+        (position) => {
+            const lat = position.coords.latitude;
+            const lng = position.coords.longitude;
+
+            let closest = kenyaCities[0];
+            let minDist = Infinity;
+
+            kenyaCities.forEach(city => {
+                const dist = Math.hypot(city.coords[0] - lat, city.coords[1] - lng);
+                if (dist < minDist) {
+                    minDist = dist;
+                    closest = city;
+                }
+            });
+
+            if (detectText) detectText.textContent = 'Detect My Location (GPS)';
+            selectCity(closest.name, true);
+        },
+        (error) => {
+            if (detectText) detectText.textContent = 'Detect My Location (GPS)';
+            alert('Location detection permission denied or unavailable. Please pick a city from the list below.');
+        },
+        { timeout: 8000 }
+    );
 }
 
-function switchHeroRightView(view) {
-    const mapView = document.getElementById('hero-view-map');
-    const crewView = document.getElementById('hero-view-crew');
-    const btnMap = document.getElementById('tab-btn-map');
-    const btnCrew = document.getElementById('tab-btn-crew');
 
-    if (view === 'crew') {
-        mapView?.classList.add('hidden');
-        crewView?.classList.remove('hidden');
-        if (btnCrew) {
-            btnCrew.className = 'px-3.5 py-1.5 rounded-xl text-xs font-black transition-all bg-rose-500 text-white shadow-md flex items-center gap-1.5 cursor-pointer';
-        }
-        if (btnMap) {
-            btnMap.className = 'px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all bg-slate-800 text-slate-300 hover:bg-slate-700 flex items-center gap-1.5 cursor-pointer';
+// STATE EVALUATION & STEP LOCKING ENGINE
+function updateStateUI() {
+    const isCatSet = !!selectedCategory;
+    const isDateSet = !!selectedDates;
+    const isLocUnlocked = isCatSet && isDateSet;
+    const isLocSet = !!selectedCity;
+    const isSearchUnlocked = isLocUnlocked && isLocSet;
+
+    // 1. Update Step Checklist Pills
+    const p1 = document.getElementById('step-pill-1');
+    const p2 = document.getElementById('step-pill-2');
+    const p3 = document.getElementById('step-pill-3');
+    const stepsProgress = document.getElementById('hero-steps-progress');
+
+    let completedCount = 0;
+    if (isCatSet) {
+        completedCount++;
+        p1.className = 'py-2 px-2 rounded-xl bg-emerald-500 text-white font-black text-center transition-all shadow-xs';
+        p1.textContent = '✓ 1. Category';
+    } else {
+        p1.className = 'py-2 px-2 rounded-xl bg-slate-100 text-slate-400 text-center transition-all border border-slate-200';
+        p1.textContent = '1. Category';
+    }
+
+    if (isDateSet) {
+        completedCount++;
+        p2.className = 'py-2 px-2 rounded-xl bg-emerald-500 text-white font-black text-center transition-all shadow-xs';
+        p2.textContent = '✓ 2. Date';
+    } else {
+        p2.className = 'py-2 px-2 rounded-xl bg-slate-100 text-slate-400 text-center transition-all border border-slate-200';
+        p2.textContent = '2. Date';
+    }
+
+    if (isLocSet) {
+        completedCount++;
+        p3.className = 'py-2 px-2 rounded-xl bg-emerald-500 text-white font-black text-center transition-all shadow-xs';
+        p3.textContent = '✓ 3. Location';
+    } else {
+        p3.className = 'py-2 px-2 rounded-xl bg-slate-100 text-slate-400 text-center transition-all border border-slate-200';
+        p3.textContent = '3. Location';
+    }
+
+    if (stepsProgress) stepsProgress.textContent = `${completedCount}/3 Completed`;
+
+    // 2. Update Location Pill Lock State
+    const locBtn = document.getElementById('map-location-btn');
+    const locIconBox = document.getElementById('location-icon-box');
+    const locTitle = document.getElementById('map-location-title');
+    const locSub = document.getElementById('map-location-sub');
+
+    if (isLocUnlocked) {
+        locBtn.className = 'w-full text-left px-3.5 py-2.5 rounded-xl bg-white text-slate-900 border border-amber-400 shadow-lg flex items-center gap-3 transition-all cursor-pointer hover:border-rose-500 animate-pulse';
+        locIconBox.className = 'w-8 h-8 rounded-lg bg-rose-500 text-white flex items-center justify-center text-sm shrink-0 shadow-sm';
+        locIconBox.textContent = '📍';
+        
+        if (!isLocSet) {
+            locTitle.textContent = 'Select Event Location';
+            locSub.textContent = 'Unlocked • Click to choose Kenyan city or GPS';
+            locTitle.className = 'font-extrabold text-xs text-slate-900 truncate';
+            locSub.className = 'text-[10px] text-rose-500 font-bold truncate';
         }
     } else {
-        crewView?.classList.add('hidden');
-        mapView?.classList.remove('hidden');
-        if (btnMap) {
-            btnMap.className = 'px-3.5 py-1.5 rounded-xl text-xs font-black transition-all bg-rose-500 text-white shadow-md flex items-center gap-1.5 cursor-pointer';
-        }
-        if (btnCrew) {
-            btnCrew.className = 'px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all bg-slate-800 text-slate-300 hover:bg-slate-700 flex items-center gap-1.5 cursor-pointer';
-        }
-        if (leafletMap) {
-            setTimeout(() => leafletMap.invalidateSize(), 150);
-        }
+        locBtn.className = 'w-full text-left px-3.5 py-2.5 rounded-xl bg-slate-900 text-slate-400 border border-slate-800 text-xs font-bold flex items-center gap-3 transition-all cursor-not-allowed opacity-80';
+        locIconBox.className = 'w-8 h-8 rounded-lg bg-rose-500/10 text-rose-500 flex items-center justify-center text-sm shrink-0';
+        locIconBox.textContent = '🔒';
+        locTitle.textContent = 'Select Event Location';
+        locSub.textContent = 'Select Category & Date first';
+        locTitle.className = 'font-extrabold text-xs text-white truncate';
+        locSub.className = 'text-[10px] text-slate-400 truncate';
+    }
+
+    // 3. Update Search Button Lock State
+    const searchBtn = document.getElementById('hero-search-submit-btn');
+    const searchLabel = document.getElementById('search-btn-label');
+
+    if (isSearchUnlocked) {
+        searchBtn.disabled = false;
+        searchBtn.className = 'px-7 py-3 rounded-xl bg-gradient-to-r from-rose-500 via-pink-500 to-amber-500 hover:opacity-95 text-white font-black text-xs uppercase tracking-wider shadow-lg shadow-rose-500/30 hover:scale-105 cursor-pointer transition-all shrink-0 flex items-center gap-2 animate-bounce';
+        searchLabel.textContent = 'SEARCH →';
+    } else {
+        searchBtn.disabled = true;
+        searchBtn.className = 'px-6 py-3 rounded-xl bg-slate-800 text-slate-500 font-black text-xs uppercase tracking-wider opacity-50 cursor-not-allowed shadow-none transition-all shrink-0 flex items-center gap-2';
+        searchLabel.textContent = 'SEARCH 🔒';
+    }
+
+    // 4. Update Dynamic Right-Side Text for state clicked
+    const badgeText = document.getElementById('hero-state-badge-text');
+    const stateTitle = document.getElementById('hero-state-title');
+    const stateSub = document.getElementById('hero-state-sub');
+    const stat1Val = document.getElementById('hero-stat-1-val');
+    const stat1Lbl = document.getElementById('hero-stat-1-lbl');
+
+    if (!isCatSet && !isDateSet) {
+        // STATE 0: Nothing selected
+        if (badgeText) badgeText.textContent = 'STEP 1 OF 3 • PLAN YOUR BIG DAY';
+        if (stateTitle) stateTitle.innerHTML = 'Find Your Perfect <span class="bg-gradient-to-r from-rose-500 via-pink-500 to-amber-500 bg-clip-text text-transparent">Event Crew</span>';
+        if (stateSub) stateSub.textContent = 'Tell us who you need and when — select crew category & date to unlock location search.';
+        if (stat1Val) stat1Val.textContent = '42+';
+        if (stat1Lbl) stat1Lbl.textContent = 'CREW IN NAIROBI';
+    } else if (isCatSet && !isDateSet) {
+        // STATE 1: Category Selected
+        if (badgeText) badgeText.textContent = 'STEP 2 OF 3 • SELECT EVENT DATES';
+        if (stateTitle) stateTitle.innerHTML = `Looking for <span class="bg-gradient-to-r from-rose-500 via-pink-500 to-amber-500 bg-clip-text text-transparent">${selectedCategory}</span>?`;
+        if (stateSub) stateSub.textContent = `Great choice! Now click "EVENT DATE" on the map to pick your event date(s) and unlock location selection.`;
+        
+        const catCrewCount = allApprovedCrew.filter(c => selectedCategory === 'All' || (c.category || '').toLowerCase().includes(selectedCategory.toLowerCase())).length;
+        if (stat1Val) stat1Val.textContent = `${catCrewCount}+`;
+        if (stat1Lbl) stat1Lbl.textContent = `${selectedCategory.toUpperCase()} PROS`;
+    } else if (isCatSet && isDateSet && !isLocSet) {
+        // STATE 2: Category & Date Selected (Location Unlocked)
+        if (badgeText) badgeText.textContent = 'STEP 3 OF 3 • LOCATION UNLOCKED';
+        if (stateTitle) stateTitle.innerHTML = 'Where is your <span class="bg-gradient-to-r from-rose-500 via-pink-500 to-amber-500 bg-clip-text text-transparent">Event Located</span>?';
+        if (stateSub) stateSub.textContent = 'Location selection is now unlocked! Auto-detect your GPS location or choose a popular Kenyan city below.';
+        if (stat1Val) stat1Val.textContent = 'Ready';
+        if (stat1Lbl) stat1Lbl.textContent = 'LOCATION UNLOCKED';
+    } else if (isSearchUnlocked) {
+        // STATE 3: All 3 Selected (Ready to Search!)
+        if (badgeText) badgeText.textContent = 'READY TO SEARCH • ALL FIELDS FILLED';
+        if (stateTitle) stateTitle.innerHTML = `<span class="bg-gradient-to-r from-rose-500 via-pink-500 to-amber-500 bg-clip-text text-transparent">${selectedCategory}</span> in ${selectedCity}`;
+        
+        const totalMatches = allApprovedCrew.filter(c => {
+            const matchCat = selectedCategory === 'All' || (c.category || '').toLowerCase().includes(selectedCategory.toLowerCase());
+            const matchCity = (c.city || '').toLowerCase().trim() === selectedCity.toLowerCase().trim();
+            return matchCat && matchCity;
+        }).length;
+
+        if (stateSub) stateSub.textContent = `We found ${totalMatches} vetted crew member(s) available in ${selectedCity} for ${selectedDates}! Click SEARCH to browse.`;
+        if (stat1Val) stat1Val.textContent = `${totalMatches}`;
+        if (stat1Lbl) stat1Lbl.textContent = `CREW IN ${selectedCity.toUpperCase()}`;
     }
 }
 
-function renderMatchingCrewCards(cat, city) {
-    const container = document.getElementById('hero-view-crew');
+// SEARCH SUBMISSION & CREW CARD RENDERING
+function onHeroFormSubmit(e) {
+    e.preventDefault();
+
+    if (!selectedCategory || !selectedDates || !selectedCity) {
+        alert('Please fill all 3 fields (Category, Event Date, Location) before searching.');
+        return;
+    }
+
+    renderCrewResultsGrid();
+
+    const searchResultsSection = document.getElementById('home-search-results-section');
+    if (searchResultsSection) {
+        searchResultsSection.classList.remove('hidden');
+        searchResultsSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+}
+
+function renderCrewResultsGrid() {
     const homeGrid = document.getElementById('home-crew-cards-grid');
     const homeTitle = document.getElementById('home-results-title');
     const homeSubtitle = document.getElementById('home-results-subtitle');
@@ -585,117 +732,34 @@ function renderMatchingCrewCards(cat, city) {
 
     let matching = allApprovedCrew.filter(c => {
         let matchCat = true;
-        if (cat && cat !== 'All' && !cat.startsWith('All ')) {
+        if (selectedCategory && selectedCategory !== 'All') {
             const crewCat = (c.category || '').toLowerCase();
             const crewSkills = (c.skills || '').toLowerCase();
-            const searchCat = cat.toLowerCase();
+            const searchCat = selectedCategory.toLowerCase();
 
-            matchCat = crewCat === searchCat || crewCat.includes(searchCat) || searchCat.includes(crewCat) || crewSkills.includes(searchCat) ||
-                (searchCat.includes('usher') && (crewCat.includes('usher') || crewSkills.includes('usher'))) ||
-                (searchCat.includes('protocol') && (crewCat.includes('protocol') || crewSkills.includes('protocol') || crewCat.includes('usher'))) ||
-                (searchCat.includes('host') && (crewCat.includes('host') || crewSkills.includes('host'))) ||
-                (searchCat.includes('tech') && (crewCat.includes('tech') || crewCat.includes('sound') || crewCat.includes('av') || crewSkills.includes('sound'))) ||
-                (searchCat.includes('sound') && (crewCat.includes('sound') || crewCat.includes('audio') || crewSkills.includes('sound'))) ||
-                (searchCat.includes('lighting') && (crewCat.includes('light') || crewSkills.includes('light'))) ||
-                (searchCat.includes('decor') && (crewCat.includes('decor') || crewCat.includes('design') || crewSkills.includes('decor'))) ||
-                (searchCat.includes('entertain') && (crewCat.includes('entertain') || crewCat.includes('mc') || crewCat.includes('dj'))) ||
-                (searchCat.includes('mc') && (crewCat.includes('mc') || crewCat.includes('anchor') || crewSkills.includes('mc'))) ||
-                (searchCat.includes('dj') && (crewCat.includes('dj') || crewSkills.includes('dj'))) ||
-                ((searchCat.includes('media') || searchCat.includes('photo') || searchCat.includes('video') || searchCat.includes('brand')) && (crewCat.includes('media') || crewCat.includes('photo') || crewCat.includes('video') || crewCat.includes('brand') || crewCat.includes('ambassador')));
+            matchCat = crewCat === searchCat || crewCat.includes(searchCat) || searchCat.includes(crewCat) || crewSkills.includes(searchCat);
         }
 
         let matchCity = true;
-        if (city) {
-            matchCity = (c.city || '').toLowerCase().trim() === city.toLowerCase().trim();
+        if (selectedCity) {
+            matchCity = (c.city || '').toLowerCase().trim() === selectedCity.toLowerCase().trim();
         }
 
         return matchCat && matchCity;
     });
 
-    const countPill = document.getElementById('crew-count-pill');
-    if (countPill) countPill.textContent = matching.length;
-
-    const countText = document.getElementById('map-crew-count-text');
-    if (countText) countText.textContent = `${matching.length} Crew Available • ${city || 'Kenya'}`;
-
-    const catalogBtn = document.getElementById('hero-catalog-btn');
-    if (catalogBtn) {
-        catalogBtn.href = `/crew?category=${encodeURIComponent(cat || '')}&city=${encodeURIComponent(city || '')}`;
-    }
-
     if (homeTitle) {
-        homeTitle.textContent = `Available Crew ${city ? 'in ' + city : ''} ${cat && cat !== 'All' ? '• ' + cat : ''}`;
+        homeTitle.textContent = `Available Crew in ${selectedCity} • ${selectedCategory}`;
     }
     if (homeSubtitle) {
         homeSubtitle.textContent = matching.length > 0
-            ? `${matching.length} vetted ${cat && cat !== 'All' ? cat : 'professional(s)'} ready for your event`
-            : `Showing search results for ${cat || 'All Categories'} in ${city || 'all locations'}`;
+            ? `Found ${matching.length} vetted ${selectedCategory} professional(s) ready for your event on ${selectedDates}`
+            : `Showing search results for ${selectedCategory} in ${selectedCity}`;
     }
     if (homeViewAll) {
-        homeViewAll.href = `/crew?category=${encodeURIComponent(cat || '')}&city=${encodeURIComponent(city || '')}`;
+        homeViewAll.href = `/crew?category=${encodeURIComponent(selectedCategory)}&city=${encodeURIComponent(selectedCity)}&dates=${encodeURIComponent(selectedDates)}`;
     }
 
-    // 1. Populate right map tab container
-    if (container) {
-        container.innerHTML = '';
-        if (matching.length === 0) {
-            container.innerHTML = `
-                <div class="py-12 px-6 text-center rounded-3xl bg-slate-900 border border-slate-800 text-white space-y-3 my-auto">
-                    <div class="w-14 h-14 rounded-2xl bg-rose-500/20 text-rose-400 font-black text-2xl flex items-center justify-center mx-auto shadow-inner">
-                        ⚡
-                    </div>
-                    <h4 class="text-base font-black text-white">No Registered Crew in ${city || 'this location'}</h4>
-                    <p class="text-xs text-slate-400 max-w-xs mx-auto font-medium">Try selecting another location pill or category to view available vetted staff.</p>
-                </div>
-            `;
-        } else {
-            matching.forEach((p, idx) => {
-                const delay = (idx * 0.07).toFixed(2);
-                const avatar = p.profile_photo_url ? `<img src="${p.profile_photo_url}" class="w-12 h-12 rounded-2xl object-cover border-2 border-slate-100 shadow-sm">` : `<div class="w-12 h-12 rounded-2xl bg-gradient-to-br from-amber-400 to-amber-600 text-slate-950 font-black text-lg flex items-center justify-center border-2 border-slate-100 shadow-sm">${p.full_name.charAt(0).toUpperCase()}</div>`;
-                const ratingBadgeHtml = (p.reviews_count > 0 && parseFloat(p.average_rating) > 0) ? `
-                    <span class="inline-flex items-center gap-1 text-[10px] font-black text-amber-600 bg-amber-50 px-2 py-0.5 rounded-md border border-amber-200/80">
-                        <span>★</span>
-                        <span>${p.average_rating}</span>
-                    </span>
-                ` : '';
-                const cardHtml = `
-                    <div class="bg-white border border-slate-200/90 rounded-2xl p-4 shadow-md hover:shadow-xl hover:-translate-y-0.5 transition-all duration-300 flex flex-col sm:flex-row sm:items-center justify-between gap-4 group animate-crew-card" style="animation-delay: ${delay}s">
-                        <div class="flex items-center gap-3.5">
-                            <div class="relative shrink-0">
-                                ${avatar}
-                                <span class="absolute -bottom-0.5 -right-0.5 w-3.5 h-3.5 rounded-full bg-emerald-500 border-2 border-white animate-pulse"></span>
-                            </div>
-                            <div>
-                                <div class="flex items-center gap-2 flex-wrap">
-                                    <h4 class="text-xs font-black text-slate-950 group-hover:text-rose-500 transition-colors">${p.full_name}</h4>
-                                    ${ratingBadgeHtml}
-                                </div>
-                                <div class="text-[11px] font-bold text-slate-500 mt-0.5">
-                                    ${p.category} • <span class="text-slate-900 font-extrabold">${p.city}</span>
-                                </div>
-                                <div class="text-[10px] text-slate-400 font-semibold mt-0.5 flex items-center gap-2">
-                                    <span>${p.experience_years ? p.experience_years + ' yrs exp' : 'Vetted Crew'}</span>
-                                    ${p.completed_gigs_count ? '<span>•</span><span>' + p.completed_gigs_count + '+ events</span>' : ''}
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="flex items-center gap-2 shrink-0 pt-2 sm:pt-0 border-t sm:border-t-0 border-slate-100">
-                            <a href="/crew/${p.id}" class="px-3.5 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-800 font-extrabold text-[11px] transition-all text-decoration-none">
-                                Profile
-                            </a>
-                            <button type="button" onclick="addCrewToTeamBasket({id:${p.id}, full_name:'${p.full_name.replace(/'/g, "\\'")}', category:'${p.category}', profile_photo_url:'${p.profile_photo_url || ''}'})" class="px-4 py-2 rounded-xl bg-gradient-to-r from-rose-500 via-pink-500 to-amber-500 hover:opacity-95 text-white font-black text-[11px] shadow-sm shadow-rose-500/20 transition-all flex items-center gap-1 cursor-pointer">
-                                <span>+ Add</span>
-                            </button>
-                        </div>
-                    </div>
-                `;
-                container.insertAdjacentHTML('beforeend', cardHtml);
-            });
-        }
-    }
-
-    // 2. Populate Home Grid directly under hero search form
     if (homeGrid) {
         homeGrid.innerHTML = '';
         if (matching.length === 0) {
@@ -704,29 +768,30 @@ function renderMatchingCrewCards(cat, city) {
                     <div class="w-14 h-14 rounded-2xl bg-rose-50 text-rose-500 font-black text-2xl flex items-center justify-center mx-auto shadow-inner">
                         🔍
                     </div>
-                    <h4 class="text-base font-black text-slate-950">No Approved Crew Found for "${cat || 'Selected Category'}" in ${city || 'this location'}</h4>
-                    <p class="text-xs text-slate-500 max-w-md mx-auto font-medium">Currently no registered and approved crew members match this location and role.</p>
+                    <h4 class="text-base font-black text-slate-950">No Approved Crew Found for "${selectedCategory}" in ${selectedCity}</h4>
+                    <p class="text-xs text-slate-500 max-w-md mx-auto font-medium">Currently no registered and approved crew members match this location and role. You can request crew via the custom booking flow.</p>
                 </div>
             `;
         } else {
-            matching.slice(0, 6).forEach((p, idx) => {
+            matching.forEach((p, idx) => {
                 const avatarHtml = p.profile_photo_url
                     ? `<img src="${p.profile_photo_url}" alt="${p.full_name}" class="w-16 h-16 rounded-2xl object-cover border-4 border-white shadow-lg shrink-0 bg-slate-100">`
                     : `<div class="w-16 h-16 rounded-2xl border-4 border-white bg-gradient-to-br from-amber-400 to-amber-600 text-slate-950 font-black text-xl flex items-center justify-center shadow-lg shrink-0">${p.full_name.charAt(0).toUpperCase()}</div>`;
+                
                 const handle = p.username ? ('@' + p.username) : ('@' + p.full_name.toLowerCase().replace(/\s+/g, ''));
                 const gridRatingBadgeHtml = (p.reviews_count > 0 && parseFloat(p.average_rating) > 0) ? `
-                    <div class="absolute top-3 right-3 bg-white/95 backdrop-blur-md px-2.5 py-1 rounded-xl text-[11px] font-black text-slate-900 shadow-xs flex items-center gap-1">
+                    <div class="absolute top-3 right-3 bg-white/95 backdrop-blur-md px-2.5 py-1 rounded-xl text-[11px] font-black text-slate-950 shadow-xs flex items-center gap-1">
                         <span class="text-amber-500">★</span>
                         <span>${p.average_rating}</span>
                     </div>
                 ` : '';
 
                 const cardHtml = `
-                    <div class="bg-white border border-slate-200/90 rounded-3xl overflow-hidden shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all flex flex-col justify-between group">
+                    <div class="bg-white border border-slate-200/90 rounded-3xl overflow-hidden shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all flex flex-col justify-between group animate-crew-card" style="animation-delay: ${idx * 0.08}s">
                         <div>
-                            <div class="relative h-32 w-full bg-slate-900 overflow-hidden">
-                                <img src="/images/hero_event_ushers.jpg" alt="${p.full_name}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 opacity-85">
-                                <div class="absolute inset-0 bg-gradient-to-t from-slate-950/70 to-transparent"></div>
+                            <div class="relative h-32 w-full bg-slate-950 overflow-hidden">
+                                <img src="/images/hero_event_ushers.jpg" alt="${p.full_name}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 opacity-80">
+                                <div class="absolute inset-0 bg-gradient-to-t from-slate-950/80 via-transparent to-transparent"></div>
                                 ${gridRatingBadgeHtml}
                             </div>
 
@@ -740,7 +805,7 @@ function renderMatchingCrewCards(cat, city) {
 
                             <div class="px-4 space-y-1">
                                 <h3 class="text-sm font-black text-slate-950 group-hover:text-rose-500 transition-colors truncate">
-                                    ${handle}
+                                    ${handle} (${p.full_name})
                                 </h3>
                                 <p class="text-xs text-slate-500 font-semibold truncate">
                                     ${p.category} • ${p.city}
@@ -767,44 +832,6 @@ function renderMatchingCrewCards(cat, city) {
         }
     }
 }
-
-function onHeroFormSubmit(e) {
-    e.preventDefault();
-
-    const category = getEffectiveCategory();
-    const selectedCity = document.getElementById('hero_location')?.value || 'Nairobi';
-
-    renderMatchingCrewCards(category, selectedCity);
-
-    const searchResultsSection = document.getElementById('home-search-results-section');
-    if (searchResultsSection) {
-        searchResultsSection.classList.remove('hidden');
-        searchResultsSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
-    }
-}
-
-function updateSearchPills() {
-    const parentVal = document.getElementById('hero_parent_category')?.value || 'All Categories';
-    const effectiveCat = getEffectiveCategory();
-    const loc = document.getElementById('hero_location')?.value || 'Nairobi';
-    const dates = document.getElementById('hero_dates')?.value;
-
-    const displayCat = effectiveCat !== 'All' ? effectiveCat : (parentVal !== 'All' ? parentVal : 'All Categories');
-
-    if (document.getElementById('pill-tag-category')) document.getElementById('pill-tag-category').textContent = displayCat;
-    if (document.getElementById('pill-tag-location')) document.getElementById('pill-tag-location').textContent = loc || 'All Locations';
-    if (document.getElementById('pill-tag-dates')) document.getElementById('pill-tag-dates').textContent = dates ? dates : 'Flexible Dates';
-
-    if (document.getElementById('map-indicator-sub')) {
-        document.getElementById('map-indicator-sub').textContent = `${loc || 'Kenya'} • ${displayCat}`;
-    }
-
-    const catalogBtn = document.getElementById('hero-catalog-btn');
-    if (catalogBtn) {
-        catalogBtn.href = `/crew?category=${encodeURIComponent(displayCat)}&dates=${encodeURIComponent(dates || '')}&city=${encodeURIComponent(loc)}`;
-    }
-}
 </script>
-
 
 @endsection

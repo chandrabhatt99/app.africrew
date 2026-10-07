@@ -26,18 +26,11 @@ class ProfessionalDashboardController extends Controller
             return redirect()->route('staff.verify.notice')->with('error', 'Please verify your email address to continue.');
         }
 
-        $filledCount = 0;
-        if (!empty($professional->full_name) && !empty($professional->phone) && !empty($professional->category) && !empty($professional->gender)) $filledCount++;
-        if (!empty($professional->education) || !empty($professional->experience_records)) $filledCount++;
-        if (!empty($professional->profile_photo) || !empty($professional->gallery_photos)) $filledCount++;
-        if (!empty($professional->booking_policy) || !empty($professional->availability)) $filledCount++;
-        if (!empty($professional->one_day_rate) || !empty($professional->hourly_rate)) $filledCount++;
-
-        $isComplete = ($filledCount >= 5) && (bool)$professional->is_onboarded;
+        $isComplete = ($professional->completion_percentage >= 80) || (bool)$professional->is_onboarded;
 
         // If staff has not completed profile setup and is attempting to access non-profile pages, force redirect to profile wizard
-        if (!$isComplete && !request()->routeIs('professional.profile', 'professional.profile.update')) {
-            return redirect()->route('professional.profile')->with('warning', 'Please complete all 5 profile onboarding sections (Personal, Experience, Photos, Availability, Labour Charges) before accessing other navigation tabs.');
+        if (!$isComplete && !request()->routeIs('professional.profile', 'professional.profile.update', 'professional.suggest-skill', 'professional.referees.request-verification', 'professional.submit-review-request')) {
+            return redirect()->route('professional.profile')->with('warning', 'Please complete your profile sections (Personal, About You, Experience, Portfolio, Locations & Rates) before accessing other navigation tabs.');
         }
 
         return null;
@@ -364,29 +357,42 @@ class ProfessionalDashboardController extends Controller
             'country' => ['nullable', 'string', 'max:100'],
             'state' => ['nullable', 'string', 'max:100'],
             'city' => ['nullable', 'string', 'max:100'],
+            'other_cities' => ['nullable', 'array'],
             'preferred_locations' => ['nullable'],
             'hourly_rate' => ['nullable', 'numeric', 'min:0'],
+            'full_day_rate' => ['nullable', 'numeric', 'min:0'],
             'one_day_rate' => ['nullable', 'numeric', 'min:0'],
             'two_day_rate' => ['nullable', 'numeric', 'min:0'],
             'rehearsal_rate' => ['nullable', 'numeric', 'min:0'],
+            'working_hours' => ['nullable', 'integer', 'min:1', 'max:24'],
+            'rehearsal_option' => ['nullable', 'string', 'in:yes,included,not_applicable'],
+            'has_multi_day_discount' => ['nullable', 'boolean'],
+            'multi_day_discount_pct' => ['nullable', 'numeric', 'min:0', 'max:100'],
+            'multi_day_min_days' => ['nullable', 'integer', 'min:2', 'max:30'],
             'rate_type' => ['nullable', 'string', 'in:fixed,negotiable'],
-            'currency' => ['nullable', 'string', 'in:USD,KES'],
+            'currency' => ['nullable', 'string', 'in:USD,KES,UGX,TZS,RWF'],
             'multi_day_discount' => ['nullable', 'integer', 'min:0', 'max:100'],
             'booking_policy' => ['nullable', 'string'],
             'availability' => ['nullable', 'string'],
             'availability_dates' => ['nullable', 'array'],
+            'blocked_dates' => ['nullable', 'array'],
+            'assignment_types' => ['nullable', 'array'],
             'skills' => ['nullable', 'string', 'max:2000'],
+            'featured_skills' => ['nullable', 'array'],
             'services' => ['nullable', 'array'],
             'about' => ['nullable', 'string', 'max:3000'],
             'highlight_quote' => ['nullable', 'string', 'max:1000'],
             'social_links' => ['nullable', 'array'],
             'education' => ['nullable', 'array'],
+            'show_education_on_cv' => ['nullable', 'boolean'],
             'experience_records' => ['nullable', 'array'],
+            'referees' => ['nullable', 'array'],
             'profile_photo' => ['nullable', 'image', 'max:5120'],
             'cover_photo' => ['nullable', 'image', 'max:5120'],
             'resume' => ['nullable', 'file', 'mimes:pdf,doc,docx', 'max:10240'],
             'government_id' => ['nullable', 'file', 'mimes:pdf,jpg,jpeg,png', 'max:10240'],
             'gallery_photos.*' => ['nullable', 'image', 'max:5120'],
+            'is_public' => ['nullable', 'boolean'],
         ]);
 
         if (isset($data['preferred_locations']) && is_string($data['preferred_locations'])) {
@@ -396,10 +402,18 @@ class ProfessionalDashboardController extends Controller
         if (isset($data['skills'])) {
             $skillsArr = is_array($data['skills']) ? $data['skills'] : array_map('trim', explode(',', (string)$data['skills']));
             $skillsArr = array_values(array_filter($skillsArr));
-            if (count($skillsArr) > 3) {
-                $skillsArr = array_slice($skillsArr, 0, 3);
+            if (count($skillsArr) > 10) {
+                $skillsArr = array_slice($skillsArr, 0, 10);
             }
             $data['skills'] = implode(', ', $skillsArr);
+        }
+
+        if (isset($data['featured_skills']) && is_array($data['featured_skills'])) {
+            $data['featured_skills'] = array_slice(array_values(array_unique(array_filter($data['featured_skills']))), 0, 3);
+        }
+
+        if (isset($data['other_cities']) && is_array($data['other_cities'])) {
+            $data['other_cities'] = array_slice(array_values(array_unique(array_filter($data['other_cities']))), 0, 3);
         }
 
         if (isset($request->availability_dates)) {
@@ -412,34 +426,23 @@ class ProfessionalDashboardController extends Controller
             }
         }
 
-        if (!empty($professional->full_name)) {
-            $data['full_name'] = $professional->full_name;
-            $data['first_name'] = $professional->first_name;
-            $data['last_name'] = $professional->last_name;
-        } elseif (!empty($data['first_name']) || !empty($data['last_name'])) {
-            $firstName = ucwords(mb_strtolower(trim($data['first_name'] ?? '')));
-            $lastName = ucwords(mb_strtolower(trim($data['last_name'] ?? '')));
-            $data['first_name'] = $firstName;
-            $data['last_name'] = $lastName;
-            $data['full_name'] = trim($firstName . ' ' . $lastName);
-        } elseif (!empty($data['full_name'])) {
-            $data['full_name'] = ucwords(mb_strtolower(trim($data['full_name'])));
+        if (isset($request->blocked_dates)) {
+            $blockedInput = $request->blocked_dates;
+            if (is_string($blockedInput)) {
+                $decoded = json_decode($blockedInput, true);
+                $data['blocked_dates'] = is_array($decoded) ? $decoded : [];
+            } elseif (is_array($blockedInput)) {
+                $data['blocked_dates'] = $blockedInput;
+            }
         }
 
-        if (!empty($professional->username)) {
-            $data['username'] = $professional->username;
-        }
-        if (!empty($professional->email)) {
-            $data['email'] = $professional->email;
-        }
-        if (!empty($professional->phone)) {
-            $data['phone'] = $professional->phone;
-        }
-        if (!empty($professional->category)) {
-            $data['category'] = $professional->category;
+        // Handle controlled editing: if full_name modified after approval, reset to pending
+        if (!empty($data['full_name']) && $professional->status === 'approved' && $data['full_name'] !== $professional->full_name) {
+            $data['status'] = 'pending';
+            $data['submitted_for_review_at'] = now();
         }
 
-        // Clean education array items (remove empty cards)
+        // Clean education array items
         if (isset($data['education']) && is_array($data['education'])) {
             $cleanedEdu = [];
             foreach ($data['education'] as $item) {
@@ -453,21 +456,24 @@ class ProfessionalDashboardController extends Controller
             $data['education'] = array_values($cleanedEdu);
         }
 
-        // Clean services array items
-        if (!empty($data['services']) && is_array($data['services'])) {
-            $cleanedServices = [];
-            foreach ($data['services'] as $item) {
-                if (is_string($item)) {
-                    $decoded = json_decode($item, true);
-                    if (is_array($decoded) && !empty($decoded['title'])) $cleanedServices[] = $decoded;
-                } elseif (is_array($item) && !empty($item['title'])) {
-                    $cleanedServices[] = $item;
+        // Clean referees array items
+        if (isset($data['referees']) && is_array($data['referees'])) {
+            $cleanedRef = [];
+            foreach ($data['referees'] as $ref) {
+                if (is_string($ref)) {
+                    $ref = json_decode($ref, true);
+                }
+                if (is_array($ref) && !empty(trim($ref['name'] ?? ''))) {
+                    if (empty($ref['status'])) {
+                        $ref['status'] = 'Not Requested';
+                    }
+                    $cleanedRef[] = $ref;
                 }
             }
-            $data['services'] = $cleanedServices;
+            $data['referees'] = array_values($cleanedRef);
         }
 
-        // Clean experience array items (remove empty cards)
+        // Clean experience array items
         if (isset($data['experience_records']) && is_array($data['experience_records'])) {
             $cleanedExp = [];
             foreach ($data['experience_records'] as $item) {
@@ -505,29 +511,9 @@ class ProfessionalDashboardController extends Controller
             $data['gallery_photos'] = array_slice(array_values(array_unique(array_filter($existingGallery))), 0, 4);
         }
 
-        // Calculate dynamic profile completion status (all 5 sections)
-        $filledCount = 0;
-        $fullNameVal = $data['full_name'] ?? $professional->full_name;
-        $phoneVal = $data['phone'] ?? $professional->phone;
-        if (!empty($fullNameVal) && !empty($phoneVal)) $filledCount++;
-
-        $eduVal = $data['education'] ?? $professional->education;
-        $expVal = $data['experience_records'] ?? $professional->experience_records;
-        if (!empty($eduVal) || !empty($expVal)) $filledCount++;
-
-        $pPhotoVal = $data['profile_photo'] ?? $professional->profile_photo;
-        $gPhotosVal = $data['gallery_photos'] ?? $professional->gallery_photos;
-        if (!empty($pPhotoVal) || !empty($gPhotosVal)) $filledCount++;
-
-        $bPolicyVal = $data['booking_policy'] ?? $professional->booking_policy;
-        $availVal = $data['availability'] ?? $professional->availability;
-        if (!empty($bPolicyVal) || !empty($availVal)) $filledCount++;
-
-        $oneDayRateVal = $data['one_day_rate'] ?? $professional->one_day_rate;
-        $hourlyRateVal = $data['hourly_rate'] ?? $professional->hourly_rate;
-        if (!empty($oneDayRateVal) || !empty($hourlyRateVal)) $filledCount++;
-
-        $data['is_onboarded'] = ($filledCount >= 5);
+        // Calculate completion status
+        $professional->fill($data);
+        $data['is_onboarded'] = ($professional->completion_percentage >= 80);
 
         $professional->update($data);
 
@@ -537,11 +523,124 @@ class ProfessionalDashboardController extends Controller
             return response()->json([
                 'success' => true,
                 'active_tab' => $activeTab,
-                'message' => 'Profile updated successfully'
+                'completion_percentage' => $professional->completion_percentage,
+                'next_requirement' => $professional->next_incomplete_requirement,
+                'message' => 'Saved'
             ]);
         }
 
-        return back()->with('active_tab', $activeTab);
+        return back()->with('active_tab', $activeTab)->with('success', 'Profile section saved successfully!');
+    }
+
+    public function suggestSkill(Request $request)
+    {
+        $professional = $this->getAuthenticatedProfessional($request);
+        if (!$professional) {
+            return response()->json(['error' => 'Unauthenticated'], 401);
+        }
+
+        $skillName = trim($request->input('skill_name', ''));
+        if (empty($skillName)) {
+            return response()->json(['error' => 'Skill name is required.'], 422);
+        }
+
+        \App\Models\SuggestedSkill::create([
+            'professional_id' => $professional->id,
+            'category' => $professional->category ?: 'General',
+            'skill_name' => $skillName,
+            'status' => 'pending',
+        ]);
+
+        return response()->json([
+            'success' => true,
+            'message' => "Skill '{$skillName}' submitted for admin review!"
+        ]);
+    }
+
+    public function requestRefereeVerification(Request $request)
+    {
+        $professional = $this->getAuthenticatedProfessional($request);
+        if (!$professional) {
+            return response()->json(['error' => 'Unauthenticated'], 401);
+        }
+
+        $refereeIndex = $request->input('referee_index');
+        $referees = is_array($professional->referees) ? $professional->referees : [];
+
+        if (isset($referees[$refereeIndex])) {
+            $referees[$refereeIndex]['status'] = 'Pending';
+            $professional->update(['referees' => $referees]);
+            return response()->json([
+                'success' => true,
+                'message' => 'Verification request sent to referee. Setup can continue while verification is pending.'
+            ]);
+        }
+
+        return response()->json(['error' => 'Referee not found.'], 404);
+    }
+
+    public function submitReviewRequest(Request $request): RedirectResponse
+    {
+        $professional = $this->getAuthenticatedProfessional($request);
+        if (!$professional) {
+            return redirect()->route('staff.login');
+        }
+
+        $professional->update([
+            'submitted_for_review_at' => now(),
+            'status' => 'pending',
+        ]);
+
+        return back()->with('success', "Your profile has been submitted for review. We’ll contact you if we need more information or an interview.");
+    }
+
+    public function reviewsTab(Request $request): View|RedirectResponse
+    {
+        $professional = $this->getAuthenticatedProfessional($request);
+        if (!$professional) {
+            return redirect()->route('staff.login');
+        }
+
+        $reviews = $professional->reviews()->latest()->get();
+        return view('professional.reviews', compact('professional', 'reviews'));
+    }
+
+    public function respondToReview(Request $request, $review): RedirectResponse
+    {
+        $professional = $this->getAuthenticatedProfessional($request);
+        if (!$professional) {
+            return redirect()->route('staff.login');
+        }
+
+        $rev = \App\Models\Review::where('id', $review)->where('professional_id', $professional->id)->firstOrFail();
+        $responseText = trim($request->input('response_text', ''));
+
+        if (!empty($responseText)) {
+            $rev->update([
+                'response_text' => $responseText,
+                'responded_at' => now(),
+            ]);
+        }
+
+        return back()->with('success', 'Your response to the client review has been published.');
+    }
+
+    public function reportReview(Request $request, $review): RedirectResponse
+    {
+        $professional = $this->getAuthenticatedProfessional($request);
+        if (!$professional) {
+            return redirect()->route('staff.login');
+        }
+
+        $rev = \App\Models\Review::where('id', $review)->where('professional_id', $professional->id)->firstOrFail();
+        $reason = trim($request->input('report_reason', 'Spam / Inappropriate Content'));
+
+        $rev->update([
+            'is_reported' => true,
+            'report_reason' => $reason,
+        ]);
+
+        return back()->with('success', 'Review has been reported to admin moderation for investigation.');
     }
 
     public function deleteGalleryPhoto(Request $request): RedirectResponse

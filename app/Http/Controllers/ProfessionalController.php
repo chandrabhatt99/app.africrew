@@ -239,39 +239,63 @@ class ProfessionalController extends Controller
         return view('join-crew', compact('categories'));
     }
 
+    public function checkUsername(Request $request)
+    {
+        $username = trim($request->query('username', ''));
+        if (empty($username)) {
+            return response()->json(['valid' => false, 'message' => 'Username cannot be empty.']);
+        }
+
+        if (!preg_match('/^[a-zA-Z0-9_\-]+$/', $username)) {
+            return response()->json(['valid' => false, 'message' => 'Username can only contain letters, numbers, underscores, and hyphens.']);
+        }
+
+        $exists = Professional::where('username', $username)->exists();
+        if ($exists) {
+            return response()->json(['valid' => false, 'message' => 'Username handle is already taken.']);
+        }
+
+        return response()->json([
+            'valid' => true,
+            'message' => 'Username handle is available!',
+            'short_link' => 'mycv.ac/' . $username
+        ]);
+    }
+
     public function store(Request $request): RedirectResponse
     {
         $data = $request->validate([
             'full_name' => ['required', 'string', 'max:150'],
-            'username' => ['required', 'string', 'max:100', 'unique:professionals,username'],
+            'username' => ['required', 'string', 'max:100', 'regex:/^[a-zA-Z0-9_\-]+$/', 'unique:professionals,username'],
             'category' => ['required', 'string', 'max:100'],
             'email' => ['required', 'email', 'max:150', 'unique:professionals,email'],
             'phone' => ['required', 'string', 'max:30'],
             'password' => ['required', 'confirmed', 'min:8'],
-            'social_links' => ['nullable', 'array'],
             'terms' => ['accepted'],
         ]);
 
+        $token = \Illuminate\Support\Str::random(40);
+
         $professional = Professional::create([
             'full_name' => ucwords(mb_strtolower(trim($data['full_name']))),
-            'username' => $data['username'],
-            'email' => $data['email'],
-            'phone' => $data['phone'],
+            'username' => strtolower(trim($data['username'])),
+            'email' => strtolower(trim($data['email'])),
+            'phone' => trim($data['phone']),
             'category' => $data['category'],
-            'social_links' => $data['social_links'] ?? [],
             'password' => Hash::make($data['password']),
-            'verification_token' => null,
-            'email_verified_at' => now(),
-            'is_onboarded' => true,
+            'verification_token' => $token,
+            'email_verified_at' => null,
+            'is_onboarded' => false,
             'status' => 'pending',
+            'is_public' => false,
             'country' => 'Kenya',
             'city' => 'Nairobi',
         ]);
 
-        $request->session()->regenerate();
-        $request->session()->put('professional_id', $professional->id);
+        $request->session()->put('pending_email', $professional->email);
+        $request->session()->put('verification_token', $token);
 
-        return redirect()->route('professional.profile')->with('success', "Welcome to AfriCrew, {$professional->full_name}! Your staff account has been created. Please complete your profile details below.");
+        return redirect()->route('staff.verify.notice')->with('success', 'Account created! Please check your email to verify your address before continuing.');
     }
 
     /**

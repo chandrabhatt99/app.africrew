@@ -72,6 +72,54 @@ class StaffAuthController extends Controller
         return view('staff.verify-notice');
     }
 
+    public function resendVerification(Request $request): RedirectResponse
+    {
+        $email = $request->input('email', session('pending_email'));
+        $professional = Professional::where('email', $email)->first();
+
+        if (!$professional) {
+            return back()->with('error', 'No crew account found for that email address.');
+        }
+
+        if ($professional->email_verified_at) {
+            return redirect()->route('staff.login')->with('info', 'Your email is already verified. Please log in.');
+        }
+
+        $newToken = \Illuminate\Support\Str::random(40);
+        $professional->update(['verification_token' => $newToken]);
+
+        session()->put('pending_email', $professional->email);
+        session()->put('verification_token', $newToken);
+
+        return back()->with('success', "A fresh verification link has been sent to {$professional->email}.");
+    }
+
+    public function updateEmail(Request $request): RedirectResponse
+    {
+        $request->validate([
+            'old_email' => ['required', 'email'],
+            'new_email' => ['required', 'email', 'unique:professionals,email'],
+        ]);
+
+        $professional = Professional::where('email', $request->old_email)->first();
+
+        if (!$professional) {
+            return back()->with('error', 'Original email address record not found.');
+        }
+
+        $newToken = \Illuminate\Support\Str::random(40);
+        $professional->update([
+            'email' => strtolower(trim($request->new_email)),
+            'verification_token' => $newToken,
+            'email_verified_at' => null,
+        ]);
+
+        session()->put('pending_email', $professional->email);
+        session()->put('verification_token', $newToken);
+
+        return back()->with('success', "Your email address has been updated to {$professional->email}. A new verification link has been dispatched!");
+    }
+
     /**
      * Verify email address via token link.
      */
@@ -91,7 +139,7 @@ class StaffAuthController extends Controller
         session()->regenerate();
         session()->put('professional_id', $professional->id);
 
-        return redirect()->route('professional.onboarding')->with('success', 'Email verified successfully! Please complete your crew profile & resume wizard to proceed.');
+        return redirect()->route('professional.profile')->with('success', 'Email verified successfully! Please complete your Profile & Resume Builder to request account review.');
     }
 
     /**
