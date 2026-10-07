@@ -179,34 +179,37 @@
             </div>
 
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-6 text-xs font-bold">
-                <!-- Full Name / Identity -->
+                <!-- Full Name / Identity (Readonly for Security) -->
                 <div>
-                    <label class="block text-slate-700 mb-1">Full Name *</label>
-                    <input type="text" name="full_name" value="{{ old('full_name', $professional->full_name) }}" required
-                        class="w-full bg-slate-50 border border-slate-200 rounded-2xl px-4 py-3 text-xs font-bold outline-none focus:border-amber-500 focus:bg-white">
-                </div>
-
-                <!-- Username / Handle -->
-                <div>
-                    <label class="block text-slate-700 mb-1">
-                        Username Handle *
-                        <span class="text-slate-400 font-normal ml-1">mycv.ac/{{ $professional->username }}</span>
+                    <label class="block text-slate-700 mb-1 flex items-center justify-between">
+                        <span>Full Name *</span>
+                        <span class="text-[10px] text-amber-800 bg-amber-100 px-2 py-0.5 rounded font-black">🔒 Locked Identifier</span>
                     </label>
-                    <input type="text" name="username" value="{{ old('username', $professional->username) }}" required
-                        class="w-full bg-slate-50 border border-slate-200 rounded-2xl px-4 py-3 text-xs font-bold outline-none focus:border-amber-500 focus:bg-white">
+                    <input type="text" name="full_name" value="{{ old('full_name', $professional->full_name) }}" readonly
+                        class="w-full bg-slate-100 border border-slate-200/90 text-slate-700 rounded-2xl px-4 py-3 text-xs font-bold cursor-not-allowed shadow-inner" title="Full name cannot be changed directly. Contact admin for official name updates.">
                 </div>
 
-                <!-- Primary Category -->
+                <!-- Username / Handle (Readonly Account Handle) -->
                 <div>
-                    <label class="block text-slate-700 mb-1">Primary Crew Category *</label>
-                    <select name="category" onchange="onCategoryChange(this.value)" required
-                        class="w-full bg-slate-50 border border-slate-200 rounded-2xl px-4 py-3 text-slate-900 font-bold outline-none focus:border-amber-500 focus:bg-white">
-                        @foreach($categories as $cat)
-                            <option value="{{ $cat->name }}" @selected(old('category', $professional->category) == $cat->name)>
-                                {{ $cat->icon ? $cat->icon . ' ' : '' }}{{ $cat->name }}
-                            </option>
-                        @endforeach
-                    </select>
+                    <label class="block text-slate-700 mb-1 flex items-center justify-between">
+                        <span>
+                            Username Handle *
+                            <span class="text-slate-400 font-normal ml-1">mycv.ac/{{ $professional->username }}</span>
+                        </span>
+                        <span class="text-[10px] text-amber-800 bg-amber-100 px-2 py-0.5 rounded font-black">🔒 Locked</span>
+                    </label>
+                    <input type="text" name="username" value="{{ old('username', $professional->username) }}" readonly
+                        class="w-full bg-slate-100 border border-slate-200/90 text-slate-700 rounded-2xl px-4 py-3 text-xs font-bold cursor-not-allowed shadow-inner" title="Username handle is locked to your digital CV link.">
+                </div>
+
+                <!-- Primary Category (Readonly Category) -->
+                <div>
+                    <label class="block text-slate-700 mb-1 flex items-center justify-between">
+                        <span>Primary Crew Category *</span>
+                        <span class="text-[10px] text-amber-800 bg-amber-100 px-2 py-0.5 rounded font-black">🔒 Registered Role</span>
+                    </label>
+                    <input type="text" name="category" value="{{ old('category', $professional->category) }}" readonly
+                        class="w-full bg-slate-100 border border-slate-200/90 text-slate-700 rounded-2xl px-4 py-3 text-xs font-bold cursor-not-allowed shadow-inner" title="Registered category is locked to maintain vetting integrity.">
                 </div>
 
                 <!-- Gender -->
@@ -220,11 +223,14 @@
                     </select>
                 </div>
 
-                <!-- Email Address -->
+                <!-- Email Address (Readonly Account Email) -->
                 <div>
-                    <label class="block text-slate-700 mb-1">Email Address *</label>
-                    <input type="email" name="email" value="{{ old('email', $professional->email) }}" required
-                        class="w-full bg-slate-50 border border-slate-200 rounded-2xl px-4 py-3 text-xs font-bold outline-none focus:border-amber-500 focus:bg-white">
+                    <label class="block text-slate-700 mb-1 flex items-center justify-between">
+                        <span>Email Address *</span>
+                        <span class="text-[10px] text-amber-800 bg-amber-100 px-2 py-0.5 rounded font-black">🔒 Verified Email</span>
+                    </label>
+                    <input type="email" name="email" value="{{ old('email', $professional->email) }}" readonly
+                        class="w-full bg-slate-100 border border-slate-200/90 text-slate-700 rounded-2xl px-4 py-3 text-xs font-bold cursor-not-allowed shadow-inner" title="Account email address is locked for verification security.">
                 </div>
 
                 <!-- Phone Number -->
