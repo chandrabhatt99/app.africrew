@@ -192,7 +192,7 @@
                         <input type="checkbox" id="terms-checkbox" name="terms" value="1" disabled onchange="toggleSubmitButton()"
                             class="mt-1 w-4 h-4 text-amber-500 border-slate-300 rounded focus:ring-amber-400 disabled:opacity-50 disabled:cursor-not-allowed">
                         <span class="text-xs text-slate-700 leading-relaxed font-semibold">
-                            I have read and accept the <a href="{{ route('terms') }}" target="_blank" class="text-amber-600 font-bold hover:underline">Terms & Conditions</a> and <a href="{{ route('privacy') }}" target="_blank" class="text-amber-600 font-bold hover:underline">Privacy Policy</a>.
+                            I have read and accept the <a href="{{ route('terms-conditions') }}" target="_blank" class="text-amber-600 font-bold hover:underline">Terms & Conditions</a> and <a href="{{ route('privacy-policy') }}" target="_blank" class="text-amber-600 font-bold hover:underline">Privacy Policy</a>.
                         </span>
                     </label>
                 </div>

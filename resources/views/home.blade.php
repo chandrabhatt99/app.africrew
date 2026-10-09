@@ -22,16 +22,9 @@
 
 <!-- Top Announcement Bar -->
 <div class="bg-gradient-to-r from-amber-50 via-amber-100 to-amber-50 text-slate-900 py-2.5 px-4 sm:px-6 border-b border-amber-200/80 text-xs font-semibold text-center flex flex-wrap items-center justify-center gap-2 shadow-2xs">
-    <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-md bg-amber-500 text-slate-950 font-black text-[10px] uppercase tracking-wider shrink-0">
-        <span>📱</span>
-        <span>AfriCrew App</span>
-    </span>
     <span class="text-slate-800">
         ✨ <strong>AfriCrew is even better on mobile!</strong> Download our app on iOS & Android to book crew faster & manage events on the go.
     </span>
-    <a href="#download-app" onclick="alert('AfriCrew Mobile App is available on the Apple App Store and Google Play Store!')" class="inline-flex items-center gap-1 px-3 py-1 rounded-lg bg-slate-900 hover:bg-slate-800 text-amber-400 font-extrabold text-[11px] transition-all text-decoration-none ml-1">
-        <span>Download on iOS / Android →</span>
-    </a>
 </div>
 
 <!-- ========================================================= -->
@@ -57,15 +50,15 @@
                 <!-- LEFT: Interactive Map with Integrated Top & Bottom Search Controls -->
                 <div class="lg:col-span-7 relative rounded-[28px] overflow-hidden border border-slate-200/90 shadow-lg bg-slate-950 min-h-[460px] lg:min-h-[500px] flex flex-col justify-between">
                     
-                    <!-- TOP MAP OVERLAY: Crew Category & Event Date Selection Buttons -->
-                    <div class="absolute top-4 left-4 right-4 z-20 flex flex-wrap items-center gap-2 pointer-events-auto">
+                    <!-- TOP MAP OVERLAY: Crew Category (Top Left) & Event Date (Top Right) Selection Buttons -->
+                    <div class="absolute top-4 left-4 right-4 z-20 flex items-center justify-between gap-2 pointer-events-auto">
                         
-                        <!-- 1. CREW CATEGORY SELECTOR BUTTON -->
+                        <!-- 1. CREW CATEGORY SELECTOR BUTTON (TOP LEFT) -->
                         <div class="relative">
-                            <button type="button" id="map-category-btn" onclick="toggleCategoryMenu()" class="px-4 py-2.5 rounded-2xl bg-slate-900/90 hover:bg-slate-900 text-white border border-slate-700/80 backdrop-blur-md shadow-xl text-xs font-black flex items-center gap-2 cursor-pointer transition-all hover:border-amber-400">
-                                <span class="text-amber-400 text-sm">👥</span>
+                            <button type="button" id="map-category-btn" onclick="toggleCategoryMenu()" class="px-3.5 sm:px-4 py-2 sm:py-2.5 rounded-2xl bg-slate-900/90 hover:bg-slate-900 text-white border border-slate-700/80 backdrop-blur-md shadow-xl text-[11px] sm:text-xs font-black flex items-center gap-2 cursor-pointer transition-all hover:border-amber-400">
+                                <span class="text-amber-400 text-xs sm:text-sm">👥</span>
                                 <span id="map-category-label">CREW CATEGORY</span>
-                                <span class="text-[10px] text-slate-400 ml-1">▼</span>
+                                <span class="text-[10px] text-slate-400 ml-0.5">▼</span>
                             </button>
 
                             <!-- Category Dropdown Menu (Populated dynamically from Backend) -->
@@ -101,12 +94,12 @@
                             </div>
                         </div>
 
-                        <!-- 2. EVENT DATE SELECTOR BUTTON -->
+                        <!-- 2. EVENT DATE SELECTOR BUTTON (TOP RIGHT) -->
                         <div class="relative">
-                            <button type="button" id="map-date-btn" onclick="openDatePicker()" class="px-4 py-2.5 rounded-2xl bg-slate-900/90 hover:bg-slate-900 text-white border border-slate-700/80 backdrop-blur-md shadow-xl text-xs font-black flex items-center gap-2 cursor-pointer transition-all hover:border-amber-400">
-                                <span class="text-amber-400 text-sm">📅</span>
+                            <button type="button" id="map-date-btn" onclick="openDatePicker()" class="px-3.5 sm:px-4 py-2 sm:py-2.5 rounded-2xl bg-slate-900/90 hover:bg-slate-900 text-white border border-slate-700/80 backdrop-blur-md shadow-xl text-[11px] sm:text-xs font-black flex items-center gap-2 cursor-pointer transition-all hover:border-amber-400">
+                                <span class="text-amber-400 text-xs sm:text-sm">📅</span>
                                 <span id="map-date-label">EVENT DATE</span>
-                                <span class="text-[10px] text-slate-400 ml-1">▼</span>
+                                <span class="text-[10px] text-slate-400 ml-0.5">▼</span>
                             </button>
                             <input type="text" id="hero_dates_input" class="sr-only" placeholder="Select dates">
                         </div>
@@ -404,12 +397,12 @@ function renderMapMarkers(cityToCenter) {
 
     const matchedCity = kenyaCities.find(c => c.name.toLowerCase() === cityToCenter.toLowerCase()) || kenyaCities[0];
     
-    // Custom Red Pin for City Center
+    // Custom Logo Pin for City Center
     const centerIcon = L.divIcon({
         className: 'custom-map-center-pin',
-        html: `<div style="background-color:#FF2D55; width:28px; height:28px; border-radius:50%; border:3px solid white; box-shadow:0 10px 25px rgba(255,45,85,0.6); display:flex; align-items:center; justify-content:center; color:white; font-weight:bold; font-size:10px;">AC</div>`,
-        iconSize: [28, 28],
-        iconAnchor: [14, 14]
+        html: `<div style="background-color:white; width:34px; height:34px; border-radius:50%; border:3px solid #FF2D55; box-shadow:0 10px 25px rgba(255,45,85,0.6); display:flex; align-items:center; justify-content:center; overflow:hidden;"><img src="/images/africrew_logo.jpg" style="width:100%; height:100%; object-fit:contain; padding:2px;"></div>`,
+        iconSize: [34, 34],
+        iconAnchor: [17, 17]
     });
 
     L.marker(matchedCity.coords, { icon: centerIcon }).addTo(leafletMarkersGroup);
@@ -442,7 +435,7 @@ function initDatePicker() {
         flatpickrInstance = flatpickr('#hero_dates_input', {
             mode: 'range',
             dateFormat: 'd M Y',
-            minDate: 'today',
+            minDate: new Date(Date.now() + 6 * 60 * 60 * 1000),
             onChange: function(selectedDatesArr, dateStr, instance) {
                 if (selectedDatesArr.length === 2) {
                     const diffMs = Math.abs(selectedDatesArr[1].getTime() - selectedDatesArr[0].getTime());

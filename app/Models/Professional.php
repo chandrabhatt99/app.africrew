@@ -84,16 +84,16 @@ class Professional extends Model
         $points = 0;
         $total = 6;
 
-        // 1. Personal
-        if (!empty($this->full_name) && !empty($this->phone) && !empty($this->gender) && !empty($this->date_of_birth)) {
+        // 1. Personal Information
+        if (!empty($this->full_name) && (!empty($this->phone) || !empty($this->email))) {
             $points++;
         }
-        // 2. About You
-        if (!empty($this->about) && strlen(trim($this->about)) >= 20) {
+        // 2. About You (Work Bio)
+        if (!empty($this->about) && strlen(trim($this->about)) >= 15) {
             $points++;
         }
         // 3. Experience & Qualifications
-        if ((!empty($this->experience_records) || !empty($this->education)) && !empty($this->skills)) {
+        if (!empty($this->experience_records) || !empty($this->education) || !empty($this->skills)) {
             $points++;
         }
         // 4. Portfolio
@@ -101,11 +101,11 @@ class Professional extends Model
             $points++;
         }
         // 5. Locations & Availability
-        if (!empty($this->country) && !empty($this->city)) {
+        if (!empty($this->country) || !empty($this->city)) {
             $points++;
         }
         // 6. Service Rates
-        if (!empty($this->full_day_rate) || !empty($this->hourly_rate) || !empty($this->one_day_rate)) {
+        if (!empty($this->full_day_rate) || !empty($this->hourly_rate) || !empty($this->one_day_rate) || !empty($this->half_day_rate)) {
             $points++;
         }
 
@@ -114,22 +114,22 @@ class Professional extends Model
 
     public function getNextIncompleteRequirementAttribute(): string
     {
-        if (empty($this->full_name) || empty($this->phone) || empty($this->gender) || empty($this->date_of_birth)) {
-            return 'Personal Information (Name, Gender, DOB)';
+        if (empty($this->full_name) || (empty($this->phone) && empty($this->email))) {
+            return 'Personal Information (Name, Phone)';
         }
-        if (empty($this->about) || strlen(trim($this->about)) < 20) {
+        if (empty($this->about) || strlen(trim($this->about)) < 15) {
             return 'About You (Work Bio & Description)';
         }
-        if ((empty($this->experience_records) && empty($this->education)) || empty($this->skills)) {
-            return 'Experience & Qualifications (Skills & Work History)';
+        if (empty($this->experience_records) && empty($this->education) && empty($this->skills)) {
+            return 'Experience & Qualifications (Skills or Work History)';
         }
         if (empty($this->profile_photo) && (empty($this->gallery_photos) || count($this->gallery_photos) === 0)) {
-            return 'Portfolio (Profile Photo or Portfolio Work Photos)';
+            return 'Portfolio (Profile Photo or Portfolio Photos)';
         }
-        if (empty($this->country) || empty($this->city)) {
+        if (empty($this->country) && empty($this->city)) {
             return 'Working Locations & Cities';
         }
-        if (empty($this->full_day_rate) && empty($this->hourly_rate) && empty($this->one_day_rate)) {
+        if (empty($this->full_day_rate) && empty($this->hourly_rate) && empty($this->one_day_rate) && empty($this->half_day_rate)) {
             return 'Service Rates & Daily Fee';
         }
 

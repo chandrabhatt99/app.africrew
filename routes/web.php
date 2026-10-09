@@ -18,8 +18,11 @@ Route::get('/auth/{provider}/callback', [SocialAuthController::class, 'callback'
 
 // Public Pages
 Route::get('/', [PublicController::class, 'home'])->name('home');
-Route::get('/terms', [PublicController::class, 'terms'])->name('terms');
-Route::get('/privacy', [PublicController::class, 'privacy'])->name('privacy');
+Route::get('/terms-conditions', [PublicController::class, 'terms'])->name('terms-conditions');
+Route::get('/privacy-policy', [PublicController::class, 'privacy'])->name('privacy-policy');
+Route::redirect('/terms', '/terms-conditions', 301)->name('terms');
+Route::redirect('/privacy', '/privacy-policy', 301)->name('privacy');
+
 
 // Public Vetted Staff Catalog & Profiles (app.eventushers.com/crew/Patrick, /hire-staff/Patrick, /mycv.ac/Patrick, and /crew-select/...)
 Route::get('/crew', [ProfessionalController::class, 'publicIndex'])->name('crew.index');

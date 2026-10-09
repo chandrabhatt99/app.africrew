@@ -251,8 +251,13 @@
                     @foreach($professional->experience_records as $exp)
                         @php
                             $xItem = is_string($exp) ? json_decode($exp, true) : $exp;
-                            $startDisp = trim(($xItem['start_month'] ?? '') . ' ' . ($xItem['start_year'] ?? ($xItem['start_date'] ?? '2021')));
-                            $endDisp = trim(($xItem['end_month'] ?? '') . ' ' . ($xItem['end_year'] ?? ($xItem['end_date'] ?? 'Present')));
+                            $sExpDate = $xItem['start_date'] ?? '';
+                            $eExpDate = $xItem['end_date'] ?? '';
+                            $startDisp = !empty($sExpDate) && strtotime($sExpDate) ? date('M Y', strtotime($sExpDate)) : trim(($xItem['start_month'] ?? '') . ' ' . ($xItem['start_year'] ?? $sExpDate));
+                            $endDisp = !empty($eExpDate) && strtotime($eExpDate) ? date('M Y', strtotime($eExpDate)) : trim(($xItem['end_month'] ?? '') . ' ' . ($xItem['end_year'] ?? $eExpDate));
+                            if ($startDisp && empty($endDisp) && !empty($sExpDate)) {
+                                $endDisp = 'Present';
+                            }
                         @endphp
                         <div class="p-4 rounded-2xl bg-slate-50 border border-slate-200 text-xs space-y-1">
                             <div class="flex items-center justify-between gap-2 flex-wrap">
@@ -260,9 +265,11 @@
                                     <h4 class="font-black text-slate-900 text-sm">{{ $xItem['role'] ?? 'Lead Usher' }}</h4>
                                     <span class="font-extrabold text-amber-700">{{ $xItem['employer'] ?? 'Event Organization' }}</span>
                                 </div>
-                                <span class="px-3 py-1 rounded-full bg-slate-900 text-white font-extrabold text-[10px] uppercase">
-                                    {{ $startDisp }} - {{ $endDisp }}
-                                </span>
+                                @if($startDisp || $endDisp)
+                                    <span class="px-3 py-1 rounded-full bg-slate-900 text-white font-extrabold text-[10px] uppercase">
+                                        {{ $startDisp }}{{ ($startDisp && $endDisp) ? ' - ' : '' }}{{ $endDisp }}
+                                    </span>
+                                @endif
                             </div>
                             @if(!empty($xItem['responsibilities']))
                                 <p class="text-slate-600 font-medium pt-1 leading-relaxed">
@@ -290,8 +297,13 @@
                     @foreach($professional->education as $edu)
                         @php
                             $eItem = is_string($edu) ? json_decode($edu, true) : $edu;
-                            $startEduDisp = trim(($eItem['start_month'] ?? '') . ' ' . ($eItem['start_year'] ?? ($eItem['start_date'] ?? '')));
-                            $endEduDisp = trim(($eItem['end_month'] ?? '') . ' ' . ($eItem['end_year'] ?? ($eItem['end_date'] ?? '')));
+                            $sDate = $eItem['start_date'] ?? '';
+                            $eDate = $eItem['end_date'] ?? '';
+                            $startEduDisp = !empty($sDate) && strtotime($sDate) ? date('M Y', strtotime($sDate)) : trim(($eItem['start_month'] ?? '') . ' ' . ($eItem['start_year'] ?? $sDate));
+                            $endEduDisp = !empty($eDate) && strtotime($eDate) ? date('M Y', strtotime($eDate)) : trim(($eItem['end_month'] ?? '') . ' ' . ($eDate));
+                            if ($startEduDisp && empty($endEduDisp) && !empty($sDate)) {
+                                $endEduDisp = 'Present';
+                            }
                         @endphp
                         <div class="p-4 rounded-2xl bg-amber-50/50 border border-amber-200/80 space-y-1">
                             <span class="text-[10px] font-black uppercase tracking-wider text-amber-900 block">

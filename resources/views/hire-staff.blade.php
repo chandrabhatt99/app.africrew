@@ -815,7 +815,7 @@ document.addEventListener('DOMContentLoaded', () => {
         flatpickr('#event_date', {
             mode: 'range',
             dateFormat: 'd M Y',
-            minDate: 'today',
+            minDate: new Date(Date.now() + 6 * 60 * 60 * 1000),
             onChange: function(selectedDates, dateStr, instance) {
                 if (selectedDates.length === 2) {
                     const diffMs = Math.abs(selectedDates[1].getTime() - selectedDates[0].getTime());

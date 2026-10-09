@@ -98,25 +98,25 @@
 
         <!-- Dynamic Profile Completion Status Bar -->
         @php
-            $completionPct = $professional->completion_percentage;
+            $completionPct = min(100, max(0, $professional->completion_percentage));
             $nextReq = $professional->next_incomplete_requirement;
         @endphp
 
-        <div class="px-6 py-3 bg-amber-500/10 border-b border-amber-200/80 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs">
-            <div class="flex items-center gap-2 flex-wrap text-center sm:text-left">
-                <span class="w-2.5 h-2.5 rounded-full {{ $completionPct === 100 ? 'bg-emerald-500' : 'bg-amber-500' }} animate-pulse"></span>
-                <span class="font-black text-slate-900">Profile Completion: {{ $completionPct }}%</span>
-                <span class="text-slate-400 font-bold">•</span>
+        <div class="px-6 py-3.5 bg-gradient-to-r from-amber-500/10 via-amber-500/5 to-slate-50 border-b border-amber-200/80 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs">
+            <div class="flex items-center gap-2.5 flex-wrap text-center sm:text-left">
+                <span class="w-3 h-3 rounded-full {{ $completionPct === 100 ? 'bg-emerald-500 shadow-emerald-500/50' : 'bg-amber-500 shadow-amber-500/50' }} shadow-sm animate-pulse"></span>
+                <span class="font-black text-slate-900 text-sm">Profile Completion: {{ $completionPct }}%</span>
+                <span class="text-slate-300 font-bold">•</span>
                 <span class="font-bold text-slate-700">
                     @if($completionPct < 100)
-                        Next step: <span class="text-amber-800 font-extrabold">{{ $nextReq }}</span>
+                        Next step: <span class="text-amber-800 font-extrabold underline decoration-amber-400 underline-offset-2">{{ $nextReq }}</span>
                     @else
-                        ✓ Profile complete! Ready for account review.
+                        <span class="text-emerald-700 font-black">✓ Profile complete & ready for bookings!</span>
                     @endif
                 </span>
             </div>
-            <div class="w-full sm:w-44 bg-slate-200 rounded-full h-2 overflow-hidden shrink-0">
-                <div class="bg-gradient-to-r from-amber-400 to-amber-600 h-full rounded-full transition-all duration-300"
+            <div class="w-full sm:w-52 bg-slate-200/90 rounded-full h-2.5 overflow-hidden shrink-0 border border-slate-300/60 p-0.5">
+                <div class="{{ $completionPct === 100 ? 'bg-gradient-to-r from-emerald-400 to-emerald-600' : 'bg-gradient-to-r from-amber-400 via-amber-500 to-amber-600' }} h-full rounded-full transition-all duration-500 shadow-xs"
                     style="width: {{ $completionPct }}%;"></div>
             </div>
         </div>
@@ -366,12 +366,19 @@
             <div class="space-y-4">
                 <div class="flex items-center justify-between flex-wrap gap-2">
                     <h4 class="text-xs font-black uppercase text-slate-800">Education & Certifications</h4>
-                    <!-- Toggle: Show education on my Digital CV -->
-                    <label class="flex items-center gap-2 cursor-pointer text-xs font-bold text-slate-700">
-                        <input type="checkbox" name="show_education_on_cv" value="1" @checked(old('show_education_on_cv', $professional->show_education_on_cv ?? true))
-                            class="w-4 h-4 text-amber-500 rounded focus:ring-amber-400">
-                        <span>Show education on my Digital CV</span>
-                    </label>
+                    <div class="flex items-center gap-3">
+                        <!-- Toggle: Show education on my Digital CV -->
+                        <label class="flex items-center gap-2 cursor-pointer text-xs font-bold text-slate-700">
+                            <input type="checkbox" name="show_education_on_cv" value="1" @checked(old('show_education_on_cv', $professional->show_education_on_cv ?? true))
+                                class="w-4 h-4 text-amber-500 rounded focus:ring-amber-400">
+                            <span>Show education on my Digital CV</span>
+                        </label>
+
+                        <!-- Add Education Button -->
+                        <button type="button" onclick="addEducationRow()" class="px-3 py-1.5 bg-amber-500/10 hover:bg-amber-500/20 text-amber-900 font-extrabold text-[11px] rounded-xl border border-amber-300 transition-colors flex items-center gap-1">
+                            <span>+ Add Education Record</span>
+                        </button>
+                    </div>
                 </div>
                 <p class="text-[11px] text-slate-500">Information will remain available to AfriCrew for review when public display is switched off. Academic qualifications are optional.</p>
 
@@ -386,6 +393,16 @@
                                     <input type="text" name="education[{{ $idx }}][institution]" value="{{ $edu['institution'] ?? '' }}" placeholder="Institution / Organization" class="bg-white border border-slate-200 rounded-xl px-3 py-2 outline-none">
                                     <input type="text" name="education[{{ $idx }}][degree]" value="{{ $edu['degree'] ?? '' }}" placeholder="Certification / Degree / Course" class="bg-white border border-slate-200 rounded-xl px-3 py-2 outline-none">
                                 </div>
+                                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                                    <div>
+                                        <label class="block text-[11px] font-extrabold text-slate-600 mb-1">From Date</label>
+                                        <input type="date" name="education[{{ $idx }}][start_date]" value="{{ $edu['start_date'] ?? '' }}" class="w-full bg-white border border-slate-200 rounded-xl px-3 py-2 outline-none">
+                                    </div>
+                                    <div>
+                                        <label class="block text-[11px] font-extrabold text-slate-600 mb-1">To Date (Leave blank if Present)</label>
+                                        <input type="date" name="education[{{ $idx }}][end_date]" value="{{ $edu['end_date'] ?? '' }}" class="w-full bg-white border border-slate-200 rounded-xl px-3 py-2 outline-none">
+                                    </div>
+                                </div>
                             </div>
                         @endforeach
                     @else
@@ -394,6 +411,16 @@
                                 <input type="text" name="education[0][institution]" placeholder="Institution / Organization (e.g. Kenya Utalii College)" class="bg-white border border-slate-200 rounded-xl px-3 py-2 outline-none">
                                 <input type="text" name="education[0][degree]" placeholder="Certification / Course (e.g. Certificate in Event Hospitality)" class="bg-white border border-slate-200 rounded-xl px-3 py-2 outline-none">
                             </div>
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                                <div>
+                                    <label class="block text-[11px] font-extrabold text-slate-600 mb-1">From Date</label>
+                                    <input type="date" name="education[0][start_date]" class="w-full bg-white border border-slate-200 rounded-xl px-3 py-2 outline-none">
+                                </div>
+                                <div>
+                                    <label class="block text-[11px] font-extrabold text-slate-600 mb-1">To Date (Leave blank if Present)</label>
+                                    <input type="date" name="education[0][end_date]" class="w-full bg-white border border-slate-200 rounded-xl px-3 py-2 outline-none">
+                                </div>
+                            </div>
                         </div>
                     @endif
                 </div>
@@ -401,8 +428,17 @@
 
             <!-- Section 3B: Work Experience -->
             <div class="space-y-4 pt-4 border-t border-slate-100">
-                <h4 class="text-xs font-black uppercase text-slate-800">Work Experience & Gig History</h4>
-                <p class="text-[11px] text-slate-500">Freelance, self-employed, contract, and project-based experience entries are fully supported.</p>
+                <div class="flex items-center justify-between flex-wrap gap-2">
+                    <div>
+                        <h4 class="text-xs font-black uppercase text-slate-800">Work Experience & Gig History</h4>
+                        <p class="text-[11px] text-slate-500">Freelance, self-employed, contract, and project-based experience entries are fully supported.</p>
+                    </div>
+
+                    <!-- Add Work Experience Button -->
+                    <button type="button" onclick="addExperienceRow()" class="px-3.5 py-1.5 bg-amber-500/10 hover:bg-amber-500/20 text-amber-900 font-extrabold text-[11px] rounded-xl border border-amber-300 transition-colors flex items-center gap-1">
+                        <span>+ Add Work Experience</span>
+                    </button>
+                </div>
 
                 <div id="experience-cards-wrapper" class="space-y-3">
                     @php
@@ -421,6 +457,16 @@
                                         <option value="Part-time" @selected(($exp['type'] ?? '') == 'Part-time')>Part-time</option>
                                     </select>
                                 </div>
+                                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                                    <div>
+                                        <label class="block text-[11px] font-extrabold text-slate-600 mb-1">From Date</label>
+                                        <input type="date" name="experience_records[{{ $eIdx }}][start_date]" value="{{ $exp['start_date'] ?? '' }}" class="w-full bg-white border border-slate-200 rounded-xl px-3 py-2 outline-none">
+                                    </div>
+                                    <div>
+                                        <label class="block text-[11px] font-extrabold text-slate-600 mb-1">To Date (Leave blank if Present)</label>
+                                        <input type="date" name="experience_records[{{ $eIdx }}][end_date]" value="{{ $exp['end_date'] ?? '' }}" class="w-full bg-white border border-slate-200 rounded-xl px-3 py-2 outline-none">
+                                    </div>
+                                </div>
                             </div>
                         @endforeach
                     @else
@@ -434,6 +480,16 @@
                                     <option value="Full-time">Full-time Contract</option>
                                     <option value="Part-time">Part-time</option>
                                 </select>
+                            </div>
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                                <div>
+                                    <label class="block text-[11px] font-extrabold text-slate-600 mb-1">From Date</label>
+                                    <input type="date" name="experience_records[0][start_date]" class="w-full bg-white border border-slate-200 rounded-xl px-3 py-2 outline-none">
+                                </div>
+                                <div>
+                                    <label class="block text-[11px] font-extrabold text-slate-600 mb-1">To Date (Leave blank if Present)</label>
+                                    <input type="date" name="experience_records[0][end_date]" class="w-full bg-white border border-slate-200 rounded-xl px-3 py-2 outline-none">
+                                </div>
                             </div>
                         </div>
                     @endif
@@ -467,8 +523,17 @@
 
             <!-- Section 3D: Add Referee & Verification -->
             <div class="space-y-4 pt-4 border-t border-slate-100">
-                <h4 class="text-xs font-black uppercase text-slate-800">Add Referee</h4>
-                <p class="text-[11px] text-slate-500">Referee contact details remain private. Profile setup can continue while verification is pending.</p>
+                <div class="flex items-center justify-between flex-wrap gap-2">
+                    <div>
+                        <h4 class="text-xs font-black uppercase text-slate-800">Add Referee</h4>
+                        <p class="text-[11px] text-slate-500">Referee contact details remain private. Profile setup can continue while verification is pending.</p>
+                    </div>
+
+                    <!-- Add Referee Button -->
+                    <button type="button" onclick="addRefereeRow()" class="px-3.5 py-1.5 bg-amber-500/10 hover:bg-amber-500/20 text-amber-900 font-extrabold text-[11px] rounded-xl border border-amber-300 transition-colors flex items-center gap-1">
+                        <span>+ Add Referee</span>
+                    </button>
+                </div>
 
                 <div id="referees-cards-wrapper" class="space-y-3">
                     @php
@@ -483,15 +548,19 @@
                                     <input type="email" name="referees[{{ $rIdx }}][email]" value="{{ $ref['email'] ?? '' }}" placeholder="Referee Email" class="bg-white border border-slate-200 rounded-xl px-3 py-2 outline-none">
                                     <input type="tel" name="referees[{{ $rIdx }}][phone]" value="{{ $ref['phone'] ?? '' }}" placeholder="Referee Phone" class="bg-white border border-slate-200 rounded-xl px-3 py-2 outline-none">
                                 </div>
-                                <div class="flex items-center justify-between pt-2 border-t border-slate-200/60">
+                                <div class="flex items-center justify-between pt-2 border-t border-slate-200/60 flex-wrap gap-2">
                                     <span class="text-[11px] font-bold text-slate-600">
-                                        Status: <span class="px-2 py-0.5 rounded-full bg-slate-200 text-slate-800 font-extrabold text-[10px]">{{ $ref['status'] ?? 'Not Requested' }}</span>
+                                        Status: <span class="px-2.5 py-0.5 rounded-full bg-slate-200 text-slate-800 font-black text-[10px]">{{ $ref['status'] ?? 'Not Requested' }}</span>
                                     </span>
-                                    <button type="button" onclick="requestRefereeVerification({{ $rIdx }})" class="px-3 py-1 bg-slate-900 text-amber-400 font-extrabold text-[11px] rounded-lg">
-                                        Request Verification
-                                    </button>
+                                    <div class="flex items-center gap-2">
+                                        <button type="button" onclick="saveRefereeForm({{ $rIdx }})" class="px-3.5 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold text-[11px] rounded-xl shadow-2xs flex items-center gap-1 transition-all">
+                                            <span>💾 1. SAVE</span>
+                                        </button>
+                                        <button type="button" onclick="requestRefereeVerification({{ $rIdx }})" class="px-3.5 py-1.5 bg-amber-500 hover:bg-amber-400 text-slate-950 font-black text-[11px] rounded-xl shadow-2xs flex items-center gap-1 transition-all">
+                                            <span>🛡️ 2. VERIFY</span>
+                                        </button>
+                                    </div>
                                 </div>
-                                <p class="text-[10px] text-slate-500 italic">"By clicking Request Verification, AfriCrew will ask your chosen referee to confirm this work experience. Please let them know before sending the request."</p>
                             </div>
                         @endforeach
                     @else
@@ -502,7 +571,19 @@
                                 <input type="email" name="referees[0][email]" placeholder="referee@example.com" class="bg-white border border-slate-200 rounded-xl px-3 py-2 outline-none">
                                 <input type="tel" name="referees[0][phone]" placeholder="+254 700 000 000" class="bg-white border border-slate-200 rounded-xl px-3 py-2 outline-none">
                             </div>
-                            <p class="text-[10px] text-slate-500 italic">"By clicking Request Verification, AfriCrew will ask your chosen referee to confirm this work experience. Please let them know before sending the request."</p>
+                            <div class="flex items-center justify-between pt-2 border-t border-slate-200/60 flex-wrap gap-2">
+                                <span class="text-[11px] font-bold text-slate-600">
+                                    Status: <span class="px-2.5 py-0.5 rounded-full bg-slate-200 text-slate-800 font-black text-[10px]">Not Saved</span>
+                                </span>
+                                <div class="flex items-center gap-2">
+                                    <button type="button" onclick="saveRefereeForm(0)" class="px-3.5 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold text-[11px] rounded-xl shadow-2xs flex items-center gap-1 transition-all">
+                                        <span>💾 1. SAVE</span>
+                                    </button>
+                                    <button type="button" onclick="requestRefereeVerification(0)" class="px-3.5 py-1.5 bg-amber-500 hover:bg-amber-400 text-slate-950 font-black text-[11px] rounded-xl shadow-2xs flex items-center gap-1 transition-all">
+                                        <span>🛡️ 2. VERIFY</span>
+                                    </button>
+                                </div>
+                            </div>
                         </div>
                     @endif
                 </div>
@@ -610,13 +691,25 @@
                     </div>
                 </div>
 
-                <!-- Other towns I can serve (Select up to 3 as removable chips) -->
+                <!-- Other towns I can serve -->
                 <div>
-                    <label class="block text-xs font-extrabold uppercase text-slate-700 mb-1">
-                        Other towns I can serve <span class="text-slate-400 font-normal lowercase">(Select up to 3)</span>
+                    <label class="block text-xs font-extrabold uppercase text-slate-700 mb-1 flex items-center justify-between">
+                        <span>Other towns I can serve <span class="text-slate-400 font-normal lowercase">(Select or add towns you can serve)</span></span>
+                        <span class="text-[11px] text-amber-700 font-bold" id="other-towns-count">0 selected</span>
                     </label>
-                    <div id="other-towns-chips-container" class="flex flex-wrap gap-2 p-3 bg-slate-50 border border-slate-200 rounded-2xl min-h-12 items-center">
+                    <div id="other-towns-chips-container" class="flex flex-wrap gap-2 p-3 bg-slate-50 border border-slate-200 rounded-2xl min-h-12 items-center mb-2">
                         <!-- Chips rendered via JS -->
+                    </div>
+                    <div id="other-towns-hidden-inputs"></div>
+
+                    <!-- Add New Town Input Controls -->
+                    <div class="flex items-center gap-2 pt-1">
+                        <input type="text" id="custom-town-input" placeholder="Type a new town or city name (e.g. Diani, Nanyuki, Malindi)..."
+                            class="flex-1 bg-white border border-slate-200 rounded-xl px-3.5 py-2 text-xs font-semibold outline-none focus:border-amber-500 shadow-2xs">
+                        <button type="button" onclick="addCustomOtherTown()"
+                            class="px-4 py-2 bg-slate-900 hover:bg-slate-800 text-amber-400 font-extrabold text-xs rounded-xl shadow-xs shrink-0 flex items-center gap-1.5 transition-all">
+                            <span>➕ Add New Town</span>
+                        </button>
                     </div>
                 </div>
 
@@ -630,19 +723,19 @@
                 <div class="flex items-center justify-between flex-wrap gap-2">
                     <h4 class="text-xs font-black uppercase text-slate-800">Availability Calendar</h4>
                     <span class="text-xs font-extrabold text-emerald-800 bg-emerald-100 px-3 py-1 rounded-full">
-                        📅 24 available days this month
+                        📅 {{ now()->format('F Y') }}
                     </span>
                 </div>
 
                 <p class="text-xs text-slate-600 leading-relaxed">
-                    "You are available by default. Select dates when you cannot work. Confirmed AfriCrew bookings will block the relevant dates automatically."
+                    "You are available by default. Select dates when you cannot work. Confirmed AfriCrew bookings will block the relevant dates automatically. Past dates and today's dates within 6 hours lead time are inactive."
                 </p>
 
                 <!-- Legend -->
                 <div class="flex items-center gap-4 text-xs font-bold">
                     <div class="flex items-center gap-1.5"><span class="w-3 h-3 rounded-full bg-emerald-500"></span> Available</div>
                     <div class="flex items-center gap-1.5"><span class="w-3 h-3 rounded-full bg-rose-500"></span> Unavailable (Blocked)</div>
-                    <div class="flex items-center gap-1.5"><span class="w-3 h-3 rounded-full bg-amber-500"></span> Booked (Platform Gig)</div>
+                    <div class="flex items-center gap-1.5"><span class="w-3 h-3 rounded-full bg-slate-300"></span> Inactive / Past / &lt; 6h</div>
                 </div>
 
                 <!-- Calendar Actions -->
@@ -661,7 +754,7 @@
                 <!-- Month Grid Display with Visible Date Numbers -->
                 <div class="p-4 bg-slate-50 border border-slate-200 rounded-2xl space-y-3">
                     <div class="flex items-center justify-between text-xs font-black text-slate-900">
-                        <span>OCTOBER 2026</span>
+                        <span>{{ strtoupper(now()->format('F Y')) }}</span>
                         <span>Kenya GMT+3</span>
                     </div>
                     <div class="grid grid-cols-7 gap-1.5 text-center text-xs">
@@ -673,11 +766,30 @@
                         <div class="font-extrabold text-slate-400 py-1">Sat</div>
                         <div class="font-extrabold text-slate-400 py-1">Sun</div>
 
-                        <!-- Sample 31-day cells with visible numbers -->
-                        @for($day = 1; $day <= 31; $day++)
-                            <button type="button" onclick="toggleDateCell(this, {{ $day }})" class="h-10 rounded-xl font-bold text-xs flex items-center justify-center transition-all bg-emerald-500 text-white shadow-xs">
-                                {{ $day }}
-                            </button>
+                        @php
+                            $now = \Carbon\Carbon::now();
+                            $daysInMonth = $now->daysInMonth;
+                            $currentDay = $now->day;
+                            $currentHour = $now->hour;
+                            // 6-hour lead time requirement: if current hour + 6 >= 24, today is also inactive
+                            $isTodayInactive = ($currentHour + 6 >= 24);
+                        @endphp
+
+                        @for($day = 1; $day <= $daysInMonth; $day++)
+                            @php
+                                $isPastOrInactive = ($day < $currentDay) || ($day == $currentDay && $isTodayInactive);
+                            @endphp
+                            @if($isPastOrInactive)
+                                <button type="button" disabled title="Past Date / < 6 Hours Lead Time (Inactive)"
+                                    class="h-10 rounded-xl font-bold text-xs flex items-center justify-center bg-slate-200 text-slate-400 border border-slate-200 cursor-not-allowed opacity-50 select-none">
+                                    {{ $day }}
+                                </button>
+                            @else
+                                <button type="button" onclick="toggleDateCell(this, {{ $day }})"
+                                    class="h-10 rounded-xl font-bold text-xs flex items-center justify-center transition-all bg-emerald-500 text-white shadow-xs">
+                                    {{ $day }}
+                                </button>
+                            @endif
                         @endfor
                     </div>
                 </div>
@@ -731,6 +843,16 @@
             </div>
 
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-6 text-xs font-bold">
+                <!-- Platform Service Fee (Non-editable) -->
+                <div>
+                    <label class="block text-slate-700 mb-1 flex items-center justify-between">
+                        <span>Platform Service Fee</span>
+                        <span class="text-[10px] bg-slate-200 text-slate-700 font-extrabold px-2 py-0.5 rounded-md">🔒 Fixed Platform Standard</span>
+                    </label>
+                    <input type="text" value="15% (Fixed Platform Standard - Included)" disabled readonly
+                        class="w-full bg-slate-100 border border-slate-200/90 rounded-2xl px-4 py-3 text-xs font-black text-slate-600 cursor-not-allowed select-none">
+                    <p class="text-[11px] text-slate-500 font-medium mt-1">Platform Service Fee is fixed at 15% for all standard bookings and is non-editable.</p>
+                </div>
                 <!-- Currency -->
                 <div>
                     <label class="block text-slate-700 mb-1">Currency *</label>
@@ -922,15 +1044,15 @@
 
 <script>
     const citiesData = {
-        'Kenya': ['Nairobi', 'Mombasa', 'Kisumu', 'Nakuru', 'Eldoret', 'Naivasha', 'Nyeri', 'Nanyuki', 'Thika', 'Ruiru'],
-        'Uganda': ['Kampala', 'Entebbe', 'Jinja', 'Mbarara', 'Gulu'],
-        'Tanzania': ['Dar es Salaam', 'Arusha', 'Dodoma', 'Mwanza', 'Moshi', 'Zanzibar City'],
-        'Rwanda': ['Kigali', 'Musanze', 'Rubavu', 'Huye'],
-        'Burundi': ['Bujumbura', 'Gitega'],
-        'South Sudan': ['Juba', 'Wau']
+        'Kenya': ['Nairobi', 'Mombasa', 'Kisumu', 'Nakuru', 'Eldoret', 'Thika', 'Ruiru', 'Naivasha', 'Nyeri', 'Nanyuki', 'Malindi', 'Diani Beach', 'Machakos', 'Meru', 'Kakamega', 'Kitale', 'Garissa', 'Kericho', 'Embu', 'Isiolo', 'Ukunda', 'Lamu', 'Narok', 'Kilifi', 'Voi', 'Kisii'],
+        'Uganda': ['Kampala', 'Entebbe', 'Jinja', 'Mbarara', 'Gulu', 'Mbale', 'Fort Portal', 'Kasese', 'Masaka', 'Lira'],
+        'Tanzania': ['Dar es Salaam', 'Arusha', 'Dodoma', 'Mwanza', 'Moshi', 'Zanzibar City', 'Tanga', 'Morogoro', 'Mbeya', 'Stone Town'],
+        'Rwanda': ['Kigali', 'Musanze', 'Rubavu (Gisenyi)', 'Huye (Butare)', 'Rusizi', 'Rwamagana'],
+        'Burundi': ['Bujumbura', 'Gitega', 'Ngozi', 'Rumonge'],
+        'South Sudan': ['Juba', 'Wau', 'Malakal', 'Yei', 'Torit']
     };
 
-    let selectedOtherCities = @json(is_array($professional->other_cities) ? $professional->other_cities : []);
+    let selectedOtherCities = @json(is_array($professional->other_cities) ? array_values($professional->other_cities) : []);
 
     document.addEventListener('DOMContentLoaded', () => {
         onCountrySelectChange("{{ old('country', $professional->country ?: 'Kenya') }}");
@@ -940,38 +1062,64 @@
         const citySelect = document.getElementById('city-select');
         if (!citySelect) return;
         
-        const towns = citiesData[country] || ['Nairobi', 'Mombasa'];
+        const towns = citiesData[country] || ['Nairobi', 'Mombasa', 'Kisumu'];
         const currentCity = "{{ old('city', $professional->city) }}";
 
-        citySelect.innerHTML = towns.map(t => `<option value="${t}" ${t === currentCity ? 'selected' : ''}>${t}</option>`).join('');
+        let optionsHtml = towns.map(t => `<option value="${t}" ${t === currentCity ? 'selected' : ''}>${t}</option>`).join('');
+        if (currentCity && !towns.includes(currentCity)) {
+            optionsHtml = `<option value="${currentCity}" selected>${currentCity}</option>` + optionsHtml;
+        }
+
+        citySelect.innerHTML = optionsHtml;
         renderOtherTownsChips(country);
     }
 
     function renderOtherTownsChips(country) {
         const container = document.getElementById('other-towns-chips-container');
+        const hiddenContainer = document.getElementById('other-towns-hidden-inputs');
+        const countBadge = document.getElementById('other-towns-count');
         if (!container) return;
 
-        const towns = citiesData[country] || [];
-        container.innerHTML = towns.map(t => {
+        const predefinedTowns = citiesData[country] || [];
+        const allTowns = Array.from(new Set([...predefinedTowns, ...selectedOtherCities]));
+
+        container.innerHTML = allTowns.map(t => {
             const isSelected = selectedOtherCities.includes(t);
             return `
-                <button type="button" onclick="toggleOtherTown('${t}')" class="px-3 py-1 rounded-full text-xs font-bold border transition-all ${isSelected ? 'bg-amber-500 text-slate-950 border-amber-500' : 'bg-white text-slate-700 border-slate-200 hover:bg-slate-100'}">
+                <button type="button" onclick="toggleOtherTown('${t}')" class="px-3 py-1 rounded-full text-xs font-bold border transition-all ${isSelected ? 'bg-amber-500 text-slate-950 border-amber-500 shadow-2xs' : 'bg-white text-slate-700 border-slate-200 hover:bg-slate-100'}">
                     ${isSelected ? '✓ ' : '+ '}${t}
                 </button>
             `;
         }).join('');
+
+        if (hiddenContainer) {
+            hiddenContainer.innerHTML = selectedOtherCities.map(t => `<input type="hidden" name="other_cities[]" value="${t}">`).join('');
+        }
+
+        if (countBadge) {
+            countBadge.textContent = `${selectedOtherCities.length} selected`;
+        }
     }
 
     function toggleOtherTown(town) {
         if (selectedOtherCities.includes(town)) {
             selectedOtherCities = selectedOtherCities.filter(t => t !== town);
         } else {
-            if (selectedOtherCities.length >= 3) {
-                alert('You can select up to 3 other towns you serve.');
-                return;
-            }
             selectedOtherCities.push(town);
         }
+        renderOtherTownsChips(document.getElementById('country-select').value);
+    }
+
+    function addCustomOtherTown() {
+        const input = document.getElementById('custom-town-input');
+        if (!input) return;
+        const newTown = input.value.trim();
+        if (!newTown) return;
+
+        if (!selectedOtherCities.includes(newTown)) {
+            selectedOtherCities.push(newTown);
+        }
+        input.value = '';
         renderOtherTownsChips(document.getElementById('country-select').value);
     }
 
@@ -1003,33 +1151,160 @@
 
     function uploadHeaderCover(input) {
         if (input.files && input.files[0]) {
+            const file = input.files[0];
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const img = document.getElementById('header-cover-img');
+                if (img) img.src = e.target.result;
+            };
+            reader.readAsDataURL(file);
+
             const formData = new FormData();
             formData.append('_token', '{{ csrf_token() }}');
             formData.append('_method', 'PATCH');
-            formData.append('cover_photo', input.files[0]);
+            formData.append('cover_photo', file);
 
             fetch('{{ route("professional.profile.update") }}', {
                 method: 'POST',
                 body: formData
             }).then(res => res.json()).then(data => {
-                location.reload();
-            });
+                const indicator = document.getElementById('autosave-indicator');
+                if (indicator) {
+                    indicator.textContent = 'Cover updated!';
+                    setTimeout(() => { indicator.textContent = 'Saved'; }, 2000);
+                }
+            }).catch(err => console.log('Cover upload error', err));
         }
     }
 
     function uploadHeaderAvatar(input) {
         if (input.files && input.files[0]) {
+            const file = input.files[0];
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const img = document.getElementById('header-avatar-img');
+                const placeholder = document.getElementById('header-avatar-placeholder');
+                if (img) {
+                    img.src = e.target.result;
+                } else if (placeholder) {
+                    const newImg = document.createElement('img');
+                    newImg.id = 'header-avatar-img';
+                    newImg.src = e.target.result;
+                    newImg.alt = 'Avatar Preview';
+                    newImg.className = 'w-24 h-24 sm:w-28 sm:h-28 aspect-square rounded-full border-4 border-white object-cover shadow-xl shrink-0';
+                    placeholder.parentNode.replaceChild(newImg, placeholder);
+                }
+            };
+            reader.readAsDataURL(file);
+
             const formData = new FormData();
             formData.append('_token', '{{ csrf_token() }}');
             formData.append('_method', 'PATCH');
-            formData.append('profile_photo', input.files[0]);
+            formData.append('profile_photo', file);
 
             fetch('{{ route("professional.profile.update") }}', {
                 method: 'POST',
                 body: formData
             }).then(res => res.json()).then(data => {
-                location.reload();
-            });
+                const indicator = document.getElementById('autosave-indicator');
+                if (indicator) {
+                    indicator.textContent = 'Avatar updated!';
+                    setTimeout(() => { indicator.textContent = 'Saved'; }, 2000);
+                }
+            }).catch(err => console.log('Avatar upload error', err));
+        }
+    }
+
+    function addEducationRow() {
+        const wrapper = document.getElementById('education-cards-wrapper');
+        if (!wrapper) return;
+        const count = wrapper.children.length;
+        const div = document.createElement('div');
+        div.className = 'p-4 bg-slate-50 border border-slate-200 rounded-2xl space-y-3 text-xs';
+        div.innerHTML = `
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <input type="text" name="education[${count}][institution]" placeholder="Institution / Organization" class="bg-white border border-slate-200 rounded-xl px-3 py-2 outline-none">
+                <input type="text" name="education[${count}][degree]" placeholder="Certification / Degree / Course" class="bg-white border border-slate-200 rounded-xl px-3 py-2 outline-none">
+            </div>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div>
+                    <label class="block text-[11px] font-extrabold text-slate-600 mb-1">From Date</label>
+                    <input type="date" name="education[${count}][start_date]" class="w-full bg-white border border-slate-200 rounded-xl px-3 py-2 outline-none">
+                </div>
+                <div>
+                    <label class="block text-[11px] font-extrabold text-slate-600 mb-1">To Date (Leave blank if Present)</label>
+                    <input type="date" name="education[${count}][end_date]" class="w-full bg-white border border-slate-200 rounded-xl px-3 py-2 outline-none">
+                </div>
+            </div>
+        `;
+        wrapper.appendChild(div);
+    }
+
+    function addExperienceRow() {
+        const wrapper = document.getElementById('experience-cards-wrapper');
+        if (!wrapper) return;
+        const count = wrapper.children.length;
+        const div = document.createElement('div');
+        div.className = 'p-4 bg-slate-50 border border-slate-200 rounded-2xl space-y-3 text-xs';
+        div.innerHTML = `
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                <input type="text" name="experience_records[${count}][employer]" placeholder="Company / Client" class="bg-white border border-slate-200 rounded-xl px-3 py-2 outline-none">
+                <input type="text" name="experience_records[${count}][role]" placeholder="Role (e.g. Lead Usher, Audio Engineer)" class="bg-white border border-slate-200 rounded-xl px-3 py-2 outline-none">
+                <select name="experience_records[${count}][type]" class="bg-white border border-slate-200 rounded-xl px-3 py-2 outline-none font-bold">
+                    <option value="Freelance / Project-based">Freelance / Project-based</option>
+                    <option value="Self-employed">Self-employed</option>
+                    <option value="Full-time">Full-time Contract</option>
+                    <option value="Part-time">Part-time</option>
+                </select>
+            </div>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div>
+                    <label class="block text-[11px] font-extrabold text-slate-600 mb-1">From Date</label>
+                    <input type="date" name="experience_records[${count}][start_date]" class="w-full bg-white border border-slate-200 rounded-xl px-3 py-2 outline-none">
+                </div>
+                <div>
+                    <label class="block text-[11px] font-extrabold text-slate-600 mb-1">To Date (Leave blank if Present)</label>
+                    <input type="date" name="experience_records[${count}][end_date]" class="w-full bg-white border border-slate-200 rounded-xl px-3 py-2 outline-none">
+                </div>
+            </div>
+        `;
+        wrapper.appendChild(div);
+    }
+
+    function addRefereeRow() {
+        const wrapper = document.getElementById('referees-cards-wrapper');
+        if (!wrapper) return;
+        const count = wrapper.children.length;
+        const div = document.createElement('div');
+        div.className = 'p-4 bg-slate-50 border border-slate-200 rounded-2xl space-y-3 text-xs';
+        div.innerHTML = `
+            <div class="grid grid-cols-1 sm:grid-cols-4 gap-3">
+                <input type="text" name="referees[${count}][name]" placeholder="Referee Name" class="bg-white border border-slate-200 rounded-xl px-3 py-2 outline-none">
+                <input type="text" name="referees[${count}][relationship]" placeholder="Relationship" class="bg-white border border-slate-200 rounded-xl px-3 py-2 outline-none">
+                <input type="email" name="referees[${count}][email]" placeholder="referee@example.com" class="bg-white border border-slate-200 rounded-xl px-3 py-2 outline-none">
+                <input type="tel" name="referees[${count}][phone]" placeholder="+254 700 000 000" class="bg-white border border-slate-200 rounded-xl px-3 py-2 outline-none">
+            </div>
+            <div class="flex items-center justify-between pt-2 border-t border-slate-200/60 flex-wrap gap-2">
+                <span class="text-[11px] font-bold text-slate-600">
+                    Status: <span class="px-2.5 py-0.5 rounded-full bg-slate-200 text-slate-800 font-black text-[10px]">Not Saved</span>
+                </span>
+                <div class="flex items-center gap-2">
+                    <button type="button" onclick="saveRefereeForm(${count})" class="px-3.5 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold text-[11px] rounded-xl shadow-2xs flex items-center gap-1 transition-all">
+                        <span>💾 1. SAVE</span>
+                    </button>
+                    <button type="button" onclick="requestRefereeVerification(${count})" class="px-3.5 py-1.5 bg-amber-500 hover:bg-amber-400 text-slate-950 font-black text-[11px] rounded-xl shadow-2xs flex items-center gap-1 transition-all">
+                        <span>🛡️ 2. VERIFY</span>
+                    </button>
+                </div>
+            </div>
+        `;
+        wrapper.appendChild(div);
+    }
+
+    function saveRefereeForm(index) {
+        const form = document.getElementById('profile-main-form');
+        if (form) {
+            form.submit();
         }
     }
 

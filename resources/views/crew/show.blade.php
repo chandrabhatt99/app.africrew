@@ -367,8 +367,13 @@
                                     @foreach($professional->education as $idx => $edu)
                                         @php
                                             $eItem = is_string($edu) ? json_decode($edu, true) : $edu;
-                                            $startEduDisp = trim(($eItem['start_month'] ?? '') . ' ' . ($eItem['start_year'] ?? ($eItem['start_date'] ?? '')));
-                                            $endEduDisp = trim(($eItem['end_month'] ?? '') . ' ' . ($eItem['end_year'] ?? ($eItem['end_date'] ?? '')));
+                                            $sDate = $eItem['start_date'] ?? '';
+                                            $eDate = $eItem['end_date'] ?? '';
+                                            $startEduDisp = !empty($sDate) && strtotime($sDate) ? date('M Y', strtotime($sDate)) : trim(($eItem['start_month'] ?? '') . ' ' . ($eItem['start_year'] ?? $sDate));
+                                            $endEduDisp = !empty($eDate) && strtotime($eDate) ? date('M Y', strtotime($eDate)) : trim(($eItem['end_month'] ?? '') . ' ' . ($eItem['end_year'] ?? $eDate));
+                                            if ($startEduDisp && empty($endEduDisp) && !empty($sDate)) {
+                                                $endEduDisp = 'Present';
+                                            }
                                         @endphp
                                         <div class="p-5 rounded-2xl bg-amber-50/50 border border-amber-200/80 flex items-start gap-4 hover:border-amber-400 transition-all shadow-2xs">
                                             <div class="w-10 h-10 rounded-xl bg-amber-500/10 border border-amber-500/20 text-amber-700 flex items-center justify-center text-lg shrink-0 font-bold">
@@ -442,8 +447,13 @@
                                 @foreach($professional->experience_records as $exp)
                                     @php
                                         $xItem = is_string($exp) ? json_decode($exp, true) : $exp;
-                                        $startDisp = trim(($xItem['start_month'] ?? '') . ' ' . ($xItem['start_year'] ?? ($xItem['start_date'] ?? '2021')));
-                                        $endDisp = trim(($xItem['end_month'] ?? '') . ' ' . ($xItem['end_year'] ?? ($xItem['end_date'] ?? 'Present')));
+                                        $sExpDate = $xItem['start_date'] ?? '';
+                                        $eExpDate = $xItem['end_date'] ?? '';
+                                        $startDisp = !empty($sExpDate) && strtotime($sExpDate) ? date('M Y', strtotime($sExpDate)) : trim(($xItem['start_month'] ?? '') . ' ' . ($xItem['start_year'] ?? $sExpDate));
+                                        $endDisp = !empty($eExpDate) && strtotime($eExpDate) ? date('M Y', strtotime($eExpDate)) : trim(($xItem['end_month'] ?? '') . ' ' . ($xItem['end_year'] ?? $eExpDate));
+                                        if ($startDisp && empty($endDisp) && !empty($sExpDate)) {
+                                            $endDisp = 'Present';
+                                        }
                                     @endphp
                                     <div class="p-5 rounded-2xl bg-slate-900/90 border border-slate-800 hover:border-rose-500/40 transition-all space-y-2">
                                         <div class="flex items-center justify-between gap-2 flex-wrap">
@@ -451,12 +461,18 @@
                                                 <h3 class="text-base font-black text-white">{{ $xItem['role'] ?? 'Lead Usher & Host' }}</h3>
                                                 <p class="text-xs text-amber-400 font-extrabold">{{ $xItem['employer'] ?? 'Safaricom PLC' }}</p>
                                             </div>
-                                            <span class="px-3 py-1 rounded-full bg-gradient-to-r from-rose-500 to-amber-500 text-white font-extrabold text-[10px] uppercase shadow-xs">
-                                                {{ $startDisp }} - {{ $endDisp }}
-                                            </span>
+                                            @if($startDisp || $endDisp)
+                                                <span class="px-3 py-1 rounded-full bg-gradient-to-r from-rose-500 to-amber-500 text-white font-extrabold text-[10px] uppercase shadow-xs">
+                                                    {{ $startDisp }}{{ ($startDisp && $endDisp) ? ' - ' : '' }}{{ $endDisp }}
+                                                </span>
+                                            @elseif(!empty($xItem['type']))
+                                                <span class="px-3 py-1 rounded-full bg-slate-800 text-slate-300 font-extrabold text-[10px] uppercase shadow-xs">
+                                                    {{ $xItem['type'] }}
+                                                </span>
+                                            @endif
                                         </div>
                                         <p class="text-xs text-slate-300 font-medium leading-relaxed">
-                                            📍 {{ $professional->city ?: 'Nairobi' }}, Kenya • {{ $xItem['responsibilities'] ?? 'Coordinated guest seating, stage protocol, and VIP lounge hospitality for annual conferences.' }}
+                                            📍 {{ $professional->city ?: 'Nairobi' }}, Kenya • {{ $xItem['responsibilities'] ?? ($xItem['type'] ?? 'Freelance / Project-based') }}
                                         </p>
                                     </div>
                                 @endforeach
@@ -801,7 +817,7 @@
             flatpickr('#crew_show_event_date', {
                 mode: 'range',
                 dateFormat: 'd M Y',
-                minDate: new Date().fp_incr(1),
+                minDate: new Date(Date.now() + 6 * 60 * 60 * 1000),
                 onChange: function(selectedDates, dateStr, instance) {
                     if (selectedDates.length === 2) {
                         const diffMs = Math.abs(selectedDates[1].getTime() - selectedDates[0].getTime());

@@ -5,14 +5,8 @@
     $sidebarIsOnboarded = true;
     $onboardProgress = 100;
     if ($sidebarProf) {
-        $filledCount = 0;
-        if (!empty($sidebarProf->full_name) && !empty($sidebarProf->phone) && !empty($sidebarProf->category) && !empty($sidebarProf->gender)) $filledCount++;
-        if (!empty($sidebarProf->education) || !empty($sidebarProf->experience_records)) $filledCount++;
-        if (!empty($sidebarProf->profile_photo) || !empty($sidebarProf->gallery_photos)) $filledCount++;
-        if (!empty($sidebarProf->booking_policy) || !empty($sidebarProf->availability)) $filledCount++;
-        if (!empty($sidebarProf->one_day_rate) || !empty($sidebarProf->hourly_rate)) $filledCount++;
-        $sidebarIsOnboarded = ($filledCount >= 5) && (bool)$sidebarProf->is_onboarded;
-        $onboardProgress = min(100, round(($filledCount / 5) * 100));
+        $onboardProgress = $sidebarProf->completion_percentage;
+        $sidebarIsOnboarded = ($onboardProgress >= 80) || (bool)$sidebarProf->is_onboarded;
     }
 
     $isClientView = Auth::check() && (Auth::user()->role === 'client' || request()->routeIs('client.*'));
@@ -258,15 +252,19 @@
     <!-- Bottom User Profile Footer Card -->
     <div class="p-4 border-t border-slate-200/80 bg-slate-50/90 shrink-0 space-y-3">
         
-        @if(!$isClientView && $sidebarProf && !$sidebarIsOnboarded)
+        @if(!$isClientView && $sidebarProf)
             <!-- Profile Onboarding Progress Bar -->
-            <div class="space-y-1">
-                <div class="flex items-center justify-between text-[10px] font-extrabold text-amber-700">
-                    <span>Profile Setup</span>
-                    <span>{{ $onboardProgress }}%</span>
+            <div class="space-y-1.5 p-2.5 bg-amber-50/70 border border-amber-200/60 rounded-xl">
+                <div class="flex items-center justify-between text-[11px] font-black text-amber-900">
+                    <span class="flex items-center gap-1">
+                        <span>📊</span> Profile Setup
+                    </span>
+                    <span class="px-2 py-0.5 rounded-full {{ $onboardProgress === 100 ? 'bg-emerald-100 text-emerald-800' : 'bg-amber-200 text-amber-900' }} text-[10px]">
+                        {{ $onboardProgress }}%
+                    </span>
                 </div>
-                <div class="w-full bg-slate-200 h-1.5 rounded-full overflow-hidden">
-                    <div class="bg-gradient-to-r from-amber-500 to-amber-600 h-full rounded-full transition-all duration-500" style="width: {{ $onboardProgress }}%"></div>
+                <div class="w-full bg-slate-200 h-2 rounded-full overflow-hidden p-0.5 border border-slate-300/40">
+                    <div class="{{ $onboardProgress === 100 ? 'bg-gradient-to-r from-emerald-500 to-emerald-600' : 'bg-gradient-to-r from-amber-400 to-amber-600' }} h-full rounded-full transition-all duration-500 shadow-2xs" style="width: {{ $onboardProgress }}%"></div>
                 </div>
             </div>
         @endif
