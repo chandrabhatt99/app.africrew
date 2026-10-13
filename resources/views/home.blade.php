@@ -253,7 +253,7 @@
 <!-- ========================================================= -->
 <!-- SECTION 2: HOW TO HIRE ("FROM SEARCH TO EVENT-READY") -->
 <!-- ========================================================= -->
-<section class="py-20 bg-[#FAF9F6] border-b border-slate-200/80">
+<section id="how-it-works" class="py-20 bg-[#FAF9F6] border-b border-slate-200/80 scroll-mt-20">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         
         <div class="text-center max-w-xl mx-auto mb-16 space-y-2">

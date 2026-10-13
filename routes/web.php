@@ -48,6 +48,11 @@ Route::post('/contracts/{contract}/sign', [ContractController::class, 'sign'])->
 Route::post('/requests/{staffingRequest}/proposals', [ProposalController::class, 'store'])->name('proposals.store');
 Route::post('/proposals/{proposal}/respond', [ProposalController::class, 'respond'])->name('proposals.respond');
 
+// Hire Hub Directory Redirect
+Route::get('/hire', function () {
+    return redirect()->away('https://africrew.com/hire');
+})->name('hire.hub');
+
 // Public Staff Hiring Form
 Route::get('/hire-staff', [StaffingRequestController::class, 'create'])->name('hire.create');
 Route::post('/hire-staff', [StaffingRequestController::class, 'store'])->name('hire.store');
