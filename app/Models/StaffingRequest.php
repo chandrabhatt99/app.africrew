@@ -37,4 +37,9 @@ class StaffingRequest extends Model
     {
         return $this->hasMany(Proposal::class);
     }
+
+    public function mpesaTransactions(): HasMany
+    {
+        return $this->hasMany(MpesaTransaction::class);
+    }
 }

@@ -42,11 +42,26 @@ use App\Http\Controllers\ProposalController;
 use App\Http\Controllers\PasswordResetController;
 Route::get('/forgot-password', [PasswordResetController::class, 'showForgot'])->name('password.request');
 Route::post('/forgot-password', [PasswordResetController::class, 'sendResetLink'])->name('password.email');
+Route::get('/reset-password/{token}', [PasswordResetController::class, 'showReset'])->name('password.reset');
+Route::post('/reset-password', [PasswordResetController::class, 'reset'])->name('password.update');
+
+// Email Templates Live Preview & Testing Routes
+use App\Http\Controllers\EmailPreviewController;
+Route::get('/emails/preview', [EmailPreviewController::class, 'index'])->name('emails.index');
+Route::get('/emails/preview/{type}', [EmailPreviewController::class, 'preview'])->name('emails.preview');
+Route::post('/emails/send-test', [EmailPreviewController::class, 'sendTest'])->name('emails.sendTest');
+
 Route::get('/contracts/{contract}', [ContractController::class, 'show'])->name('contracts.show');
 Route::get('/requests/{staffingRequest}/contract', [ContractController::class, 'createOrViewForRequest'])->name('contracts.forRequest');
 Route::post('/contracts/{contract}/sign', [ContractController::class, 'sign'])->name('contracts.sign');
 Route::post('/requests/{staffingRequest}/proposals', [ProposalController::class, 'store'])->name('proposals.store');
 Route::post('/proposals/{proposal}/respond', [ProposalController::class, 'respond'])->name('proposals.respond');
+
+// Referee Verification Consent & Review Routes
+Route::get('/referee/review/{token}', [\App\Http\Controllers\RefereeConsentController::class, 'review'])->name('referee.review');
+Route::post('/referee/review/{token}/submit', [\App\Http\Controllers\RefereeConsentController::class, 'submitReview'])->name('referee.review.submit');
+Route::get('/referee/consent/{token}', [\App\Http\Controllers\RefereeConsentController::class, 'confirmConsent'])->name('referee.consent');
+Route::get('/referee/decline/{token}', [\App\Http\Controllers\RefereeConsentController::class, 'declineConsent'])->name('referee.decline');
 
 // Hire Hub Directory Redirect
 Route::get('/hire', function () {
@@ -65,6 +80,9 @@ Route::get('/client/register', [ClientPortalController::class, 'showRegister'])-
 Route::post('/client/register', [ClientPortalController::class, 'register'])->name('client.register.submit');
 Route::post('/client/logout', [ClientPortalController::class, 'logout'])->name('client.logout');
 Route::get('/client/dashboard', [ClientPortalController::class, 'dashboard'])->name('client.dashboard');
+Route::post('/client/bookings/{staffingRequest}/cancel', [ClientPortalController::class, 'cancelBooking'])->name('client.bookings.cancel');
+Route::post('/client/bookings/{staffingRequest}/reschedule', [ClientPortalController::class, 'rescheduleBooking'])->name('client.bookings.reschedule');
+Route::post('/client/profile', [ClientPortalController::class, 'updateProfile'])->name('client.profile.update');
 Route::post('/client/favorites/{professional}', [ClientPortalController::class, 'toggleFavorite'])->name('client.favorites.toggle');
 Route::get('/users/message', [\App\Http\Controllers\MessageController::class, 'index'])->name('client.messages');
 Route::get('/client/messages', [\App\Http\Controllers\MessageController::class, 'index'])->name('client.messages.alt');
@@ -78,8 +96,10 @@ Route::get('/api/check-username', [ProfessionalController::class, 'checkUsername
 // Staff Portal Login & Authentication
 Route::get('/staff/login', [StaffAuthController::class, 'showLogin'])->name('staff.login');
 Route::post('/staff/login', [StaffAuthController::class, 'login'])->name('staff.login.submit');
+Route::post('/staff/check-status', [StaffAuthController::class, 'checkStatus'])->name('staff.check-status');
 Route::post('/staff/logout', [StaffAuthController::class, 'logout'])->name('staff.logout');
 Route::get('/staff/verify-notice', [StaffAuthController::class, 'showVerifyNotice'])->name('staff.verify.notice');
+Route::get('/staff/pending-approval', [StaffAuthController::class, 'showVerifyNotice'])->name('staff.pending');
 Route::post('/staff/resend-verification', [StaffAuthController::class, 'resendVerification'])->name('staff.verify.resend');
 Route::post('/staff/update-email', [StaffAuthController::class, 'updateEmail'])->name('staff.verify.updateEmail');
 Route::get('/staff/verify-email/{token}', [StaffAuthController::class, 'verifyEmail'])->name('staff.verify.email');
@@ -103,6 +123,7 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
     Route::post('/staffing-requests', [StaffingRequestAdminController::class, 'store'])->name('requests.store');
     Route::get('/staffing-requests/{staffingRequest}', [StaffingRequestAdminController::class, 'show'])->name('requests.show');
     Route::patch('/staffing-requests/{staffingRequest}/status', [StaffingRequestAdminController::class, 'updateStatus'])->name('requests.status');
+    Route::patch('/staffing-requests/{staffingRequest}/reschedule', [StaffingRequestAdminController::class, 'reschedule'])->name('requests.reschedule');
     Route::post('/staffing-requests/{staffingRequest}/assign', [StaffingRequestAdminController::class, 'assign'])->name('requests.assign');
 
     Route::get('/professionals', [ProfessionalAdminController::class, 'index'])->name('professionals.index');
@@ -112,7 +133,12 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
     Route::get('/professionals/{professional}/edit', [ProfessionalAdminController::class, 'edit'])->name('professionals.edit');
     Route::put('/professionals/{professional}', [ProfessionalAdminController::class, 'update'])->name('professionals.update');
     Route::patch('/professionals/{professional}/status', [ProfessionalAdminController::class, 'updateStatus'])->name('professionals.status');
+    Route::post('/professionals/{professional}/schedule-interview', [ProfessionalAdminController::class, 'scheduleInterview'])->name('professionals.scheduleInterview');
+    Route::post('/professionals/{professional}/approve', [ProfessionalAdminController::class, 'approve'])->name('professionals.approve');
+    Route::post('/professionals/{professional}/reject', [ProfessionalAdminController::class, 'reject'])->name('professionals.reject');
     Route::delete('/professionals/{professional}', [ProfessionalAdminController::class, 'destroy'])->name('professionals.destroy');
+    Route::post('/professionals/{professional}/referees/{index}/toggle-verify', [ProfessionalAdminController::class, 'toggleRefereeVerify'])->name('professionals.referees.toggleVerify');
+    Route::post('/professionals/{professional}/referees/{index}/toggle-visibility', [ProfessionalAdminController::class, 'toggleRefereeVisibility'])->name('professionals.referees.toggleVisibility');
 
     // Admin Staff Categories Management
     Route::get('/categories', [\App\Http\Controllers\Admin\CategoryAdminController::class, 'index'])->name('categories.index');
@@ -131,6 +157,7 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
     // Admin Clients Directory & History
     Route::get('/clients', [\App\Http\Controllers\Admin\AdminClientController::class, 'index'])->name('clients.index');
     Route::get('/clients/{client}', [\App\Http\Controllers\Admin\AdminClientController::class, 'show'])->name('clients.show');
+    Route::post('/clients/{client}/approve', [\App\Http\Controllers\Admin\AdminClientController::class, 'approve'])->name('clients.approve');
 
     // Admin Payment & Escrow Wallet Management
     Route::get('/payments', [\App\Http\Controllers\Admin\AdminPaymentController::class, 'index'])->name('payments.index');
@@ -243,5 +270,13 @@ Route::get('/symlink', function () {
             'message' => 'Failed to create symlink: ' . $e->getMessage()
         ], 500);
     }
+});
+
+// Client & Admin Web M-Pesa Payment Routes
+Route::prefix('payments/mpesa')->name('mpesa.')->group(function () {
+    Route::post('/stk-push', [\App\Http\Controllers\MpesaController::class, 'stkPush'])->name('stk');
+    Route::get('/status/{checkoutRequestId}', [\App\Http\Controllers\MpesaController::class, 'checkStatus'])->name('status');
+    Route::post('/simulate-success', [\App\Http\Controllers\MpesaController::class, 'simulateSuccess'])->name('simulate');
+    Route::post('/simulate-failure', [\App\Http\Controllers\MpesaController::class, 'simulateFailure'])->name('simulateFailure');
 });
 

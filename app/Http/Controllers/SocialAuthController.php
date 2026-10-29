@@ -141,6 +141,14 @@ class SocialAuthController extends Controller
             }
             Auth::login($authUser, true);
 
+            \App\Services\EmailNotificationService::sendLoginNotification(
+                $professional->email,
+                $professional->full_name,
+                'Crew Member (' . ucfirst($provider) . ')',
+                request()?->ip(),
+                request()?->userAgent()
+            );
+
             if (!$professional->is_onboarded) {
                 return redirect()->route('professional.onboarding')
                     ->with('success', 'Logged in via ' . ucfirst($provider) . '! Please complete your crew resume profile.');
@@ -175,6 +183,14 @@ class SocialAuthController extends Controller
         }
 
         Auth::login($user, true);
+
+        \App\Services\EmailNotificationService::sendLoginNotification(
+            $user->email,
+            $user->name,
+            'Client (' . ucfirst($provider) . ')',
+            request()?->ip(),
+            request()?->userAgent()
+        );
 
         if ($type === 'hire') {
             return redirect()->route('hire.create')

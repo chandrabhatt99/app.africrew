@@ -267,18 +267,35 @@
 
         <div class="grid grid-cols-1 md:grid-cols-4 gap-8 relative">
             @foreach([
-                ['01', '🔍', 'Tell Us What You Need', 'Choose crew type, date and event location.'],
-                ['02', '🛍️', 'Discover Available Crew', 'Browse vetted professionals available for your event.'],
-                ['03', '👥', 'Select Your Crew', 'Review profiles and choose the people who fit your event.'],
-                ['04', '📋', 'Confirm & Get Event-Ready', 'Complete your booking and AfriCrew handles the rest.'],
+                ['01', 'Tell Us What You Need', 'Choose crew type, date and event location.', 'search'],
+                ['02', 'Discover Available Crew', 'Browse vetted professionals available for your event.', 'discover'],
+                ['03', 'Select Your Crew', 'Review profiles and choose the people who fit your event.', 'crew'],
+                ['04', 'Confirm & Get Event-Ready', 'Complete your booking and AfriCrew handles the rest.', 'shield-check'],
             ] as $step)
                 <div class="bg-white border border-slate-200/90 rounded-3xl p-6 text-center space-y-4 shadow-sm hover:shadow-lg transition-all relative z-10">
-                    <div class="w-12 h-12 rounded-2xl bg-amber-50 border border-amber-200/80 text-amber-700 font-black text-xl flex items-center justify-center mx-auto shadow-2xs">
-                        {{ $step[1] }}
+                    <div class="w-14 h-14 rounded-full bg-[#FFF6EE] border border-[#FFE7D6] flex items-center justify-center mx-auto shadow-2xs">
+                        @if($step[3] === 'search')
+                            <svg class="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="url(#africrew-icon-grad)" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                                <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+                            </svg>
+                        @elseif($step[3] === 'discover')
+                            <svg class="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="url(#africrew-icon-grad)" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                                <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
+                            </svg>
+                        @elseif($step[3] === 'crew')
+                            <svg class="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="url(#africrew-icon-grad)" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+                            </svg>
+                        @elseif($step[3] === 'shield-check')
+                            <svg class="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="url(#africrew-icon-grad)" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M12 3.5L19 6C19 12.5 15.5 17.5 12 20.5C8.5 17.5 5 12.5 5 6L12 3.5Z"/>
+                                <path d="M9.5 12L11.5 14L15 9.5"/>
+                            </svg>
+                        @endif
                     </div>
                     <span class="text-[10px] font-black uppercase tracking-widest text-rose-500 block">{{ $step[0] }}</span>
-                    <h3 class="text-base font-extrabold text-slate-950">{{ $step[2] }}</h3>
-                    <p class="text-xs text-slate-500 leading-relaxed font-normal">{{ $step[3] }}</p>
+                    <h3 class="text-base font-extrabold text-slate-950">{{ $step[1] }}</h3>
+                    <p class="text-xs text-slate-500 leading-relaxed font-normal">{{ $step[2] }}</p>
                 </div>
             @endforeach
         </div>

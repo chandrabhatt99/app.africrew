@@ -1,0 +1,35 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 135 40" width="135" height="40" role="img" aria-label="Get it on Google Play">
+  <defs>
+    <linearGradient id="gp-blue" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#00C3FF" />
+      <stop offset="100%" stop-color="#0072FF" />
+    </linearGradient>
+    <linearGradient id="gp-green" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#00E676" />
+      <stop offset="100%" stop-color="#00B0FF" />
+    </linearGradient>
+    <linearGradient id="gp-yellow" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#FFD400" />
+      <stop offset="100%" stop-color="#FF9100" />
+    </linearGradient>
+    <linearGradient id="gp-red" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#FF334B" />
+      <stop offset="100%" stop-color="#BA0020" />
+    </linearGradient>
+  </defs>
+  <rect width="135" height="40" rx="8" fill="#000000" stroke="#a6a6a6" stroke-width="0.8" />
+  <!-- Google Play Icon -->
+  <g transform="translate(10, 8)">
+    <!-- Base triangle -->
+    <path d="M2.5 1.8 C2.2 2.1 2 2.6 2 3.2 L2 20.8 C2 21.4 2.2 21.9 2.5 22.2 L12.7 12 Z" fill="url(#gp-blue)" />
+    <!-- Top green triangle -->
+    <path d="M16.1 8.6 L12.7 12 L2.5 1.8 C2.8 1.6 3.3 1.5 3.8 1.8 L16.1 8.6 Z" fill="url(#gp-green)" />
+    <!-- Right yellow triangle -->
+    <path d="M19.9 10.7 L16.1 8.6 L12.7 12 L16.1 15.4 L19.9 13.3 C20.7 12.8 20.7 12.0 19.9 10.7 Z" fill="url(#gp-yellow)" />
+    <!-- Bottom red triangle -->
+    <path d="M2.5 22.2 L12.7 12 L16.1 15.4 L3.8 22.2 C3.3 22.5 2.8 22.4 2.5 22.2 Z" fill="url(#gp-red)" />
+  </g>
+  <!-- Text -->
+  <text x="37" y="13.5" fill="#ffffff" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="7.5" font-weight="600" letter-spacing="0.8">GET IT ON</text>
+  <text x="37" y="27.5" fill="#ffffff" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="13" font-weight="700" letter-spacing="-0.2">Google Play</text>
+</svg>

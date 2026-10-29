@@ -99,7 +99,44 @@ class StaffingRequestAdminController extends Controller
             }
         });
 
+        if ($data['status'] === 'completed') {
+            \App\Services\EmailNotificationService::sendEventCompleteToClient($staffingRequest);
+            \App\Services\EmailNotificationService::sendCrewGigCompletedToAllCrew($staffingRequest);
+        }
+
+        if ($data['status'] === 'cancelled') {
+            \App\Services\EmailNotificationService::sendBookingCancelledToAllCrew($staffingRequest);
+            \App\Services\EmailNotificationService::sendClientBookingCancelled($staffingRequest);
+        }
+
         return back()->with('success', 'Request status updated successfully.');
+    }
+
+    public function reschedule(Request $request, StaffingRequest $staffingRequest): RedirectResponse
+    {
+        $data = $request->validate([
+            'event_date' => ['required', 'date'],
+        ]);
+
+        $oldDate = $staffingRequest->event_date ? $staffingRequest->event_date->format('M j, Y') : 'Original Date';
+        $staffingRequest->update(['event_date' => $data['event_date']]);
+        $newDate = $staffingRequest->fresh()->event_date->format('M j, Y');
+
+        // Notify client
+        $clientEmail = $staffingRequest->email ?: $staffingRequest->user?->email;
+        if ($clientEmail) {
+            \App\Services\EmailNotificationService::sendBookingRescheduled($clientEmail, $staffingRequest, $oldDate, $newDate);
+        }
+
+        // Notify assigned crew members
+        $assignments = $staffingRequest->assignments()->with('professional')->get();
+        foreach ($assignments as $assignment) {
+            if ($assignment->professional) {
+                \App\Services\EmailNotificationService::sendBookingRescheduled($assignment->professional, $staffingRequest, $oldDate, $newDate);
+            }
+        }
+
+        return back()->with('success', "Booking rescheduled from {$oldDate} to {$newDate}. Notifications sent.");
     }
 
     public function assign(Request $request, StaffingRequest $staffingRequest): RedirectResponse
@@ -109,7 +146,9 @@ class StaffingRequestAdminController extends Controller
             'notes' => ['nullable', 'string', 'max:2000'],
         ]);
 
-        \Illuminate\Support\Facades\DB::transaction(function () use ($staffingRequest, $data) {
+        $assignedProf = null;
+
+        \Illuminate\Support\Facades\DB::transaction(function () use ($staffingRequest, $data, &$assignedProf) {
             $assignment = StaffingAssignment::firstOrCreate(
                 [
                     'staffing_request_id' => $staffingRequest->id,
@@ -125,16 +164,25 @@ class StaffingRequestAdminController extends Controller
                 $staffingRequest->update(['status' => 'assigned']);
             }
 
+            $assignedProf = Professional::find($data['professional_id']);
+
             // If the client has already paid to Admin, allocate pending escrow to newly assigned crew
             if ($staffingRequest->payment_status === 'paid_to_admin' && $staffingRequest->payment_amount > 0) {
-                $prof = Professional::find($data['professional_id']);
-                if ($prof) {
+                if ($assignedProf) {
                     $totalAssigned = $staffingRequest->assignments()->count();
                     $perCrewAmount = round($staffingRequest->payment_amount / max($totalAssigned, 1), 2);
-                    $prof->increment('wallet_pending', $perCrewAmount);
+                    $assignedProf->increment('wallet_pending', $perCrewAmount);
                 }
             }
         });
+
+        if ($assignedProf) {
+            // Send email to crew member
+            \App\Services\EmailNotificationService::sendGigAssignedToCrew($assignedProf, $staffingRequest);
+            \App\Services\EmailNotificationService::sendCrewBooked($assignedProf, $staffingRequest);
+            // Send email to client
+            \App\Services\EmailNotificationService::sendCrewConfirmedToClient($staffingRequest, $assignedProf->full_name);
+        }
 
         return back()->with('success', 'Professional assigned successfully.');
     }

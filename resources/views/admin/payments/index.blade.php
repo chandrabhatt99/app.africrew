@@ -10,17 +10,23 @@
 </div>
 
 <!-- Financial Summary Cards -->
-<div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+<div class="grid grid-cols-2 lg:grid-cols-5 gap-4 mb-8">
     <div class="bg-white rounded-2xl border border-slate-200/80 p-5 shadow-xs">
         <span class="text-[10px] font-bold uppercase text-slate-400 tracking-wider">Total Collected from Clients</span>
         <div class="text-2xl font-black text-slate-900 mt-2">KES {{ number_format($totalCollected, 2) }}</div>
         <div class="text-[10px] text-emerald-600 font-semibold mt-0.5">Paid directly to Admin account</div>
     </div>
 
+    <div class="bg-emerald-900 text-white rounded-2xl border border-emerald-800 p-5 shadow-xs">
+        <span class="text-[10px] font-bold uppercase text-emerald-300 tracking-wider">📱 M-Pesa Daraja Processed</span>
+        <div class="text-2xl font-black text-white mt-2">KES {{ number_format($totalMpesaProcessed, 2) }}</div>
+        <div class="text-[10px] text-emerald-300 font-semibold mt-0.5">Automatic STK &amp; C2B volume</div>
+    </div>
+
     <div class="bg-amber-50 rounded-2xl border border-amber-200 p-5 shadow-xs">
-        <span class="text-[10px] font-bold uppercase text-amber-800 tracking-wider">🔒 Escrow Held (Active Projects)</span>
+        <span class="text-[10px] font-bold uppercase text-amber-800 tracking-wider">🔒 Escrow Held (Active)</span>
         <div class="text-2xl font-black text-amber-950 mt-2">KES {{ number_format($totalEscrowHeld, 2) }}</div>
-        <div class="text-[10px] text-amber-700 font-semibold mt-0.5">Locked until projects are completed ("Done")</div>
+        <div class="text-[10px] text-amber-700 font-semibold mt-0.5">Locked until shift completion</div>
     </div>
 
     <div class="bg-emerald-50 rounded-2xl border border-emerald-200 p-5 shadow-xs">
@@ -30,7 +36,7 @@
     </div>
 
     <div class="bg-rose-50 rounded-2xl border border-rose-200 p-5 shadow-xs">
-        <span class="text-[10px] font-bold uppercase text-rose-800 tracking-wider">Pending Crew Withdrawals</span>
+        <span class="text-[10px] font-bold uppercase text-rose-800 tracking-wider">Pending Withdrawals</span>
         <div class="text-2xl font-black text-rose-950 mt-2">{{ number_format($pendingWithdrawalsCount) }} Requests</div>
         <div class="text-[10px] text-rose-700 font-semibold mt-0.5">Total KES {{ number_format($pendingWithdrawalsSum, 2) }}</div>
     </div>
@@ -229,4 +235,222 @@
         </div>
     @endif
 </div>
+
+<!-- Section 3: Safaricom M-Pesa Daraja Live Transactions Log & Sandbox Tester -->
+<div class="bg-white rounded-3xl border border-slate-200/80 shadow-sm overflow-hidden mb-10">
+    <div class="p-6 border-b border-slate-100 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div class="flex items-center gap-3">
+            <div class="w-10 h-10 rounded-2xl bg-emerald-600 text-white font-black flex items-center justify-center text-base shadow-sm">
+                M
+            </div>
+            <div>
+                <h2 class="font-extrabold text-slate-900 text-lg">Safaricom M-Pesa Daraja Gateway Transactions</h2>
+                <p class="text-xs text-slate-500 mt-0.5">Real-time log of STK Push, C2B receipts, and automated webhook callbacks.</p>
+            </div>
+        </div>
+
+        <!-- STK Push Sandbox Tester Button -->
+        <div class="flex items-center gap-2">
+            <button type="button" onclick="openAdminMpesaTester()" class="px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs shadow-sm transition-all flex items-center gap-1.5 cursor-pointer">
+                <span>📲 Test STK Push Prompt</span>
+            </button>
+        </div>
+    </div>
+
+    <div class="overflow-x-auto">
+        <table class="w-full text-sm text-left min-w-[750px]">
+            <thead>
+                <tr class="bg-slate-50 text-slate-500 font-semibold text-xs uppercase tracking-wider border-b border-slate-200/80">
+                    <th class="py-3.5 px-6">Receipt / Ref</th>
+                    <th class="py-3.5 px-6">Phone Number</th>
+                    <th class="py-3.5 px-6">Amount</th>
+                    <th class="py-3.5 px-6">Type & Booking</th>
+                    <th class="py-3.5 px-6">Status</th>
+                    <th class="py-3.5 px-6">Timestamp</th>
+                    <th class="py-3.5 px-6 text-right">Actions</th>
+                </tr>
+            </thead>
+            <tbody class="divide-y divide-slate-100">
+                @forelse($mpesaTransactions as $t)
+                <tr class="hover:bg-slate-50/70 transition-colors">
+                    <td class="py-3.5 px-6">
+                        @if($t->mpesa_receipt_number)
+                            <span class="font-mono font-black text-slate-900 text-xs px-2.5 py-1 rounded-lg bg-emerald-50 border border-emerald-200 text-emerald-950 inline-block">
+                                {{ $t->mpesa_receipt_number }}
+                            </span>
+                        @else
+                            <span class="font-mono text-xs text-slate-400">
+                                {{ $t->checkout_request_id ? substr($t->checkout_request_id, 0, 15) . '...' : 'Pending' }}
+                            </span>
+                        @endif
+                    </td>
+                    <td class="py-3.5 px-6 font-bold text-slate-800 text-xs">
+                        {{ $t->phone_number }}
+                    </td>
+                    <td class="py-3.5 px-6 font-black text-slate-900 text-sm">
+                        KES {{ number_format($t->amount, 2) }}
+                    </td>
+                    <td class="py-3.5 px-6 text-xs text-slate-600">
+                        <div class="font-semibold text-slate-800">{{ $t->transaction_type }}</div>
+                        @if($t->staffing_request_id)
+                            <a href="{{ route('admin.requests.show', $t->staffing_request_id) }}" class="text-amber-700 font-bold hover:underline">
+                                Order #{{ $t->staffing_request_id }}
+                            </a>
+                        @else
+                            <span class="text-slate-400">{{ $t->account_reference ?: 'Direct' }}</span>
+                        @endif
+                    </td>
+                    <td class="py-3.5 px-6">
+                        @php
+                            $badge = [
+                                'completed' => 'bg-emerald-100 text-emerald-800 border-emerald-200',
+                                'pending' => 'bg-amber-100 text-amber-800 border-amber-200',
+                                'failed' => 'bg-rose-100 text-rose-800 border-rose-200',
+                                'cancelled' => 'bg-slate-100 text-slate-700 border-slate-200',
+                            ][$t->status] ?? 'bg-slate-100 text-slate-800 border-slate-200';
+                        @endphp
+                        <span class="inline-flex px-2.5 py-0.5 rounded-full text-[11px] font-bold border capitalize {{ $badge }}">
+                            {{ $t->status }}
+                        </span>
+                    </td>
+                    <td class="py-3.5 px-6 text-xs text-slate-500">
+                        {{ $t->created_at ? $t->created_at->format('d M Y, h:i A') : 'N/A' }}
+                    </td>
+                    <td class="py-3.5 px-6 text-right">
+                        @if($t->status === 'pending')
+                            <button type="button" onclick="adminSimulateApprove('{{ $t->checkout_request_id }}')" class="px-2.5 py-1 rounded-lg bg-amber-100 hover:bg-amber-200 text-amber-900 font-bold text-[11px] transition-colors">
+                                Simulate Approval ⚡
+                            </button>
+                        @else
+                            <span class="text-slate-400 text-xs font-medium">✓ Logged</span>
+                        @endif
+                    </td>
+                </tr>
+                @empty
+                <tr>
+                    <td colspan="7" class="py-8 text-center text-slate-500 text-xs italic">
+                        No M-Pesa transactions recorded yet. Use the "Test STK Push Prompt" button above or initiate an escrow payment from the client portal.
+                    </td>
+                </tr>
+                @endforelse
+            </tbody>
+        </table>
+    </div>
+
+    @if($mpesaTransactions->hasPages())
+        <div class="p-4 border-t border-slate-100">
+            {{ $mpesaTransactions->links() }}
+        </div>
+    @endif
+</div>
+
+<!-- Admin M-Pesa STK Tester Script -->
+<script>
+function openAdminMpesaTester() {
+    Swal.fire({
+        title: 'M-Pesa STK Push Sandbox Tester',
+        html: `
+            <div class="text-left space-y-3 text-xs">
+                <div class="p-3 bg-emerald-50 rounded-xl border border-emerald-200 text-emerald-950 font-medium">
+                    Test the live Safaricom Daraja API connectivity. Entering a registered sandbox test phone number will prompt the handset directly.
+                </div>
+                <div>
+                    <label class="block font-bold text-slate-700 mb-1">Safaricom Phone Number:</label>
+                    <input type="tel" id="admin-mpesa-phone" value="254708374149" placeholder="2547XXXXXXXX" class="w-full border border-slate-300 rounded-xl px-3 py-2 text-slate-900 font-bold">
+                </div>
+                <div>
+                    <label class="block font-bold text-slate-700 mb-1">Amount (KES):</label>
+                    <input type="number" id="admin-mpesa-amount" value="10" min="1" class="w-full border border-slate-300 rounded-xl px-3 py-2 text-slate-900 font-bold">
+                </div>
+                <div>
+                    <label class="block font-bold text-slate-700 mb-1">Account Reference:</label>
+                    <input type="text" id="admin-mpesa-ref" value="AfriCrewAdmin" maxlength="12" class="w-full border border-slate-300 rounded-xl px-3 py-2 text-slate-900 font-bold">
+                </div>
+            </div>
+        `,
+        showCancelButton: true,
+        confirmButtonText: 'Send STK Push 📲',
+        confirmButtonColor: '#059669',
+        showLoaderOnConfirm: true,
+        preConfirm: () => {
+            const phone = document.getElementById('admin-mpesa-phone').value;
+            const amount = document.getElementById('admin-mpesa-amount').value;
+            const ref = document.getElementById('admin-mpesa-ref').value;
+
+            return fetch('/payments/mpesa/stk-push', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                    'Accept': 'application/json'
+                },
+                body: JSON.stringify({
+                    phone: phone,
+                    amount: amount,
+                    account_reference: ref,
+                    transaction_desc: 'Admin Test'
+                })
+            })
+            .then(res => {
+                if (!res.ok) {
+                    return res.json().then(e => { throw new Error(e.message || 'STK Push failed'); });
+                }
+                return res.json();
+            })
+            .catch(err => {
+                Swal.showValidationMessage(err.message || 'Error triggering STK Push');
+            });
+        }
+    }).then(result => {
+        if (result.isConfirmed && result.value && result.value.success) {
+            Swal.fire({
+                icon: 'success',
+                title: 'STK Push Sent!',
+                text: result.value.message || 'Check your phone and enter your PIN.',
+                confirmButtonColor: '#059669'
+            }).then(() => {
+                window.location.reload();
+            });
+        }
+    });
+}
+
+function adminSimulateApprove(checkoutRequestId) {
+    Swal.fire({
+        title: 'Simulate M-Pesa Payment Approval',
+        text: 'This will simulate a successful Daraja callback, mark the transaction completed, and allocate escrow funds.',
+        icon: 'question',
+        showCancelButton: true,
+        confirmButtonText: 'Simulate Approval',
+        confirmButtonColor: '#059669'
+    }).then(result => {
+        if (result.isConfirmed) {
+            fetch('/payments/mpesa/simulate-success', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                    'Accept': 'application/json'
+                },
+                body: JSON.stringify({ checkout_request_id: checkoutRequestId })
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.success) {
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Payment Confirmed!',
+                        text: `M-Pesa Receipt: ${data.receipt}`,
+                        confirmButtonColor: '#059669'
+                    }).then(() => {
+                        window.location.reload();
+                    });
+                } else {
+                    Swal.fire({ icon: 'error', title: 'Simulation Failed', text: data.message });
+                }
+            });
+        }
+    });
+}
+</script>
 @endsection

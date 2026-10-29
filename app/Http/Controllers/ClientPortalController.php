@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\StaffingRequest;
 use App\Models\User;
+use App\Services\EmailNotificationService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -12,7 +13,7 @@ use Illuminate\View\View;
 
 class ClientPortalController extends Controller
 {
-    public function dashboard(): View
+    public function dashboard(): View|RedirectResponse
     {
         $user = Auth::user();
         if (!$user) {
@@ -65,6 +66,16 @@ class ClientPortalController extends Controller
 
         if (Auth::attempt($credentials, $request->boolean('remember'))) {
             $request->session()->regenerate();
+            $user = Auth::user();
+
+            EmailNotificationService::sendLoginNotification(
+                $user->email,
+                $user->name,
+                'Client',
+                $request->ip(),
+                $request->userAgent()
+            );
+
             return redirect()->intended(route('client.dashboard'));
         }
 
@@ -100,9 +111,93 @@ class ClientPortalController extends Controller
             'role' => 'client',
         ]);
 
+        EmailNotificationService::sendClientWelcome($user);
+
         Auth::login($user);
 
         return redirect()->route('client.dashboard')->with('success', 'Welcome to AfriCrew Client Portal! Your client account has been created successfully.');
+    }
+
+    public function cancelBooking(Request $request, StaffingRequest $staffingRequest): RedirectResponse
+    {
+        $user = Auth::user();
+        if (!$user) {
+            return redirect()->route('client.login');
+        }
+
+        // Verify authorization
+        if ($staffingRequest->user_id !== $user->id && $staffingRequest->email !== $user->email) {
+            return back()->withErrors(['error' => 'Unauthorized action for this booking.']);
+        }
+
+        if ($staffingRequest->status === 'completed') {
+            return back()->withErrors(['error' => 'Completed bookings cannot be cancelled.']);
+        }
+
+        $staffingRequest->update(['status' => 'cancelled']);
+
+        // Send booking cancelled email to all assigned crew members
+        EmailNotificationService::sendBookingCancelledToAllCrew($staffingRequest);
+
+        // Send booking cancelled & refund notice email to Client
+        EmailNotificationService::sendClientBookingCancelled($staffingRequest);
+
+        return back()->with('success', "Booking #{$staffingRequest->id} for '{$staffingRequest->event_name}' has been cancelled. Your assigned crew has been notified.");
+    }
+
+    public function rescheduleBooking(Request $request, StaffingRequest $staffingRequest): RedirectResponse
+    {
+        $user = Auth::user();
+        if (!$user) {
+            return redirect()->route('client.login');
+        }
+
+        // Verify authorization
+        if ($staffingRequest->user_id !== $user->id && $staffingRequest->email !== $user->email) {
+            return back()->withErrors(['error' => 'Unauthorized action for this booking.']);
+        }
+
+        $data = $request->validate([
+            'event_date' => ['required', 'date', 'after:today'],
+        ]);
+
+        $oldDate = $staffingRequest->event_date ? $staffingRequest->event_date->format('M j, Y') : 'Original Date';
+        $staffingRequest->update(['event_date' => $data['event_date']]);
+        $newDate = $staffingRequest->fresh()->event_date->format('M j, Y');
+
+        // Send booking rescheduled email to client
+        EmailNotificationService::sendBookingRescheduled($user->email, $staffingRequest, $oldDate, $newDate);
+
+        // Send booking rescheduled email to all assigned crew
+        $assignments = $staffingRequest->assignments()->with('professional')->get();
+        foreach ($assignments as $assignment) {
+            if ($assignment->professional) {
+                EmailNotificationService::sendBookingRescheduled($assignment->professional, $staffingRequest, $oldDate, $newDate);
+            }
+        }
+
+        return back()->with('success', "Booking rescheduled from {$oldDate} to {$newDate}. Confirmation emails have been sent to you and your assigned crew.");
+    }
+
+    public function updateProfile(Request $request): RedirectResponse
+    {
+        $user = Auth::user();
+        if (!$user) {
+            return redirect()->route('client.login');
+        }
+
+        $data = $request->validate([
+            'name' => ['required', 'string', 'max:255'],
+            'phone' => ['nullable', 'string', 'max:50'],
+            'company_name' => ['nullable', 'string', 'max:255'],
+        ]);
+
+        $user->update($data);
+
+        // Send profile updated email notification to client
+        EmailNotificationService::sendProfileUpdated($user);
+
+        return back()->with('success', 'Your client profile has been updated successfully!');
     }
 
     public function logout(Request $request): RedirectResponse

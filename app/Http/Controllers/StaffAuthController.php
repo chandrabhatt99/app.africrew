@@ -32,7 +32,7 @@ class StaffAuthController extends Controller
             'password' => ['required'],
         ]);
 
-        $professional = Professional::where('email', $credentials['email'])->first();
+        $professional = Professional::where('email', strtolower(trim($credentials['email'])))->first();
 
         if (!$professional || !Hash::check($credentials['password'], $professional->password)) {
             return back()->withErrors([
@@ -40,22 +40,63 @@ class StaffAuthController extends Controller
             ])->onlyInput('email');
         }
 
-        if ($professional->status === 'rejected' || $professional->status === 'suspended') {
-            return back()->withErrors([
-                'email' => 'Your crew account is currently suspended or not approved.',
+        if ($professional->status === 'rejected') {
+            return back()->with([
+                'status_rejected' => true,
+                'rejection_reason' => $professional->interview_notes,
+            ])->withErrors([
+                'email' => 'Your profile is rejected. Your crew application was not approved by the AfriCrew vetting team.',
             ])->onlyInput('email');
         }
 
-        if (is_null($professional->email_verified_at)) {
+        if ($professional->status === 'suspended' || $professional->status === 'deactivated') {
+            return back()->withErrors([
+                'email' => 'Your crew account is currently suspended or deactivated. Please contact administration.',
+            ])->onlyInput('email');
+        }
+
+        // If candidate's application is still pending admin approval
+        if ($professional->status === 'pending') {
+            if ($professional->interview_status === 'scheduled') {
+                return back()->with([
+                    'status_interview_scheduled' => true,
+                    'interview_date' => $professional->interview_date ? $professional->interview_date->format('l, F j, Y') : 'Date to be confirmed',
+                    'interview_time' => $professional->interview_time ?: '10:00 AM',
+                    'interviewer_name' => $professional->interviewer_name ?: 'AfriCrew Vetting Team',
+                    'interview_link' => $professional->interview_link,
+                    'interview_notes' => $professional->interview_notes,
+                    'info' => 'Your interview has been scheduled! Please check the interview details below.'
+                ])->onlyInput('email');
+            }
+
             return redirect()->route('staff.verify.notice')->with([
                 'pending_email' => $professional->email,
-                'verification_token' => $professional->verification_token,
-                'error' => 'Please click the verification link sent to your email before logging in.'
+                'submitted_name' => $professional->full_name,
+                'submitted_email' => $professional->email,
+                'submitted_category' => $professional->category,
+                'ref_id' => 'AFR-CRW-' . str_pad($professional->id, 5, '0', STR_PAD_LEFT),
+                'info' => 'Your application has been received and is currently under review by the AfriCrew admin team. An interview will be scheduled soon.'
+            ]);
+        }
+
+        // Auto-verify email upon admin approval if not already stamped
+        if (is_null($professional->email_verified_at)) {
+            $professional->update([
+                'email_verified_at' => now(),
+                'verification_token' => null,
             ]);
         }
 
         $request->session()->regenerate();
         $request->session()->put('professional_id', $professional->id);
+
+        \App\Services\EmailNotificationService::sendLoginNotification(
+            $professional->email,
+            $professional->full_name,
+            'Crew Member',
+            $request->ip(),
+            $request->userAgent()
+        );
 
         if (!$professional->is_onboarded) {
             return redirect()->route('professional.onboarding')->with('info', 'Please complete your crew resume wizard to access the portal.');
@@ -65,11 +106,68 @@ class StaffAuthController extends Controller
     }
 
     /**
-     * Display email verification pending notice screen.
+     * Check crew application & interview status by email
      */
-    public function showVerifyNotice(): View
+    public function checkStatus(Request $request): RedirectResponse
     {
-        return view('staff.verify-notice');
+        $request->validate([
+            'status_email' => ['required', 'email'],
+        ]);
+
+        $email = strtolower(trim($request->input('status_email')));
+        $professional = Professional::where('email', $email)->first();
+
+        if (!$professional) {
+            return back()->with('status_check_error', "No crew application found for '{$email}'. Please ensure you registered via Join AfriCrew.")->withInput();
+        }
+
+        if ($professional->status === 'approved') {
+            return back()->with([
+                'status_approved' => true,
+                'status_check_success' => "Great news! Your profile is APPROVED. You can now log in below with your password.",
+            ])->withInput();
+        }
+
+        if ($professional->status === 'rejected') {
+            return back()->with([
+                'status_rejected' => true,
+                'rejection_reason' => $professional->interview_notes,
+                'status_check_error' => 'Your profile is rejected. Your crew application was not approved by the AfriCrew vetting team.',
+            ])->withInput();
+        }
+
+        if ($professional->interview_status === 'scheduled') {
+            return back()->with([
+                'status_interview_scheduled' => true,
+                'interview_date' => $professional->interview_date ? $professional->interview_date->format('l, F j, Y') : 'Date to be confirmed',
+                'interview_time' => $professional->interview_time ?: '10:00 AM',
+                'interviewer_name' => $professional->interviewer_name ?: 'AfriCrew Vetting Team',
+                'interview_link' => $professional->interview_link,
+                'interview_notes' => $professional->interview_notes,
+                'candidate_name' => $professional->full_name,
+                'status_check_info' => 'Your vetting interview is scheduled! Details are displayed below.',
+            ])->withInput();
+        }
+
+        return back()->with([
+            'status_pending_unscheduled' => true,
+            'candidate_name' => $professional->full_name,
+            'status_check_info' => "Application Received! Thank you {$professional->full_name}. Your profile is under review and our team will schedule your interview soon.",
+        ])->withInput();
+    }
+
+    /**
+     * Display crew application pending / review notice screen.
+     */
+    public function showVerifyNotice(Request $request): View
+    {
+        $email = session('submitted_email') ?? session('pending_email');
+        $professional = null;
+        if ($email) {
+            $professional = Professional::where('email', $email)->first();
+        }
+
+        return view('staff.verify-notice', compact('professional'));
     }
 
     public function resendVerification(Request $request): RedirectResponse

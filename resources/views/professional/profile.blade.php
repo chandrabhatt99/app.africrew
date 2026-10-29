@@ -170,12 +170,9 @@
                 <p class="text-xs text-slate-500 mt-0.5">Your core identity details</p>
             </div>
 
-            <!-- Controlled Editing Notice -->
-            <div class="p-4 bg-amber-50 border border-amber-200 rounded-2xl text-xs text-amber-900 space-y-1">
-                <span class="font-extrabold">ℹ️ Controlled Editing Policy:</span>
-                <p class="text-slate-600 leading-relaxed">
-                    Updating your registered Email or Phone Number requires reverification. If your account is already approved, modifying your legal name flags your profile for administrative review before identity changes become public.
-                </p>
+            <div class="p-3.5 bg-slate-50 border border-slate-200 rounded-2xl text-xs text-slate-600 flex items-center gap-2">
+                <span class="text-base">👤</span>
+                <span>Keep your identity and contact details current so clients and event organizers can reach you for bookings.</span>
             </div>
 
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-6 text-xs font-bold">
@@ -278,29 +275,76 @@
                 <p class="text-xs text-slate-500 mt-0.5">Describe what you do, your experience, and what you bring to an event.</p>
             </div>
 
-            <!-- Work Bio / Description -->
+            <!-- 1. My Update -->
             <div>
-                <label class="block text-xs font-extrabold uppercase tracking-wider text-slate-700 mb-1">
-                    Work Description & Experience Summary *
+                <label class="block text-xs font-extrabold uppercase tracking-wider text-slate-700 mb-1 flex items-center justify-between">
+                    <span>1. My Update</span>
+                    <span class="text-[10px] text-slate-400 font-bold lowercase">Up to 200 characters</span>
                 </label>
-                <textarea name="about" id="bio-textarea" rows="5" required
-                    placeholder="Describe your event experience, technical capabilities, or customer service background..."
+                <p class="text-[11px] text-slate-500 mb-1.5">What would you like people to know today? Share a daily work highlight, something you’re learning, or a thought about your craft.</p>
+                <textarea name="my_update" id="my-update-textarea" rows="2" maxlength="200"
+                    placeholder="e.g. Currently preparing for the East Africa Tech Summit. Excited to lead VIP registration this weekend!"
+                    class="w-full bg-slate-50 border border-slate-200 rounded-2xl p-3.5 text-xs font-semibold outline-none focus:border-amber-500 focus:bg-white leading-relaxed">{{ old('my_update', $professional->my_update) }}</textarea>
+            </div>
+
+            <!-- 2. About Me -->
+            <div>
+                <label class="block text-xs font-extrabold uppercase tracking-wider text-slate-700 mb-1 flex items-center justify-between">
+                    <span>2. About Me *</span>
+                    <span class="text-[10px] text-slate-400 font-bold lowercase">Aim for 80–150 words</span>
+                </label>
+                <p class="text-[11px] text-slate-500 mb-1.5">Introduce yourself and your work. Explain what you do, the experience you bring, and what clients can expect when working with you.</p>
+                <textarea name="about" id="bio-textarea" rows="4" required
+                    placeholder="Introduce yourself and describe your event hospitality specialties, guest service approach, and what clients can expect..."
                     class="w-full bg-slate-50 border border-slate-200 rounded-2xl p-4 text-xs font-semibold outline-none focus:border-amber-500 focus:bg-white leading-relaxed">{{ old('about', $professional->about) }}</textarea>
             </div>
 
-            <!-- Highlight Quote / Personal Statement (Optional) -->
+            <!-- Experience Summary (Separate) -->
             <div>
                 <label class="block text-xs font-extrabold uppercase tracking-wider text-slate-700 mb-1">
-                    Highlight Quote / Personal Statement <span class="text-slate-400 font-normal lowercase">(Optional)</span>
+                    Experience Summary
+                </label>
+                <p class="text-[11px] text-slate-500 mb-1.5">A comprehensive summary of your event industry track record, years active, types of events handled, and career milestones.</p>
+                <textarea name="experience_summary" id="experience-summary-textarea" rows="3"
+                    placeholder="Summarize your years of experience, event highlights, festivals, corporate galas, and key achievements..."
+                    class="w-full bg-slate-50 border border-slate-200 rounded-2xl p-4 text-xs font-semibold outline-none focus:border-amber-500 focus:bg-white leading-relaxed">{{ old('experience_summary', $professional->experience_summary) }}</textarea>
+            </div>
+
+            <!-- 3. Let’s Connect -->
+            <div>
+                <label class="block text-xs font-extrabold uppercase tracking-wider text-slate-700 mb-1 flex items-center justify-between">
+                    <span>3. Let’s Connect</span>
+                    <span class="text-[10px] text-slate-400 font-bold lowercase">Up to 200 characters</span>
+                </label>
+                <p class="text-[11px] text-slate-500 mb-1.5">Finish with a personal invitation. Tell visitors what you can help with and encourage them to get in touch.</p>
+                <textarea name="lets_connect" id="lets-connect-textarea" rows="2" maxlength="200"
+                    placeholder="e.g. Planning a conference, wedding, or VIP corporate dinner in Kenya? Let's connect and make your guest experience seamless!"
+                    class="w-full bg-slate-50 border border-slate-200 rounded-2xl p-3.5 text-xs font-semibold outline-none focus:border-amber-500 focus:bg-white leading-relaxed">{{ old('lets_connect', $professional->lets_connect) }}</textarea>
+            </div>
+
+            <!-- Crew Tagline / Personal Statement (Optional) -->
+            <div>
+                <label class="block text-xs font-extrabold uppercase tracking-wider text-slate-700 mb-1">
+                    Crew Tagline / Highlight Statement <span class="text-slate-400 font-normal lowercase">(Optional - Shown on your profile card)</span>
                 </label>
                 <input type="text" name="highlight_quote" value="{{ old('highlight_quote', $professional->highlight_quote) }}"
-                    placeholder='e.g. "Elegance and punctuality are non-negotiable at every event."'
+                    placeholder='e.g. "Dedicated to delivering five-star guest hospitality with warmth and precision."'
                     class="w-full bg-slate-50 border border-slate-200 rounded-2xl px-4 py-3 text-xs font-semibold outline-none focus:border-amber-500 focus:bg-white">
             </div>
 
-            <!-- Social Media Handles (Retained HERE Only - Separate TikTok and X) -->
+            <!-- Social Media Handles (Admin Eyes Only For User Verification) -->
             <div class="space-y-3 pt-3 border-t border-slate-100">
-                <h4 class="text-xs font-black uppercase text-slate-800">Social Media & Portfolio Links</h4>
+                <div class="flex items-center justify-between flex-wrap gap-2">
+                    <h4 class="text-xs font-black uppercase text-slate-800">Social Media & Portfolio Links</h4>
+                    <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-slate-900 text-amber-400 font-black text-[10px] tracking-wide shadow-2xs">
+                        🔒 Admin Verification Only • Hidden from Public Website
+                    </span>
+                </div>
+                
+                <div class="p-3.5 rounded-2xl bg-amber-50/70 border border-amber-200/80 text-[11px] text-amber-950 font-medium leading-relaxed">
+                    <span class="font-bold">🛡️ Privacy & Vetting Notice:</span> Social media, portfolio, and website links are used <strong>strictly by AfriCrew administrators</strong> to verify candidate identity and vet experience. These links are <strong>never shown publicly</strong> on your client-facing profile on the website.
+                </div>
+
                 @php
                     $socials = is_array($professional->social_links) ? $professional->social_links : [];
                 @endphp
@@ -336,7 +380,7 @@
                             class="w-full bg-slate-50 border border-slate-200 rounded-2xl px-3.5 py-2.5 outline-none focus:border-amber-500">
                     </div>
                     <div>
-                        <label class="block text-slate-600 mb-1 font-bold">Website / Online Resume URL</label>
+                        <label class="block text-slate-600 mb-1 font-bold">Portfolio / Online Resume URL</label>
                         <input type="text" name="social_links[website]" value="{{ old('social_links.website', $socials['website'] ?? '') }}"
                             placeholder="e.g. https://janedoe.com"
                             class="w-full bg-slate-50 border border-slate-200 rounded-2xl px-3.5 py-2.5 outline-none focus:border-amber-500">
@@ -380,7 +424,9 @@
                         </button>
                     </div>
                 </div>
-                <p class="text-[11px] text-slate-500">Information will remain available to AfriCrew for review when public display is switched off. Academic qualifications are optional.</p>
+                <div class="p-3 bg-amber-50/70 border border-amber-200/80 rounded-2xl text-[11px] text-amber-950 font-medium">
+                    <span>🎓 <strong>Admin Document Verification:</strong> Upload your diploma, degree, or course completion certificate for each record. Documents are accessed exclusively by AfriCrew administrators to verify your credentials.</span>
+                </div>
 
                 <div id="education-cards-wrapper" class="space-y-3">
                     @php
@@ -388,6 +434,7 @@
                     @endphp
                     @if(count($eduRecords) > 0)
                         @foreach($eduRecords as $idx => $edu)
+                            @php $eduDoc = $edu['document'] ?? null; @endphp
                             <div class="p-4 bg-slate-50 border border-slate-200 rounded-2xl space-y-3 text-xs">
                                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
                                     <input type="text" name="education[{{ $idx }}][institution]" value="{{ $edu['institution'] ?? '' }}" placeholder="Institution / Organization" class="bg-white border border-slate-200 rounded-xl px-3 py-2 outline-none">
@@ -402,6 +449,22 @@
                                         <label class="block text-[11px] font-extrabold text-slate-600 mb-1">To Date (Leave blank if Present)</label>
                                         <input type="date" name="education[{{ $idx }}][end_date]" value="{{ $edu['end_date'] ?? '' }}" class="w-full bg-white border border-slate-200 rounded-xl px-3 py-2 outline-none">
                                     </div>
+                                </div>
+                                <div class="pt-2 border-t border-slate-200/70">
+                                    <label class="block text-[11px] font-extrabold text-slate-700 mb-1 flex items-center justify-between">
+                                        <span>📜 Certificate / Document (Seen Only by Admin)</span>
+                                        <span class="text-[10px] text-slate-400">PDF, JPG, PNG max 10MB</span>
+                                    </label>
+                                    @if($eduDoc)
+                                        <div class="mb-2 p-2 bg-emerald-50 border border-emerald-200 rounded-xl flex items-center justify-between">
+                                            <a href="{{ get_storage_url($eduDoc) }}" target="_blank" class="text-emerald-800 font-extrabold text-[11px] flex items-center gap-1.5 hover:underline">
+                                                <span>📄 View Uploaded Document ↗</span>
+                                            </a>
+                                            <span class="text-[10px] font-bold text-emerald-700 bg-white px-2 py-0.5 rounded-full border border-emerald-200">Attached</span>
+                                        </div>
+                                    @endif
+                                    <input type="file" name="education_documents[{{ $idx }}]" accept=".pdf,.jpg,.jpeg,.png,.doc,.docx"
+                                        class="w-full text-xs text-slate-500 file:mr-3 file:py-1.5 file:px-3 file:rounded-xl file:border-0 file:text-xs file:font-extrabold file:bg-slate-200 file:text-slate-800 hover:file:bg-slate-300 cursor-pointer">
                                 </div>
                             </div>
                         @endforeach
@@ -421,6 +484,14 @@
                                     <input type="date" name="education[0][end_date]" class="w-full bg-white border border-slate-200 rounded-xl px-3 py-2 outline-none">
                                 </div>
                             </div>
+                            <div class="pt-2 border-t border-slate-200/70">
+                                <label class="block text-[11px] font-extrabold text-slate-700 mb-1 flex items-center justify-between">
+                                    <span>📜 Certificate / Document (Seen Only by Admin)</span>
+                                    <span class="text-[10px] text-slate-400">PDF, JPG, PNG max 10MB</span>
+                                </label>
+                                <input type="file" name="education_documents[0]" accept=".pdf,.jpg,.jpeg,.png,.doc,.docx"
+                                    class="w-full text-xs text-slate-500 file:mr-3 file:py-1.5 file:px-3 file:rounded-xl file:border-0 file:text-xs file:font-extrabold file:bg-slate-200 file:text-slate-800 hover:file:bg-slate-300 cursor-pointer">
+                            </div>
                         </div>
                     @endif
                 </div>
@@ -439,6 +510,9 @@
                         <span>+ Add Work Experience</span>
                     </button>
                 </div>
+                <div class="p-3 bg-amber-50/70 border border-amber-200/80 rounded-2xl text-[11px] text-amber-950 font-medium">
+                    <span>💼 <strong>Admin Experience Verification:</strong> Upload recommendation letters, contracts, or certificates of service for each role. Seen only by administrators to vet and verify your experience.</span>
+                </div>
 
                 <div id="experience-cards-wrapper" class="space-y-3">
                     @php
@@ -446,6 +520,7 @@
                     @endphp
                     @if(count($expRecords) > 0)
                         @foreach($expRecords as $eIdx => $exp)
+                            @php $expDoc = $exp['document'] ?? null; @endphp
                             <div class="p-4 bg-slate-50 border border-slate-200 rounded-2xl space-y-3 text-xs">
                                 <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
                                     <input type="text" name="experience_records[{{ $eIdx }}][employer]" value="{{ $exp['employer'] ?? '' }}" placeholder="Company / Event Client" class="bg-white border border-slate-200 rounded-xl px-3 py-2 outline-none">
@@ -466,6 +541,22 @@
                                         <label class="block text-[11px] font-extrabold text-slate-600 mb-1">To Date (Leave blank if Present)</label>
                                         <input type="date" name="experience_records[{{ $eIdx }}][end_date]" value="{{ $exp['end_date'] ?? '' }}" class="w-full bg-white border border-slate-200 rounded-xl px-3 py-2 outline-none">
                                     </div>
+                                </div>
+                                <div class="pt-2 border-t border-slate-200/70">
+                                    <label class="block text-[11px] font-extrabold text-slate-700 mb-1 flex items-center justify-between">
+                                        <span>📄 Experience Proof / Reference Letter (Seen Only by Admin)</span>
+                                        <span class="text-[10px] text-slate-400">PDF, JPG, PNG max 10MB</span>
+                                    </label>
+                                    @if($expDoc)
+                                        <div class="mb-2 p-2 bg-emerald-50 border border-emerald-200 rounded-xl flex items-center justify-between">
+                                            <a href="{{ get_storage_url($expDoc) }}" target="_blank" class="text-emerald-800 font-extrabold text-[11px] flex items-center gap-1.5 hover:underline">
+                                                <span>📄 View Uploaded Document ↗</span>
+                                            </a>
+                                            <span class="text-[10px] font-bold text-emerald-700 bg-white px-2 py-0.5 rounded-full border border-emerald-200">Attached</span>
+                                        </div>
+                                    @endif
+                                    <input type="file" name="experience_documents[{{ $eIdx }}]" accept=".pdf,.jpg,.jpeg,.png,.doc,.docx"
+                                        class="w-full text-xs text-slate-500 file:mr-3 file:py-1.5 file:px-3 file:rounded-xl file:border-0 file:text-xs file:font-extrabold file:bg-slate-200 file:text-slate-800 hover:file:bg-slate-300 cursor-pointer">
                                 </div>
                             </div>
                         @endforeach
@@ -491,17 +582,28 @@
                                     <input type="date" name="experience_records[0][end_date]" class="w-full bg-white border border-slate-200 rounded-xl px-3 py-2 outline-none">
                                 </div>
                             </div>
+                            <div class="pt-2 border-t border-slate-200/70">
+                                <label class="block text-[11px] font-extrabold text-slate-700 mb-1 flex items-center justify-between">
+                                    <span>📄 Experience Proof / Reference Letter (Seen Only by Admin)</span>
+                                    <span class="text-[10px] text-slate-400">PDF, JPG, PNG max 10MB</span>
+                                </label>
+                                <input type="file" name="experience_documents[0]" accept=".pdf,.jpg,.jpeg,.png,.doc,.docx"
+                                    class="w-full text-xs text-slate-500 file:mr-3 file:py-1.5 file:px-3 file:rounded-xl file:border-0 file:text-xs file:font-extrabold file:bg-slate-200 file:text-slate-800 hover:file:bg-slate-300 cursor-pointer">
+                            </div>
                         </div>
                     @endif
                 </div>
             </div>
 
-            <!-- Section 3C: Key Skills & Featured Selection -->
+            <!-- Section 3C: Key Skills & Expertise with Name and Description -->
             <div class="space-y-4 pt-4 border-t border-slate-100">
                 <div class="flex items-center justify-between flex-wrap gap-2">
                     <div>
-                        <h4 class="text-xs font-black uppercase text-slate-800">Key Skills (Up to 10 Skills, Select 3 Featured)</h4>
-                        <p class="text-[11px] text-slate-500">Skills are loaded from admin-managed catalog for your category.</p>
+                        <div class="flex items-center gap-2">
+                            <h4 class="text-xs font-black uppercase text-slate-800 m-0">Key Skills & Expertise</h4>
+                            <span class="px-2 py-0.5 rounded-full bg-amber-500/15 text-amber-900 border border-amber-300 text-[10px] font-black uppercase">Fixed 3 Core Skills</span>
+                        </div>
+                        <p class="text-[11px] text-slate-500 m-0 mt-0.5">Specify your 3 primary core skills and 4 detailed expertise specializations displayed on your public profile.</p>
                     </div>
                     <!-- Suggest a Skill Button -->
                     <button type="button" onclick="openSuggestSkillModal()" class="px-3 py-1.5 bg-amber-100 hover:bg-amber-200 text-amber-900 font-extrabold text-[11px] rounded-xl border border-amber-300 transition-colors">
@@ -510,23 +612,185 @@
                 </div>
 
                 @php
-                    $currentSkills = array_map('trim', explode(',', $professional->skills ?? 'Guest check-in, VIP Assistance, Badge Printing'));
-                    $featuredSkills = is_array($professional->featured_skills) ? $professional->featured_skills : array_slice($currentSkills, 0, 3);
+                    $rawSkillsArr = array_map('trim', explode(',', $professional->skills ?? 'Guest check-in, VIP Assistance, Badge Printing'));
+                    $currentSkills = array_pad(array_slice(array_filter($rawSkillsArr), 0, 3), 3, '');
+                    $currentExpertises = is_array($professional->expertises) ? array_values($professional->expertises) : [];
                 @endphp
 
-                <!-- Skills Select Input Box -->
-                <div>
-                    <input type="text" name="skills" value="{{ implode(', ', $currentSkills) }}" placeholder="Comma-separated skills (e.g. Guest check-in, VIP Assistance, Audio Mixing)"
-                        class="w-full bg-slate-50 border border-slate-200 rounded-2xl px-4 py-3 text-xs font-bold outline-none focus:border-amber-500">
+                <!-- Fixed Exactly 3 Core Skills Inputs -->
+                <div class="space-y-2">
+                    <div class="flex items-center justify-between">
+                        <label class="block text-[11px] font-extrabold text-slate-700">
+                            Core Skills (Fixed Exactly 3 Skills)
+                        </label>
+                        <span class="text-[10px] font-extrabold text-amber-800 bg-amber-50 border border-amber-200 px-2 py-0.5 rounded-full">Only 3 Core Skills</span>
+                    </div>
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                        <div>
+                            <div class="text-[10px] font-bold text-slate-500 mb-1 flex items-center gap-1.5">
+                                <span class="w-4 h-4 rounded-full bg-amber-500 text-slate-950 font-black text-[9px] flex items-center justify-center shadow-2xs">1</span>
+                                <span>Primary Skill 1</span>
+                            </div>
+                            <input type="text" name="skills_arr[0]" value="{{ $currentSkills[0] ?? '' }}" placeholder="e.g. VIP Protocol" required
+                                class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-xs font-bold outline-none focus:border-amber-500">
+                        </div>
+                        <div>
+                            <div class="text-[10px] font-bold text-slate-500 mb-1 flex items-center gap-1.5">
+                                <span class="w-4 h-4 rounded-full bg-slate-700 text-white font-black text-[9px] flex items-center justify-center shadow-2xs">2</span>
+                                <span>Core Skill 2</span>
+                            </div>
+                            <input type="text" name="skills_arr[1]" value="{{ $currentSkills[1] ?? '' }}" placeholder="e.g. Guest Check-In" required
+                                class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-xs font-bold outline-none focus:border-amber-500">
+                        </div>
+                        <div>
+                            <div class="text-[10px] font-bold text-slate-500 mb-1 flex items-center gap-1.5">
+                                <span class="w-4 h-4 rounded-full bg-slate-700 text-white font-black text-[9px] flex items-center justify-center shadow-2xs">3</span>
+                                <span>Core Skill 3</span>
+                            </div>
+                            <input type="text" name="skills_arr[2]" value="{{ $currentSkills[2] ?? '' }}" placeholder="e.g. Crowd Coordination" required
+                                class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-xs font-bold outline-none focus:border-amber-500">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Rich Expertise Areas with Name and Description (Fixed Only 4 Cards) -->
+                <div class="space-y-3 pt-3 border-t border-slate-100">
+                    <div class="flex items-center justify-between flex-wrap gap-2">
+                        <div>
+                            <div class="flex items-center gap-2">
+                                <label class="block text-xs font-black uppercase text-slate-800 m-0">
+                                    ⚡ Expertise Areas (Name & Description - Shown on Website Profile)
+                                </label>
+                                <span class="px-2 py-0.5 rounded-full bg-amber-500/15 text-amber-900 border border-amber-300 text-[10px] font-black uppercase">Fixed 4 Cards</span>
+                            </div>
+                            <p class="text-[11px] text-slate-500 m-0 mt-0.5">Fixed 4 specialization boxes shown on your live profile. Each has an icon, name, description, and 3 key skills.</p>
+                        </div>
+                    </div>
+
+                    <!-- Exactly 4 Fixed Expertise Cards -->
+                    <div id="expertises-cards-wrapper" class="space-y-4">
+                        @for($expIdx = 0; $expIdx < 4; $expIdx++)
+                            @php
+                                $expItem = $currentExpertises[$expIdx] ?? [];
+                                $selIcon = $expItem['icon'] ?? match($expIdx) {
+                                    0 => '👑',
+                                    1 => '📋',
+                                    2 => '👥',
+                                    default => '🎤',
+                                };
+                                $placeholderName = match($expIdx) {
+                                    0 => 'VIP Protocol & High-Profile Ushering',
+                                    1 => 'Guest Registration & Badge Scanning',
+                                    2 => 'Auditorium Crowd Logistics & Seating',
+                                    default => 'Stage Support & Floor Operations',
+                                };
+                                $placeholderDesc = match($expIdx) {
+                                    0 => 'Over 4 years managing seating protocol, VIP escorting, and foreign delegation coordination at international summits...',
+                                    1 => 'Managing high-speed attendee validation, NFC badges, and fast registration desk flow...',
+                                    2 => 'Coordinating large auditorium crowds, hall navigation, reserved tables, and emergency exits...',
+                                    default => 'Assisting keynote speakers, stage mic running, schedule pacing, and director liaison...',
+                                };
+                                $placeholderSkills = match($expIdx) {
+                                    0 => 'VIP Protocol, Executive Escort, High-Profile Seating',
+                                    1 => 'Badge Verification, Fast-Track Check-In, Access Scanning',
+                                    2 => 'Auditorium Flow, Crowd Guidance, Queue Management',
+                                    default => 'Stage Assistance, Speaker Coordination, Mic Running',
+                                };
+                                $currKeySkills = $expItem['skills'] ?? ($expItem['key_skills'] ?? '');
+                                $currKeySkillsStr = is_array($currKeySkills) ? implode(', ', $currKeySkills) : $currKeySkills;
+                            @endphp
+                            <div class="p-4 bg-slate-50 border border-slate-200 rounded-2xl space-y-3 text-xs relative">
+                                <div class="flex items-center justify-between pb-2 border-b border-slate-200/80">
+                                    <div class="flex items-center gap-2">
+                                        <span class="w-6 h-6 rounded-lg bg-amber-500 text-slate-950 font-black text-[11px] flex items-center justify-center shadow-2xs">
+                                            {{ $expIdx + 1 }}/4
+                                        </span>
+                                        <span class="font-extrabold text-slate-900 text-xs uppercase tracking-wider">
+                                            Expertise Area {{ $expIdx + 1 }}
+                                        </span>
+                                    </div>
+                                    <span class="text-[10px] font-bold text-amber-700 bg-amber-50 border border-amber-200 px-2.5 py-0.5 rounded-full">
+                                        Card {{ $expIdx + 1 }} of 4
+                                    </span>
+                                </div>
+
+                                <div class="flex items-center gap-2.5">
+                                    <div class="w-32 shrink-0">
+                                        <label class="block text-[10px] font-extrabold uppercase text-slate-500 mb-1">Icon</label>
+                                        <select name="expertises[{{ $expIdx }}][icon]" class="w-full bg-white border border-slate-200 rounded-xl px-2.5 py-2 font-bold outline-none focus:border-amber-500 text-sm">
+                                            <option value="👑" {{ $selIcon === '👑' ? 'selected' : '' }}>👑 VIP / Crown</option>
+                                            <option value="📋" {{ $selIcon === '📋' ? 'selected' : '' }}>📋 Desk Ops</option>
+                                            <option value="👥" {{ $selIcon === '👥' ? 'selected' : '' }}>👥 Ushering</option>
+                                            <option value="🎤" {{ $selIcon === '🎤' ? 'selected' : '' }}>🎤 Host/MC</option>
+                                            <option value="⚡" {{ $selIcon === '⚡' ? 'selected' : '' }}>⚡ Energy</option>
+                                            <option value="🎯" {{ $selIcon === '🎯' ? 'selected' : '' }}>🎯 Focus</option>
+                                            <option value="💼" {{ $selIcon === '💼' ? 'selected' : '' }}>💼 Corporate</option>
+                                            <option value="🤝" {{ $selIcon === '🤝' ? 'selected' : '' }}>🤝 Protocol</option>
+                                            <option value="⭐" {{ $selIcon === '⭐' ? 'selected' : '' }}>⭐ VIP</option>
+                                            <option value="📸" {{ $selIcon === '📸' ? 'selected' : '' }}>📸 Media</option>
+                                            <option value="🛡️" {{ $selIcon === '🛡️' ? 'selected' : '' }}>🛡️ Security</option>
+                                            <option value="🌐" {{ $selIcon === '🌐' ? 'selected' : '' }}>🌐 Languages</option>
+                                            <option value="💡" {{ $selIcon === '💡' ? 'selected' : '' }}>💡 Creative</option>
+                                            <option value="🏷️" {{ $selIcon === '🏷️' ? 'selected' : '' }}>🏷️ Brand</option>
+                                            <option value="🎧" {{ $selIcon === '🎧' ? 'selected' : '' }}>🎧 Audio/Tech</option>
+                                            <option value="👔" {{ $selIcon === '👔' ? 'selected' : '' }}>👔 Formal</option>
+                                        </select>
+                                    </div>
+                                    <div class="flex-1">
+                                        <label class="block text-[10px] font-extrabold uppercase text-slate-500 mb-1">Header / Expertise Name</label>
+                                        <input type="text" name="expertises[{{ $expIdx }}][name]" value="{{ $expItem['name'] ?? '' }}" placeholder="{{ $placeholderName }}" required
+                                            class="w-full bg-white border border-slate-200 rounded-xl px-3 py-2 font-bold outline-none focus:border-amber-500">
+                                    </div>
+                                </div>
+
+                                <div>
+                                    <label class="block text-[10px] font-extrabold uppercase text-slate-500 mb-1">Content / Description</label>
+                                    <textarea name="expertises[{{ $expIdx }}][description]" rows="2" placeholder="{{ $placeholderDesc }}"
+                                        class="w-full bg-white border border-slate-200 rounded-xl p-3 outline-none focus:border-amber-500 font-medium leading-relaxed">{{ $expItem['description'] ?? '' }}</textarea>
+                                </div>
+
+                                <div>
+                                    <label class="block text-[10px] font-extrabold uppercase text-slate-500 mb-1 flex items-center justify-between">
+                                        <span>3 Key Skills for this Area (Comma-separated)</span>
+                                        <span class="text-[9px] text-amber-700 font-semibold">Fixed 3 Key Skills</span>
+                                    </label>
+                                    <input type="text" name="expertises[{{ $expIdx }}][skills]" value="{{ $currKeySkillsStr }}" placeholder="{{ $placeholderSkills }}"
+                                        class="w-full bg-white border border-slate-200 rounded-xl px-3 py-2 font-bold outline-none focus:border-amber-500 text-xs">
+                                </div>
+
+                                <div class="pt-2 border-t border-slate-200/60 flex items-center justify-between gap-3 flex-wrap">
+                                    <div class="flex-1 min-w-[200px]">
+                                        <label class="block text-[10px] font-extrabold uppercase text-slate-500 mb-1 flex items-center justify-between">
+                                            <span>🖼️ Expertise Photo / Badge (Optional)</span>
+                                            <span class="text-[9px] text-slate-400 font-normal">PNG, JPG max 5MB</span>
+                                        </label>
+                                        <input type="file" name="expertise_images[{{ $expIdx }}]" accept="image/*" class="w-full text-xs text-slate-500 file:mr-3 file:py-1 file:px-2.5 file:rounded-xl file:border-0 file:text-[11px] file:font-extrabold file:bg-slate-200 file:text-slate-800 hover:file:bg-slate-300 cursor-pointer">
+                                        <input type="hidden" name="expertises[{{ $expIdx }}][image]" value="{{ $expItem['image'] ?? '' }}">
+                                    </div>
+                                    @if(!empty($expItem['image']))
+                                        <div class="flex items-center gap-2 bg-white px-2 py-1 rounded-xl border border-slate-200">
+                                            <img src="{{ get_storage_url($expItem['image']) }}" alt="Expertise preview" class="w-8 h-8 rounded-lg object-cover">
+                                            <span class="text-[10px] font-bold text-slate-500">Saved Image</span>
+                                        </div>
+                                    @endif
+                                </div>
+                            </div>
+                        @endfor
+                    </div>
                 </div>
             </div>
 
-            <!-- Section 3D: Add Referee & Verification -->
+            <!-- Section 3D: Professional Referees (Seen Only by Admin to Verify Work) -->
             <div class="space-y-4 pt-4 border-t border-slate-100">
                 <div class="flex items-center justify-between flex-wrap gap-2">
                     <div>
-                        <h4 class="text-xs font-black uppercase text-slate-800">Add Referee</h4>
-                        <p class="text-[11px] text-slate-500">Referee contact details remain private. Profile setup can continue while verification is pending.</p>
+                        <div class="flex items-center gap-2">
+                            <h4 class="text-xs font-black uppercase text-slate-800 m-0">Professional Referees & References</h4>
+                            <span class="px-2 py-0.5 rounded-full bg-purple-100 text-purple-900 font-extrabold text-[10px] flex items-center gap-1">
+                                <span>🔒</span> Seen Only by Admin
+                            </span>
+                        </div>
+                        <p class="text-[11px] text-slate-500 m-0 mt-0.5">Provide past supervisors or referees to help admin verify your work history. These details are strictly confidential and will never be shown on your public website profile.</p>
                     </div>
 
                     <!-- Add Referee Button -->
@@ -535,54 +799,179 @@
                     </button>
                 </div>
 
-                <div id="referees-cards-wrapper" class="space-y-3">
+                <div id="referees-cards-wrapper" class="space-y-4">
                     @php
                         $referees = is_array($professional->referees) ? $professional->referees : [];
                     @endphp
                     @if(count($referees) > 0)
                         @foreach($referees as $rIdx => $ref)
-                            <div class="p-4 bg-slate-50 border border-slate-200 rounded-2xl space-y-3 text-xs">
-                                <div class="grid grid-cols-1 sm:grid-cols-4 gap-3">
-                                    <input type="text" name="referees[{{ $rIdx }}][name]" value="{{ $ref['name'] ?? '' }}" placeholder="Referee Full Name" class="bg-white border border-slate-200 rounded-xl px-3 py-2 outline-none">
-                                    <input type="text" name="referees[{{ $rIdx }}][relationship]" value="{{ $ref['relationship'] ?? '' }}" placeholder="Relationship (e.g. Event Manager)" class="bg-white border border-slate-200 rounded-xl px-3 py-2 outline-none">
-                                    <input type="email" name="referees[{{ $rIdx }}][email]" value="{{ $ref['email'] ?? '' }}" placeholder="Referee Email" class="bg-white border border-slate-200 rounded-xl px-3 py-2 outline-none">
-                                    <input type="tel" name="referees[{{ $rIdx }}][phone]" value="{{ $ref['phone'] ?? '' }}" placeholder="Referee Phone" class="bg-white border border-slate-200 rounded-xl px-3 py-2 outline-none">
-                                </div>
-                                <div class="flex items-center justify-between pt-2 border-t border-slate-200/60 flex-wrap gap-2">
-                                    <span class="text-[11px] font-bold text-slate-600">
-                                        Status: <span class="px-2.5 py-0.5 rounded-full bg-slate-200 text-slate-800 font-black text-[10px]">{{ $ref['status'] ?? 'Not Requested' }}</span>
-                                    </span>
+                            @php
+                                $refStatus = strtolower($ref['status'] ?? 'pending');
+                                $isVerified = ($refStatus === 'verified' || !empty($ref['is_confirmed']));
+                                $isUnverified = ($refStatus === 'unverified');
+                                $isRequested = ($refStatus === 'requested' || $refStatus === 'pending');
+                            @endphp
+                            <div class="referee-row p-4 sm:p-5 bg-slate-50 border {{ $isVerified ? 'border-emerald-200 bg-emerald-50/20' : ($isUnverified ? 'border-rose-200 bg-rose-50/20' : 'border-slate-200') }} rounded-2xl space-y-3.5 text-xs">
+                                
+                                <!-- Card Header with Status Badge -->
+                                <div class="flex items-center justify-between border-b border-slate-200/70 pb-2.5 flex-wrap gap-2">
                                     <div class="flex items-center gap-2">
-                                        <button type="button" onclick="saveRefereeForm({{ $rIdx }})" class="px-3.5 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold text-[11px] rounded-xl shadow-2xs flex items-center gap-1 transition-all">
-                                            <span>💾 1. SAVE</span>
-                                        </button>
-                                        <button type="button" onclick="requestRefereeVerification({{ $rIdx }})" class="px-3.5 py-1.5 bg-amber-500 hover:bg-amber-400 text-slate-950 font-black text-[11px] rounded-xl shadow-2xs flex items-center gap-1 transition-all">
-                                            <span>🛡️ 2. VERIFY</span>
-                                        </button>
+                                        <span class="text-xs font-black text-slate-800">Reference #{{ $rIdx + 1 }}</span>
+                                        @if($isVerified)
+                                            <span class="px-2.5 py-0.5 rounded-full bg-emerald-100 text-emerald-800 font-black text-[10px] flex items-center gap-1 border border-emerald-200">
+                                                <span>✓</span> Verified Reference
+                                            </span>
+                                            @if(!empty($ref['rating']))
+                                                <span class="text-amber-500 font-black text-[10px]">
+                                                    {{ str_repeat('★', (int)$ref['rating']) }}
+                                                </span>
+                                            @endif
+                                            @if(!empty($ref['show_on_cv']))
+                                                <span class="px-2 py-0.5 rounded-full bg-teal-50 text-teal-800 font-extrabold text-[9px] border border-teal-200">
+                                                    🌐 Public on CV
+                                                </span>
+                                            @else
+                                                <span class="px-2 py-0.5 rounded-full bg-slate-100 text-slate-600 font-extrabold text-[9px]">
+                                                    🔒 Admin Eyes Only
+                                                </span>
+                                            @endif
+                                        @elseif($isUnverified)
+                                            <span class="px-2.5 py-0.5 rounded-full bg-rose-100 text-rose-800 font-black text-[10px] flex items-center gap-1 border border-rose-200">
+                                                <span>✕</span> Unverified
+                                            </span>
+                                            @if(!empty($ref['unverified_reason']))
+                                                <span class="text-rose-700 font-bold text-[10px]">
+                                                    ({{ $ref['unverified_reason'] === 'name_removal_request' ? 'Name Removal Request' : 'Employment Not Confirmed' }})
+                                                </span>
+                                            @endif
+                                        @else
+                                            <span class="px-2.5 py-0.5 rounded-full bg-amber-100 text-amber-800 font-black text-[10px] flex items-center gap-1 border border-amber-200">
+                                                <span>⏳</span> Verification Requested
+                                            </span>
+                                            @if(!empty($ref['email']))
+                                                <button type="button" onclick="resendRefereeVerification({{ $rIdx }}, this)" class="px-2 py-0.5 rounded-lg bg-amber-50 hover:bg-amber-100 text-amber-900 border border-amber-300 font-bold text-[10px] transition-colors flex items-center gap-1">
+                                                    <span>↻</span> Resend Request Email
+                                                </button>
+                                            @endif
+                                        @endif
                                     </div>
+
+                                    @if(!empty($ref['consent_sent_at']))
+                                        <span class="text-[10px] text-slate-400 font-medium">
+                                            Email sent: {{ date('d M Y', strtotime($ref['consent_sent_at'])) }}
+                                        </span>
+                                    @endif
+                                </div>
+
+                                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+                                    <div>
+                                        <label class="block text-[10px] font-extrabold text-slate-500 uppercase mb-1">Full Name</label>
+                                        <input type="text" name="referees[{{ $rIdx }}][name]" value="{{ $ref['name'] ?? '' }}" placeholder="Referee Full Name" class="w-full bg-white border border-slate-200 rounded-xl px-3 py-2 outline-none font-bold">
+                                    </div>
+                                    <div>
+                                        <label class="block text-[10px] font-extrabold text-slate-500 uppercase mb-1">Company / Project Name</label>
+                                        <input type="text" name="referees[{{ $rIdx }}][organization]" value="{{ $ref['organization'] ?? '' }}" placeholder="e.g. Homeboyz Entertainment" class="w-full bg-white border border-slate-200 rounded-xl px-3 py-2 outline-none font-bold">
+                                    </div>
+                                    <div>
+                                        <label class="block text-[10px] font-extrabold text-slate-500 uppercase mb-1">Worked Together Period</label>
+                                        <input type="text" name="referees[{{ $rIdx }}][period]" value="{{ $ref['period'] ?? '' }}" placeholder="e.g. 2013–2014 or Jan–Dec 2023" class="w-full bg-white border border-slate-200 rounded-xl px-3 py-2 outline-none">
+                                    </div>
+                                    <div>
+                                        <label class="block text-[10px] font-extrabold text-slate-500 uppercase mb-1">Your Role With Referee</label>
+                                        <input type="text" name="referees[{{ $rIdx }}][crew_role]" value="{{ $ref['crew_role'] ?? '' }}" placeholder="e.g. Sound Engineer, Stage Tech" class="w-full bg-white border border-slate-200 rounded-xl px-3 py-2 outline-none">
+                                    </div>
+                                </div>
+
+                                <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-1">
+                                    <div>
+                                        <label class="block text-[10px] font-extrabold text-slate-500 uppercase mb-1">Relationship / Title</label>
+                                        <input type="text" name="referees[{{ $rIdx }}][relationship]" value="{{ $ref['relationship'] ?? '' }}" placeholder="e.g. Technical Director, Supervisor" class="w-full bg-white border border-slate-200 rounded-xl px-3 py-2 outline-none">
+                                    </div>
+                                    <div>
+                                        <label class="block text-[10px] font-extrabold text-slate-500 uppercase mb-1 flex items-center justify-between">
+                                            <span>Referee Email</span>
+                                            <span class="text-[9px] text-[#FF7A00] font-black uppercase">Required for Verification</span>
+                                        </label>
+                                        <input type="email" name="referees[{{ $rIdx }}][email]" value="{{ $ref['email'] ?? '' }}" placeholder="referee@example.com" class="w-full bg-white border border-slate-200 rounded-xl px-3 py-2 outline-none">
+                                    </div>
+                                    <div>
+                                        <label class="block text-[10px] font-extrabold text-slate-500 uppercase mb-1">Phone Number (Private)</label>
+                                        <input type="tel" name="referees[{{ $rIdx }}][phone]" value="{{ $ref['phone'] ?? '' }}" placeholder="+254 7..." class="w-full bg-white border border-slate-200 rounded-xl px-3 py-2 outline-none">
+                                    </div>
+                                </div>
+
+                                @if(!empty($ref['comments']))
+                                    <div class="p-3 rounded-xl bg-white border border-slate-200 text-[11px] text-slate-700 space-y-1">
+                                        <span class="font-extrabold text-slate-900 block">💬 Referee Feedback:</span>
+                                        <p class="m-0 italic">"{{ $ref['comments'] }}"</p>
+                                    </div>
+                                @endif
+
+                                <div class="flex items-center justify-between pt-2 border-t border-slate-200/60 flex-wrap gap-2">
+                                    <span class="text-[11px] font-bold text-slate-500 flex items-center gap-1.5">
+                                        <span class="text-purple-600 font-black">🔒</span>
+                                        <span>Confidential (A verification email is sent to your referee to review and verify your work details)</span>
+                                    </span>
+                                    <button type="button" onclick="this.closest('.referee-row').remove()" class="px-2.5 py-1 text-rose-600 hover:text-rose-800 hover:bg-rose-50 rounded-lg text-xs font-bold transition-all">
+                                        ✕ Remove
+                                    </button>
                                 </div>
                             </div>
                         @endforeach
                     @else
-                        <div class="p-4 bg-slate-50 border border-slate-200 rounded-2xl space-y-3 text-xs">
-                            <div class="grid grid-cols-1 sm:grid-cols-4 gap-3">
-                                <input type="text" name="referees[0][name]" placeholder="Referee Name (e.g. Mark Vance)" class="bg-white border border-slate-200 rounded-xl px-3 py-2 outline-none">
-                                <input type="text" name="referees[0][relationship]" placeholder="Relationship (e.g. Event Lead)" class="bg-white border border-slate-200 rounded-xl px-3 py-2 outline-none">
-                                <input type="email" name="referees[0][email]" placeholder="referee@example.com" class="bg-white border border-slate-200 rounded-xl px-3 py-2 outline-none">
-                                <input type="tel" name="referees[0][phone]" placeholder="+254 700 000 000" class="bg-white border border-slate-200 rounded-xl px-3 py-2 outline-none">
-                            </div>
-                            <div class="flex items-center justify-between pt-2 border-t border-slate-200/60 flex-wrap gap-2">
-                                <span class="text-[11px] font-bold text-slate-600">
-                                    Status: <span class="px-2.5 py-0.5 rounded-full bg-slate-200 text-slate-800 font-black text-[10px]">Not Saved</span>
+                        <div class="referee-row p-4 sm:p-5 bg-slate-50 border border-slate-200 rounded-2xl space-y-3.5 text-xs">
+                            <div class="flex items-center justify-between border-b border-slate-200/70 pb-2.5">
+                                <span class="text-xs font-black text-slate-800">Reference #1</span>
+                                <span class="text-[10px] text-amber-700 font-bold bg-amber-50 border border-amber-200 px-2.5 py-0.5 rounded-full">
+                                    📧 Email sent automatically upon saving
                                 </span>
-                                <div class="flex items-center gap-2">
-                                    <button type="button" onclick="saveRefereeForm(0)" class="px-3.5 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold text-[11px] rounded-xl shadow-2xs flex items-center gap-1 transition-all">
-                                        <span>💾 1. SAVE</span>
-                                    </button>
-                                    <button type="button" onclick="requestRefereeVerification(0)" class="px-3.5 py-1.5 bg-amber-500 hover:bg-amber-400 text-slate-950 font-black text-[11px] rounded-xl shadow-2xs flex items-center gap-1 transition-all">
-                                        <span>🛡️ 2. VERIFY</span>
-                                    </button>
+                            </div>
+
+                            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+                                <div>
+                                    <label class="block text-[10px] font-extrabold text-slate-500 uppercase mb-1">Full Name</label>
+                                    <input type="text" name="referees[0][name]" placeholder="Referee Full Name" class="w-full bg-white border border-slate-200 rounded-xl px-3 py-2 outline-none font-bold">
                                 </div>
+                                <div>
+                                    <label class="block text-[10px] font-extrabold text-slate-500 uppercase mb-1">Company / Project Name</label>
+                                    <input type="text" name="referees[0][organization]" placeholder="e.g. Homeboyz Entertainment" class="w-full bg-white border border-slate-200 rounded-xl px-3 py-2 outline-none font-bold">
+                                </div>
+                                <div>
+                                    <label class="block text-[10px] font-extrabold text-slate-500 uppercase mb-1">Worked Together Period</label>
+                                    <input type="text" name="referees[0][period]" placeholder="e.g. 2013–2014" class="w-full bg-white border border-slate-200 rounded-xl px-3 py-2 outline-none">
+                                </div>
+                                <div>
+                                    <label class="block text-[10px] font-extrabold text-slate-500 uppercase mb-1">Your Role With Referee</label>
+                                    <input type="text" name="referees[0][crew_role]" placeholder="e.g. Sound Engineer" class="w-full bg-white border border-slate-200 rounded-xl px-3 py-2 outline-none">
+                                </div>
+                            </div>
+
+                            <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-1">
+                                <div>
+                                    <label class="block text-[10px] font-extrabold text-slate-500 uppercase mb-1">Relationship / Title</label>
+                                    <input type="text" name="referees[0][relationship]" placeholder="e.g. Technical Director, Supervisor" class="w-full bg-white border border-slate-200 rounded-xl px-3 py-2 outline-none">
+                                </div>
+                                <div>
+                                    <label class="block text-[10px] font-extrabold text-slate-500 uppercase mb-1 flex items-center justify-between">
+                                        <span>Referee Email</span>
+                                        <span class="text-[9px] text-[#FF7A00] font-black uppercase">Required for Verification</span>
+                                    </label>
+                                    <input type="email" name="referees[0][email]" placeholder="referee@example.com" class="w-full bg-white border border-slate-200 rounded-xl px-3 py-2 outline-none">
+                                </div>
+                                <div>
+                                    <label class="block text-[10px] font-extrabold text-slate-500 uppercase mb-1">Phone Number (Private)</label>
+                                    <input type="tel" name="referees[0][phone]" placeholder="+254 7..." class="w-full bg-white border border-slate-200 rounded-xl px-3 py-2 outline-none">
+                                </div>
+                            </div>
+
+                            <div class="flex items-center justify-between pt-2 border-t border-slate-200/60 flex-wrap gap-2">
+                                <span class="text-[11px] font-bold text-slate-500 flex items-center gap-1.5">
+                                    <span class="text-purple-600 font-black">🔒</span>
+                                    <span>Confidential (A verification email will be sent automatically when you save)</span>
+                                </span>
+                                <button type="button" onclick="this.closest('.referee-row').remove()" class="px-2.5 py-1 text-rose-600 hover:text-rose-800 hover:bg-rose-50 rounded-lg text-xs font-bold transition-all">
+                                    ✕ Remove
+                                </button>
                             </div>
                         </div>
                     @endif
@@ -609,34 +998,40 @@
 
             <!-- Photo Counter -->
             @php
-                $gallery = is_array($professional->gallery_photos) ? array_filter($professional->gallery_photos) : [];
+                $gallery = is_array($professional->gallery_photos) ? array_values(array_filter($professional->gallery_photos)) : [];
                 $photoCount = count($gallery);
+                $remainingSlots = max(0, 8 - $photoCount);
             @endphp
             <div class="flex items-center justify-between text-xs font-extrabold text-slate-700 bg-slate-50 p-3 rounded-2xl border border-slate-200">
                 <span>Portfolio Upload Counter:</span>
-                <span class="px-3 py-1 rounded-full bg-amber-500 text-slate-950 font-black text-xs">{{ $photoCount }} of 4 photos uploaded</span>
+                <span class="px-3 py-1 rounded-full {{ $photoCount >= 8 ? 'bg-emerald-500 text-white' : 'bg-amber-500 text-slate-950' }} font-black text-xs">
+                    {{ $photoCount }} of 8 photos uploaded ({{ $remainingSlots }} remaining)
+                </span>
             </div>
 
             <!-- Portfolio Upload Grid: Single Add Photos Tile + Uploaded Thumbnails -->
             <div class="grid grid-cols-2 sm:grid-cols-4 gap-4">
                 <!-- Add Photos Tile -->
-                @if($photoCount < 4)
-                    <label for="portfolio-upload-input" class="aspect-square bg-slate-50 hover:bg-slate-100 border-2 border-dashed border-amber-400/80 rounded-2xl flex flex-col items-center justify-center p-4 text-center cursor-pointer transition-all hover:scale-105">
-                        <span class="text-2xl mb-1">📸</span>
-                        <span class="text-xs font-black text-slate-900">Add Photos</span>
-                        <span class="text-[10px] text-slate-400 mt-0.5">JPG / PNG max 5MB</span>
-                        <input type="file" id="portfolio-upload-input" name="gallery_photos[]" multiple accept="image/*" class="hidden" onchange="this.form.submit()">
+                @if($photoCount < 8)
+                    <label for="portfolio-upload-input" class="aspect-square bg-slate-50 hover:bg-slate-100 border-2 border-dashed border-amber-400/80 rounded-2xl flex flex-col items-center justify-center p-4 text-center cursor-pointer transition-all hover:scale-105 group">
+                        <span class="text-3xl mb-1 group-hover:scale-110 transition-transform">📸</span>
+                        <span class="text-xs font-black text-slate-900" id="portfolio-add-text">Add Photos</span>
+                        <span class="text-[10px] text-slate-500 mt-0.5">JPG / PNG max 5MB</span>
+                        <span class="text-[9px] text-amber-700 font-bold mt-1 bg-amber-100 px-2 py-0.5 rounded-full">Up to {{ $remainingSlots }} more</span>
+                        <input type="file" id="portfolio-upload-input" name="gallery_photos[]" multiple accept="image/*" class="hidden" onchange="uploadPortfolioPhotos(this)">
                     </label>
                 @endif
 
                 <!-- Uploaded Photo Thumbnails in Digital CV Style -->
                 @foreach($gallery as $pIdx => $photo)
                     @php $photoUrl = get_storage_url($photo); @endphp
-                    <div class="relative aspect-square rounded-2xl overflow-hidden border border-slate-200 shadow-sm group">
-                        <img src="{{ $photoUrl }}" alt="Portfolio Photo {{ $pIdx + 1 }}" class="w-full h-full object-cover">
-                        <div class="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
-                            <button type="button" onclick="deletePortfolioPhoto('{{ $photo }}')" class="p-2 bg-rose-600 text-white rounded-full text-xs font-bold">
-                                🗑️ Remove
+                    <div class="relative aspect-square rounded-2xl overflow-hidden border border-slate-200 shadow-sm group bg-slate-100">
+                        <img src="{{ $photoUrl }}" alt="Portfolio Photo {{ $pIdx + 1 }}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300">
+                        <div class="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col items-center justify-center gap-2 p-2">
+                            <span class="text-[10px] font-black text-white bg-black/50 px-2 py-0.5 rounded-full">Photo {{ $pIdx + 1 }}</span>
+                            <button type="button" onclick="deletePortfolioPhoto('{{ $photo }}')" class="px-3 py-1.5 bg-rose-600 hover:bg-rose-700 text-white rounded-full text-xs font-bold shadow-md transition-all flex items-center gap-1 cursor-pointer">
+                                <span>🗑️</span>
+                                <span>Remove</span>
                             </button>
                         </div>
                     </div>
@@ -968,7 +1363,7 @@
                 <div class="p-4 bg-slate-50 border border-slate-200 rounded-2xl flex items-center justify-between text-xs">
                     <div>
                         <h4 class="font-black text-slate-900">4. Work Portfolio Photos</h4>
-                        <p class="text-slate-600 mt-0.5">{{ $photoCount }} of 4 portfolio photos uploaded</p>
+                        <p class="text-slate-600 mt-0.5">{{ $photoCount }} of 8 portfolio photos uploaded</p>
                     </div>
                     <button type="button" onclick="showProfileTab('photos', 4)" class="px-3 py-1.5 bg-white border border-slate-200 rounded-xl text-amber-600 font-bold hover:underline">
                         Edit
@@ -1013,9 +1408,9 @@
                     💾 Save as Draft
                 </button>
 
-                <button type="submit" form="submit-review-form" class="w-full sm:w-auto px-8 py-3.5 bg-gradient-to-r from-amber-400 via-gold-500 to-amber-500 text-slate-950 font-black text-xs rounded-2xl shadow-xl transition-all hover:scale-105 flex items-center justify-center gap-2">
-                    <span>🚀 Request Account Review</span>
-                    <span>→</span>
+                <button type="submit" form="profile-main-form" class="w-full sm:w-auto px-8 py-3.5 bg-slate-900 hover:bg-slate-800 text-amber-400 font-black text-xs rounded-2xl shadow-xl transition-all hover:scale-105 flex items-center justify-center gap-2">
+                    <span>💾 Save Profile Changes</span>
+                    <span>✓</span>
                 </button>
             </div>
         </div>
@@ -1056,6 +1451,15 @@
 
     document.addEventListener('DOMContentLoaded', () => {
         onCountrySelectChange("{{ old('country', $professional->country ?: 'Kenya') }}");
+
+        // Restore active tab if specified in URL query or session input
+        const urlParams = new URLSearchParams(window.location.search);
+        const tabFromUrl = urlParams.get('active_tab');
+        const tabFromInput = document.getElementById('active-tab-input')?.value;
+        const targetTab = tabFromUrl || (tabFromInput && tabFromInput !== 'personal' ? tabFromInput : null);
+        if (targetTab) {
+            showProfileTab(targetTab);
+        }
     });
 
     function onCountrySelectChange(country) {
@@ -1236,6 +1640,14 @@
                     <input type="date" name="education[${count}][end_date]" class="w-full bg-white border border-slate-200 rounded-xl px-3 py-2 outline-none">
                 </div>
             </div>
+            <div class="pt-2 border-t border-slate-200/70">
+                <label class="block text-[11px] font-extrabold text-slate-700 mb-1 flex items-center justify-between">
+                    <span>📜 Certificate / Document (Seen Only by Admin)</span>
+                    <span class="text-[10px] text-slate-400">PDF, JPG, PNG max 10MB</span>
+                </label>
+                <input type="file" name="education_documents[${count}]" accept=".pdf,.jpg,.jpeg,.png,.doc,.docx"
+                    class="w-full text-xs text-slate-500 file:mr-3 file:py-1.5 file:px-3 file:rounded-xl file:border-0 file:text-xs file:font-extrabold file:bg-slate-200 file:text-slate-800 hover:file:bg-slate-300 cursor-pointer">
+            </div>
         `;
         wrapper.appendChild(div);
     }
@@ -1267,6 +1679,70 @@
                     <input type="date" name="experience_records[${count}][end_date]" class="w-full bg-white border border-slate-200 rounded-xl px-3 py-2 outline-none">
                 </div>
             </div>
+            <div class="pt-2 border-t border-slate-200/70">
+                <label class="block text-[11px] font-extrabold text-slate-700 mb-1 flex items-center justify-between">
+                    <span>📄 Experience Proof / Reference Letter (Seen Only by Admin)</span>
+                    <span class="text-[10px] text-slate-400">PDF, JPG, PNG max 10MB</span>
+                </label>
+                <input type="file" name="experience_documents[${count}]" accept=".pdf,.jpg,.jpeg,.png,.doc,.docx"
+                    class="w-full text-xs text-slate-500 file:mr-3 file:py-1.5 file:px-3 file:rounded-xl file:border-0 file:text-xs file:font-extrabold file:bg-slate-200 file:text-slate-800 hover:file:bg-slate-300 cursor-pointer">
+            </div>
+        `;
+        wrapper.appendChild(div);
+    }
+
+    function addExpertiseRow() {
+        const wrapper = document.getElementById('expertises-cards-wrapper');
+        if (!wrapper) return;
+        const count = wrapper.children.length;
+        const div = document.createElement('div');
+        div.className = 'p-4 bg-slate-50 border border-slate-200 rounded-2xl space-y-2.5 text-xs';
+        div.innerHTML = `
+            <div class="flex items-center gap-2">
+                <div class="w-28 shrink-0">
+                    <label class="block text-[10px] font-extrabold uppercase text-slate-500 mb-1">Icon</label>
+                    <select name="expertises[${count}][icon]" class="w-full bg-white border border-slate-200 rounded-xl px-2.5 py-2 font-bold outline-none focus:border-amber-500 text-sm">
+                        <option value="⚡" selected>⚡ Energy</option>
+                        <option value="🎯">🎯 Focus</option>
+                        <option value="🎤">🎤 Host/MC</option>
+                        <option value="💼">💼 Corporate</option>
+                        <option value="🤝">🤝 Protocol</option>
+                        <option value="👥">👥 Ushering</option>
+                        <option value="🛡️">🛡️ Security</option>
+                        <option value="⭐">⭐ VIP</option>
+                        <option value="📸">📸 Media</option>
+                        <option value="🌐">🌐 Languages</option>
+                        <option value="📋">📋 Desk Ops</option>
+                        <option value="💡">💡 Creative</option>
+                        <option value="🏷️">🏷️ Brand</option>
+                        <option value="🎧">🎧 Audio/Tech</option>
+                        <option value="👔">👔 Formal</option>
+                    </select>
+                </div>
+                <div class="flex-1">
+                    <label class="block text-[10px] font-extrabold uppercase text-slate-500 mb-1">Header / Expertise Name</label>
+                    <input type="text" name="expertises[${count}][name]" placeholder="e.g. VIP Protocol & Diplomatic Ushering" class="w-full bg-white border border-slate-200 rounded-xl px-3 py-2 font-bold outline-none focus:border-amber-500">
+                </div>
+                <div class="pt-4">
+                    <button type="button" onclick="this.closest('.p-4').remove()" class="p-2 text-rose-600 hover:bg-rose-50 rounded-xl font-bold" title="Remove">✕</button>
+                </div>
+            </div>
+            <div>
+                <label class="block text-[10px] font-extrabold uppercase text-slate-500 mb-1">Content / Description</label>
+                <textarea name="expertises[${count}][description]" rows="2" placeholder="Description of your expertise in this skill (e.g. Over 4 years managing seating protocol, VIP escorting, and foreign delegation coordination at international summits)..." class="w-full bg-white border border-slate-200 rounded-xl p-3 outline-none focus:border-amber-500 font-medium leading-relaxed"></textarea>
+            </div>
+            <div>
+                <label class="block text-[10px] font-extrabold uppercase text-slate-500 mb-1">3 Key Skills for this Area (Comma-separated)</label>
+                <input type="text" name="expertises[${count}][skills]" placeholder="e.g. VIP Protocol, Seating Logistics, Executive Escort" class="w-full bg-white border border-slate-200 rounded-xl px-3 py-2 font-bold outline-none focus:border-amber-500 text-xs">
+            </div>
+            <div class="pt-2 border-t border-slate-200/60">
+                <label class="block text-[10px] font-extrabold uppercase text-slate-500 mb-1 flex items-center justify-between">
+                    <span>🖼️ Expertise Photo / Badge (Optional)</span>
+                    <span class="text-[9px] text-slate-400 font-normal">PNG, JPG max 5MB</span>
+                </label>
+                <input type="file" name="expertise_images[${count}]" accept="image/*" class="w-full text-xs text-slate-500 file:mr-3 file:py-1 file:px-2.5 file:rounded-xl file:border-0 file:text-[11px] file:font-extrabold file:bg-slate-200 file:text-slate-800 hover:file:bg-slate-300 cursor-pointer">
+                <input type="hidden" name="expertises[${count}][image]" value="">
+            </div>
         `;
         wrapper.appendChild(div);
     }
@@ -1276,29 +1752,107 @@
         if (!wrapper) return;
         const count = wrapper.children.length;
         const div = document.createElement('div');
-        div.className = 'p-4 bg-slate-50 border border-slate-200 rounded-2xl space-y-3 text-xs';
+        div.className = 'referee-row p-4 sm:p-5 bg-slate-50 border border-slate-200 rounded-2xl space-y-3.5 text-xs';
         div.innerHTML = `
-            <div class="grid grid-cols-1 sm:grid-cols-4 gap-3">
-                <input type="text" name="referees[${count}][name]" placeholder="Referee Name" class="bg-white border border-slate-200 rounded-xl px-3 py-2 outline-none">
-                <input type="text" name="referees[${count}][relationship]" placeholder="Relationship" class="bg-white border border-slate-200 rounded-xl px-3 py-2 outline-none">
-                <input type="email" name="referees[${count}][email]" placeholder="referee@example.com" class="bg-white border border-slate-200 rounded-xl px-3 py-2 outline-none">
-                <input type="tel" name="referees[${count}][phone]" placeholder="+254 700 000 000" class="bg-white border border-slate-200 rounded-xl px-3 py-2 outline-none">
-            </div>
-            <div class="flex items-center justify-between pt-2 border-t border-slate-200/60 flex-wrap gap-2">
-                <span class="text-[11px] font-bold text-slate-600">
-                    Status: <span class="px-2.5 py-0.5 rounded-full bg-slate-200 text-slate-800 font-black text-[10px]">Not Saved</span>
+            <div class="flex items-center justify-between border-b border-slate-200/70 pb-2.5">
+                <span class="text-xs font-black text-slate-800">Reference #${count + 1}</span>
+                <span class="text-[10px] text-amber-700 font-bold bg-amber-50 border border-amber-200 px-2.5 py-0.5 rounded-full">
+                    📧 Email sent automatically upon saving
                 </span>
-                <div class="flex items-center gap-2">
-                    <button type="button" onclick="saveRefereeForm(${count})" class="px-3.5 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold text-[11px] rounded-xl shadow-2xs flex items-center gap-1 transition-all">
-                        <span>💾 1. SAVE</span>
-                    </button>
-                    <button type="button" onclick="requestRefereeVerification(${count})" class="px-3.5 py-1.5 bg-amber-500 hover:bg-amber-400 text-slate-950 font-black text-[11px] rounded-xl shadow-2xs flex items-center gap-1 transition-all">
-                        <span>🛡️ 2. VERIFY</span>
-                    </button>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+                <div>
+                    <label class="block text-[10px] font-extrabold text-slate-500 uppercase mb-1">Full Name</label>
+                    <input type="text" name="referees[${count}][name]" placeholder="Referee Full Name" class="w-full bg-white border border-slate-200 rounded-xl px-3 py-2 outline-none font-bold">
                 </div>
+                <div>
+                    <label class="block text-[10px] font-extrabold text-slate-500 uppercase mb-1">Company / Project Name</label>
+                    <input type="text" name="referees[${count}][organization]" placeholder="e.g. Homeboyz Entertainment" class="w-full bg-white border border-slate-200 rounded-xl px-3 py-2 outline-none font-bold">
+                </div>
+                <div>
+                    <label class="block text-[10px] font-extrabold text-slate-500 uppercase mb-1">Worked Together Period</label>
+                    <input type="text" name="referees[${count}][period]" placeholder="e.g. 2013–2014" class="w-full bg-white border border-slate-200 rounded-xl px-3 py-2 outline-none">
+                </div>
+                <div>
+                    <label class="block text-[10px] font-extrabold text-slate-500 uppercase mb-1">Your Role With Referee</label>
+                    <input type="text" name="referees[${count}][crew_role]" placeholder="e.g. Sound Engineer" class="w-full bg-white border border-slate-200 rounded-xl px-3 py-2 outline-none">
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-1">
+                <div>
+                    <label class="block text-[10px] font-extrabold text-slate-500 uppercase mb-1">Relationship / Title</label>
+                    <input type="text" name="referees[${count}][relationship]" placeholder="e.g. Technical Director, Supervisor" class="w-full bg-white border border-slate-200 rounded-xl px-3 py-2 outline-none">
+                </div>
+                <div>
+                    <label class="block text-[10px] font-extrabold text-slate-500 uppercase mb-1 flex items-center justify-between">
+                        <span>Referee Email</span>
+                        <span class="text-[9px] text-[#FF7A00] font-black uppercase">Required for Verification</span>
+                    </label>
+                    <input type="email" name="referees[${count}][email]" placeholder="referee@example.com" class="w-full bg-white border border-slate-200 rounded-xl px-3 py-2 outline-none">
+                </div>
+                <div>
+                    <label class="block text-[10px] font-extrabold text-slate-500 uppercase mb-1">Phone Number (Private)</label>
+                    <input type="tel" name="referees[${count}][phone]" placeholder="+254 7..." class="w-full bg-white border border-slate-200 rounded-xl px-3 py-2 outline-none">
+                </div>
+            </div>
+
+            <div class="flex items-center justify-between pt-2 border-t border-slate-200/60 flex-wrap gap-2">
+                <span class="text-[11px] font-bold text-slate-500 flex items-center gap-1.5">
+                    <span class="text-purple-600 font-black">🔒</span>
+                    <span>Confidential (A verification email will be sent automatically when you save)</span>
+                </span>
+                <button type="button" onclick="this.closest('.referee-row').remove()" class="px-2.5 py-1 text-rose-600 hover:text-rose-800 hover:bg-rose-50 rounded-lg text-xs font-bold transition-all">
+                    ✕ Remove
+                </button>
             </div>
         `;
         wrapper.appendChild(div);
+    }
+
+    function resendRefereeVerification(index, btn) {
+        if (!btn) return;
+        const origHtml = btn.innerHTML;
+        btn.disabled = true;
+        btn.innerHTML = '<span>⏳ Sending...</span>';
+
+        fetch("{{ route('professional.referees.request-verification') }}", {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': '{{ csrf_token() }}'
+            },
+            body: JSON.stringify({ referee_index: index })
+        })
+        .then(r => r.json())
+        .then(data => {
+            if (data.success) {
+                btn.innerHTML = '<span>✓ Request Sent!</span>';
+                btn.className = 'px-2 py-0.5 rounded-lg bg-emerald-50 text-emerald-800 border border-emerald-300 font-black text-[10px] transition-all';
+                if (typeof Swal !== 'undefined') {
+                    Swal.fire({
+                        toast: true,
+                        position: 'top-end',
+                        icon: 'success',
+                        title: data.message,
+                        showConfirmButton: false,
+                        timer: 3500
+                    });
+                } else {
+                    alert(data.message);
+                }
+            } else {
+                btn.disabled = false;
+                btn.innerHTML = origHtml;
+                alert(data.error || 'Failed to send verification email.');
+            }
+        })
+        .catch(err => {
+            btn.disabled = false;
+            btn.innerHTML = origHtml;
+            alert('Network error while requesting verification.');
+        });
     }
 
     function saveRefereeForm(index) {
@@ -1334,18 +1888,14 @@
         });
     }
 
-    function requestRefereeVerification(index) {
-        fetch('{{ route("professional.referees.request-verification") }}', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'X-CSRF-TOKEN': '{{ csrf_token() }}'
-            },
-            body: JSON.stringify({ referee_index: index })
-        }).then(res => res.json()).then(data => {
-            alert(data.message);
-            location.reload();
-        });
+
+    function uploadPortfolioPhotos(input) {
+        if (!input.files || input.files.length === 0) return;
+        const tabInput = document.getElementById('active-tab-input');
+        if (tabInput) tabInput.value = 'photos';
+        const txt = document.getElementById('portfolio-add-text');
+        if (txt) txt.textContent = 'Uploading...';
+        document.getElementById('profile-main-form').submit();
     }
 
     function deletePortfolioPhoto(photoPath) {
@@ -1354,10 +1904,19 @@
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
+                'Accept': 'application/json',
                 'X-CSRF-TOKEN': '{{ csrf_token() }}'
             },
             body: JSON.stringify({ photo_path: photoPath })
-        }).then(() => location.reload());
+        }).then(res => res.json()).then(data => {
+            const url = new URL(window.location.href);
+            url.searchParams.set('active_tab', 'photos');
+            window.location.href = url.toString();
+        }).catch(() => {
+            const url = new URL(window.location.href);
+            url.searchParams.set('active_tab', 'photos');
+            window.location.href = url.toString();
+        });
     }
 
     function toggleDateCell(btn, day) {

@@ -47,6 +47,14 @@ class AdminAuthController extends Controller
 
             $request->session()->regenerate();
 
+            \App\Services\EmailNotificationService::sendLoginNotification(
+                $user->email,
+                $user->name,
+                'Administrator',
+                $request->ip(),
+                $request->userAgent()
+            );
+
             return redirect()->intended(route('admin.dashboard'));
         }
 

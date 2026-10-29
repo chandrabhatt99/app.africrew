@@ -18,7 +18,9 @@ class ProfessionalAdminController extends Controller
 
         $query = Professional::query();
 
-        if (!empty($status) && $status !== 'all') {
+        if ($status === 'interview_scheduled') {
+            $query->where('interview_status', 'scheduled');
+        } elseif (!empty($status) && $status !== 'all') {
             $query->where('status', $status);
         }
 
@@ -28,7 +30,8 @@ class ProfessionalAdminController extends Controller
                   ->orWhere('email', 'like', "%{$search}%")
                   ->orWhere('phone', 'like', "%{$search}%")
                   ->orWhere('category', 'like', "%{$search}%")
-                  ->orWhere('city', 'like', "%{$search}%");
+                  ->orWhere('city', 'like', "%{$search}%")
+                  ->orWhere('interviewer_name', 'like', "%{$search}%");
             });
         }
 
@@ -38,6 +41,7 @@ class ProfessionalAdminController extends Controller
             'total' => Professional::count(),
             'approved' => Professional::where('status', 'approved')->count(),
             'pending' => Professional::where('status', 'pending')->count(),
+            'interview_scheduled' => Professional::where('interview_status', 'scheduled')->count(),
             'deactivated' => Professional::whereIn('status', ['rejected', 'suspended', 'deactivated'])->count(),
         ];
 
@@ -119,6 +123,8 @@ class ProfessionalAdminController extends Controller
             'services' => ['nullable', 'array'],
             'experience_years' => ['required', 'integer', 'min:0', 'max:80'],
             'about' => ['nullable', 'string', 'max:5000'],
+            'my_update' => ['nullable', 'string', 'max:255'],
+            'lets_connect' => ['nullable', 'string', 'max:255'],
             'highlight_quote' => ['nullable', 'string', 'max:1000'],
             'hourly_rate' => ['nullable', 'numeric', 'min:0'],
             'half_day_rate' => ['nullable', 'numeric', 'min:0'],
@@ -174,6 +180,74 @@ class ProfessionalAdminController extends Controller
         return view('admin.professionals.show', compact('professional'));
     }
 
+    public function scheduleInterview(Request $request, Professional $professional): RedirectResponse
+    {
+        $data = $request->validate([
+            'interview_date' => ['required', 'date'],
+            'interview_time' => ['required', 'string', 'max:100'],
+            'interviewer_name' => ['required', 'string', 'max:150'],
+            'interview_link' => ['nullable', 'string', 'max:255'],
+            'interview_notes' => ['nullable', 'string', 'max:2000'],
+        ]);
+
+        $data['interview_status'] = 'scheduled';
+        if ($professional->status !== 'approved') {
+            $data['status'] = 'pending';
+        }
+
+        $professional->update($data);
+
+        // Send interview invitation email to crew member
+        \App\Services\EmailNotificationService::sendInterviewScheduledToCrew($professional);
+
+        $dateFormatted = $professional->interview_date ? $professional->interview_date->format('M d, Y') : $data['interview_date'];
+
+        return back()->with('success', "Interview scheduled for {$professional->full_name} on {$dateFormatted} at {$professional->interview_time} with {$professional->interviewer_name}. Email invitation dispatched!");
+    }
+
+    public function approve(Request $request, Professional $professional): RedirectResponse
+    {
+        $data = [
+            'status' => 'approved',
+            'interview_status' => 'completed',
+            'email_verified_at' => $professional->email_verified_at ?? now(),
+            'verification_token' => null,
+        ];
+
+        if ($request->filled('interview_notes')) {
+            $data['interview_notes'] = $request->input('interview_notes');
+        }
+
+        $professional->update($data);
+
+        // Send approval emails to crew member
+        \App\Services\EmailNotificationService::sendProfileLiveToCrew($professional);
+        \App\Services\EmailNotificationService::sendCrewApproved($professional);
+
+        return back()->with('success', "Crew member {$professional->full_name} has been APPROVED! They can now log in to the Crew Portal.");
+    }
+
+    public function reject(Request $request, Professional $professional): RedirectResponse
+    {
+        $reason = $request->input('rejection_reason', $request->input('interview_notes'));
+
+        $data = [
+            'status' => 'rejected',
+            'interview_status' => 'completed',
+        ];
+
+        if (!empty($reason)) {
+            $data['interview_notes'] = $reason;
+        }
+
+        $professional->update($data);
+
+        // Send rejection email to crew member
+        \App\Services\EmailNotificationService::sendCrewRejected($professional, $reason);
+
+        return back()->with('success', "Crew member {$professional->full_name} has been REJECTED. They will see the rejection status upon login and are barred from portal access.");
+    }
+
     public function updateStatus(Request $request, Professional $professional): RedirectResponse
     {
         $data = $request->validate([
@@ -181,24 +255,35 @@ class ProfessionalAdminController extends Controller
             'interview_date' => ['nullable', 'date'],
             'interview_time' => ['nullable', 'string', 'max:50'],
             'interviewer_name' => ['nullable', 'string', 'max:150'],
+            'interview_link' => ['nullable', 'string', 'max:255'],
             'interview_notes' => ['nullable', 'string', 'max:2000'],
         ]);
 
         if ($data['status'] === 'approved') {
-            if (empty($data['interview_date']) || empty($data['interview_time']) || empty($data['interviewer_name'])) {
-                return back()->withErrors([
-                    'interview' => 'Before approving a crew member, you must specify the Interview Date, Interview Time, and Interviewer Name.'
-                ])->withInput();
-            }
+            $data['interview_status'] = 'completed';
+            $data['email_verified_at'] = $professional->email_verified_at ?? now();
+            $data['verification_token'] = null;
+        } elseif ($data['status'] === 'rejected') {
             $data['interview_status'] = 'completed';
         }
 
         $professional->update($data);
 
+        if ($data['status'] === 'approved') {
+            \App\Services\EmailNotificationService::sendProfileLiveToCrew($professional);
+            \App\Services\EmailNotificationService::sendCrewApproved($professional);
+        } elseif ($data['status'] === 'rejected') {
+            $reason = !empty($data['interview_notes']) 
+                ? $data['interview_notes'] 
+                : 'Application requirements and identity validation standards were not met.';
+            \App\Services\EmailNotificationService::sendCrewRejected($professional, $reason);
+        }
+
         $statusMsg = match ($data['status']) {
-            'approved' => "Professional APPROVED! Interview recorded for {$professional->interview_date?->format('M d, Y')} at {$professional->interview_time} by {$professional->interviewer_name}.",
-            'deactivated', 'rejected', 'suspended' => 'Professional account DEACTIVATED / FLAGGED as fraud/inactive.',
-            default => 'Professional status updated to Pending review.'
+            'approved' => "Professional {$professional->full_name} APPROVED! Account is now active for gig bookings.",
+            'rejected' => "Professional {$professional->full_name} REJECTED. Account is barred from login.",
+            'deactivated', 'suspended' => "Professional {$professional->full_name} account flagged as {$data['status']}.",
+            default => "Professional status updated to Pending review."
         };
 
         return back()->with('success', $statusMsg);
@@ -211,5 +296,42 @@ class ProfessionalAdminController extends Controller
 
         return redirect()->route('admin.professionals.index')
             ->with('success', "Staff record for '{$name}' has been permanently deleted from system.");
+    }
+
+    public function toggleRefereeVerify(Request $request, Professional $professional, int $index): RedirectResponse
+    {
+        $referees = is_array($professional->referees) ? $professional->referees : [];
+        if (isset($referees[$index])) {
+            $item = is_string($referees[$index]) ? json_decode($referees[$index], true) : $referees[$index];
+            $currentStatus = strtolower($item['status'] ?? '');
+            if ($currentStatus === 'verified' || !empty($item['is_confirmed'])) {
+                $item['status'] = 'unverified';
+                $item['is_confirmed'] = false;
+            } else {
+                $item['status'] = 'verified';
+                $item['is_confirmed'] = true;
+                $item['verified_at'] = now()->toDateTimeString();
+                if (!isset($item['show_on_cv'])) {
+                    $item['show_on_cv'] = true;
+                }
+            }
+            $referees[$index] = $item;
+            $professional->update(['referees' => $referees]);
+            return back()->with('success', 'Referee verification status updated.');
+        }
+        return back()->with('error', 'Referee not found.');
+    }
+
+    public function toggleRefereeVisibility(Request $request, Professional $professional, int $index): RedirectResponse
+    {
+        $referees = is_array($professional->referees) ? $professional->referees : [];
+        if (isset($referees[$index])) {
+            $item = is_string($referees[$index]) ? json_decode($referees[$index], true) : $referees[$index];
+            $item['show_on_cv'] = empty($item['show_on_cv']);
+            $referees[$index] = $item;
+            $professional->update(['referees' => $referees]);
+            return back()->with('success', 'Referee digital CV visibility updated.');
+        }
+        return back()->with('error', 'Referee not found.');
     }
 }

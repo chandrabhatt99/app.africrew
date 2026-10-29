@@ -20,159 +20,271 @@
         </div>
     </footer>
 @else
-    <!-- Global Public Marketing Footer (Matching africrew.com) -->
-    <footer id="contact" class="bg-white text-slate-700 pt-16 pb-10 border-t border-slate-200/90 transition-colors duration-200 scroll-mt-20">
-        <div class="max-w-7xl mx-auto px-6 sm:px-8">
+    <!-- Global Public Marketing Footer (Matching Africrew Reference Specification) -->
+    <footer id="contact" class="bg-[#080D1D] text-slate-300 pt-16 sm:pt-20 pb-12 transition-colors duration-200 scroll-mt-20">
+        <div class="max-w-7xl mx-auto px-6 sm:px-8 lg:px-12">
             
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-10 lg:gap-8 pb-14 border-b border-slate-100">
+            <!-- Top Section: Newsletter Banner -->
+            <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-8 pb-16">
+                <!-- Left Heading & Subtitle -->
+                <div class="max-w-2xl">
+                    <h2 class="text-3xl sm:text-4xl lg:text-[46px] font-black text-white tracking-tight leading-[1.12] m-0">
+                        Stay connected to the people<br class="hidden md:inline"> behind great events.
+                    </h2>
+                    <p class="text-slate-300 text-sm sm:text-base font-normal mt-3 m-0">
+                        Crew stories, practical event tips and AfriCrew updates.
+                    </p>
+                </div>
+
+                <!-- Right Newsletter Subscribe Input -->
+                <div class="w-full lg:w-auto lg:min-w-[440px]">
+                    <form onsubmit="handleNewsletterSubscribe(event)" class="w-full">
+                        <div class="flex items-stretch rounded-md overflow-hidden bg-white shadow-sm border border-transparent focus-within:ring-2 focus-within:ring-amber-500/50">
+                            <input 
+                                type="email" 
+                                id="footer-newsletter-email" 
+                                placeholder="Enter your email address" 
+                                required 
+                                class="flex-1 min-w-0 px-4 py-3 sm:py-3.5 text-sm sm:text-base text-slate-900 placeholder-slate-400 bg-white border-0 outline-none focus:outline-none focus:ring-0"
+                            >
+                            <button 
+                                type="submit" 
+                                class="px-6 sm:px-8 py-3 sm:py-3.5 bg-[#FF6B00] hover:bg-[#e85f00] text-slate-950 font-extrabold text-sm sm:text-base shrink-0 transition-colors cursor-pointer border-0 flex items-center justify-center tracking-tight"
+                            >
+                                Subscribe
+                            </button>
+                        </div>
+                        <p class="text-xs text-slate-400 mt-2 m-0 font-normal">
+                            Unsubscribe anytime.
+                        </p>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Middle Section: 4 Columns (Seamless Flow, No Hard Border) -->
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-10 lg:gap-8 pt-6 pb-20">
                 
-                <!-- Col 1: Brand & Bio + Newsletter (lg:col-span-5) -->
-                <div class="lg:col-span-5 space-y-6">
-                    <a href="{{ route('home') }}" class="flex items-center text-decoration-none group">
-                        <img src="{{ asset('images/africrew_logo.jpg') }}" alt="AfriCrew - CREW CONNECT HUB" class="h-11 sm:h-12 w-auto object-contain">
+                <!-- Col 1: Brand Logo, Description & Social Icons (lg:col-span-4) -->
+                <div class="lg:col-span-4 space-y-4">
+                    <a href="{{ route('home') }}" class="inline-block text-decoration-none group">
+                        <img src="{{ asset('images/logo-white.png') }}" alt="AfriCrew - CREW CONNECT HUB" class="h-14 sm:h-16 w-auto object-contain">
                     </a>
-                    <p class="text-xs sm:text-sm text-slate-600 leading-relaxed max-w-sm font-medium">
-                        AfriCrew connects event organisers, agencies and brands with trusted event professionals, making it easier to discover and hire the right crew for every event, campaign and production.
+                    
+                    <p class="text-sm text-slate-300 leading-relaxed font-normal max-w-sm m-0">
+                        Connecting skilled event professionals with organisers, agencies and brands across Kenya.
                     </p>
 
-                    <!-- Subscribe For Staffing Insights & Updates -->
-                    <div class="pt-4 space-y-3">
-                        <h4 class="text-xs font-black uppercase tracking-wider text-amber-800 m-0">
-                            SUBSCRIBE FOR STAFFING INSIGHTS & UPDATES
-                        </h4>
-                        <form onsubmit="event.preventDefault(); Swal.fire({ icon: 'success', title: 'Subscribed!', text: 'Thank you for subscribing to AfriCrew staffing insights.', confirmButtonColor: '#F59E0B' });" class="flex flex-col sm:flex-row items-stretch sm:items-center gap-2.5 max-w-md">
-                            <input type="email" placeholder="Enter your work email address" required class="flex-1 px-4 py-3 rounded-2xl bg-slate-50 border border-slate-200/90 text-xs sm:text-sm text-slate-800 placeholder-slate-400 focus:outline-none focus:border-amber-500 focus:bg-white transition-all shadow-2xs">
-                            <button type="submit" class="px-6 py-3 rounded-2xl text-white font-extrabold text-xs sm:text-sm bg-gradient-to-r from-amber-400 via-rose-500 to-pink-500 hover:opacity-95 shadow-md shadow-rose-500/20 flex items-center justify-center gap-2 shrink-0 transition-all cursor-pointer">
-                                <span>Subscribe</span>
-                                <svg class="w-4 h-4 rotate-45" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"></path></svg>
-                            </button>
-                        </form>
+                    <!-- Social Media Outline Icons (WhatsApp, LinkedIn, Instagram, Facebook, X, YouTube) -->
+                    <div class="flex items-center gap-4 sm:gap-5 pt-3 text-white">
+                        <!-- Chat / WhatsApp (Speech Bubble with tail) -->
+                        <a href="https://wa.me/254713633633" target="_blank" rel="noopener noreferrer" class="text-white hover:text-amber-400 transition-colors text-decoration-none" title="Chat on WhatsApp" aria-label="WhatsApp">
+                            <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"></path>
+                            </svg>
+                        </a>
+
+                        <!-- LinkedIn -->
+                        <a href="https://linkedin.com/company/africrew" target="_blank" rel="noopener noreferrer" class="text-white hover:text-amber-400 transition-colors text-decoration-none" title="LinkedIn" aria-label="LinkedIn">
+                            <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                                <rect width="20" height="20" x="2" y="2" rx="4" ry="4"></rect>
+                                <path d="M8 11v5"></path>
+                                <path d="M8 8v.01"></path>
+                                <path d="M12 16v-5"></path>
+                                <path d="M16 16v-3a2 2 0 0 0-4 0"></path>
+                            </svg>
+                        </a>
+
+                        <!-- Instagram -->
+                        <a href="https://instagram.com/africrew" target="_blank" rel="noopener noreferrer" class="text-white hover:text-amber-400 transition-colors text-decoration-none" title="Instagram" aria-label="Instagram">
+                            <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                                <rect width="20" height="20" x="2" y="2" rx="5" ry="5"></rect>
+                                <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path>
+                                <line x1="17.5" x2="17.51" y1="6.5" y2="6.5"></line>
+                            </svg>
+                        </a>
+
+                        <!-- Facebook -->
+                        <a href="https://facebook.com/africrew" target="_blank" rel="noopener noreferrer" class="text-white hover:text-amber-400 transition-colors text-decoration-none" title="Facebook" aria-label="Facebook">
+                            <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"></path>
+                            </svg>
+                        </a>
+
+                        <!-- X (Twitter) -->
+                        <a href="https://x.com/africrew" target="_blank" rel="noopener noreferrer" class="text-white hover:text-amber-400 transition-colors text-decoration-none" title="X" aria-label="X">
+                            <svg class="w-5 h-5" viewBox="0 0 24 24" fill="currentColor">
+                                <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
+                            </svg>
+                        </a>
+
+                        <!-- YouTube -->
+                        <a href="https://youtube.com/@africrew" target="_blank" rel="noopener noreferrer" class="text-white hover:text-amber-400 transition-colors text-decoration-none" title="YouTube" aria-label="YouTube">
+                            <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M2.5 17a24.12 24.12 0 0 1 0-10 2 2 0 0 1 1.4-1.4 49.56 49.56 0 0 1 16.2 0A2 2 0 0 1 21.5 7a24.12 24.12 0 0 1 0 10 2 2 0 0 1-1.4 1.4 49.55 49.55 0 0 1-16.2 0A2 2 0 0 1 2.5 17z"></path>
+                                <path fill="currentColor" stroke="none" d="m10 15 5-3-5-3z"></path>
+                            </svg>
+                        </a>
                     </div>
                 </div>
 
-                <!-- Col 2: NAVIGATION (lg:col-span-2) -->
-                <div class="lg:col-span-2 space-y-4">
-                    <h4 class="text-xs font-black uppercase tracking-wider text-slate-950 m-0">
-                        NAVIGATION
-                    </h4>
-                    <ul class="space-y-3 text-xs sm:text-sm font-bold text-slate-700 list-none p-0 m-0">
-                        <li class="flex items-center gap-2">
-                            <span class="w-1.5 h-1.5 rounded-full bg-slate-400 shrink-0"></span>
-                            <a href="{{ route('crew.index') }}" class="hover:text-amber-600 transition-colors text-decoration-none text-slate-700">Hire Crew</a>
-                        </li>
-                        <li class="flex items-center gap-2">
-                            <span class="w-1.5 h-1.5 rounded-full bg-slate-400 shrink-0"></span>
-                            <a href="https://africrew.com/hire" class="hover:text-amber-600 transition-colors text-decoration-none text-slate-700">Hire Hub</a>
-                        </li>
-                        <li class="flex items-center gap-2">
-                            <span class="w-1.5 h-1.5 rounded-full bg-slate-400 shrink-0"></span>
-                            <a href="https://africrew.com/blog" target="_blank" rel="noopener noreferrer" class="hover:text-amber-600 transition-colors text-decoration-none text-slate-700">Latest News</a>
-                        </li>
-                        <li class="flex items-center gap-2">
-                            <span class="w-1.5 h-1.5 rounded-full bg-slate-400 shrink-0"></span>
-                            <a href="#contact" class="hover:text-amber-600 transition-colors text-decoration-none text-slate-700">Contact Us</a>
-                        </li>
-                    </ul>
-                </div>
-
-                <!-- Col 3: HIRE HUB (lg:col-span-2) -->
-                <div class="lg:col-span-2 space-y-4">
-                    <h4 class="text-xs font-black uppercase tracking-wider text-slate-950 m-0">
-                        HIRE HUB
-                    </h4>
-                    <ul class="space-y-3 text-xs sm:text-sm font-bold text-slate-700 list-none p-0 m-0">
-                        <li class="flex items-center gap-2">
-                            <span class="w-1.5 h-1.5 rounded-full bg-slate-400 shrink-0"></span>
-                            <a href="{{ route('crew.index', ['category' => 'Ushers']) }}" class="hover:text-amber-600 transition-colors text-decoration-none text-slate-700">Event Ushers</a>
-                        </li>
-                        <li class="flex items-center gap-2">
-                            <span class="w-1.5 h-1.5 rounded-full bg-slate-400 shrink-0"></span>
-                            <a href="{{ route('crew.index', ['category' => 'DJ / Sound Engineer']) }}" class="hover:text-amber-600 transition-colors text-decoration-none text-slate-700">Technical Crew</a>
-                        </li>
-                        <li class="flex items-center gap-2">
-                            <span class="w-1.5 h-1.5 rounded-full bg-slate-400 shrink-0"></span>
-                            <a href="{{ route('crew.index', ['category' => 'Security Staff']) }}" class="hover:text-amber-600 transition-colors text-decoration-none text-slate-700">BTL Crew</a>
-                        </li>
-                        <li class="flex items-center gap-2">
-                            <span class="w-1.5 h-1.5 rounded-full bg-slate-400 shrink-0"></span>
-                            <a href="{{ route('crew.index', ['category' => 'Photographer / Videographer']) }}" class="hover:text-amber-600 transition-colors text-decoration-none text-slate-700">Multi-Media</a>
-                        </li>
-                        <li class="pt-1">
-                            <a href="https://africrew.com/hire" class="text-xs font-extrabold text-amber-700 hover:text-amber-800 transition-colors text-decoration-none flex items-center gap-1.5">
-                                <span>View More</span>
-                                <span>→</span>
-                            </a>
-                        </li>
-                    </ul>
-                </div>
-
-                <!-- Col 4: CONTACT & SUPPORT (lg:col-span-3) -->
+                <!-- Col 2: Find Crew (lg:col-span-3) -->
                 <div class="lg:col-span-3 space-y-4">
-                    <h4 class="text-xs font-black uppercase tracking-wider text-slate-950 m-0">
-                        CONTACT & SUPPORT
-                    </h4>
-                    <div class="space-y-3 text-xs sm:text-sm font-bold text-slate-800">
-                        <div class="flex items-start gap-2.5">
-                            <svg class="w-4 h-4 text-amber-600 shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
-                            <span>RWQV+QW Ruiru, Kenya.</span>
+                    <h3 class="text-base sm:text-lg font-bold text-white tracking-wide m-0">
+                        Find Crew
+                    </h3>
+                    <ul class="space-y-2.5 text-sm font-medium text-slate-300 list-none p-0 m-0">
+                        <li class="flex items-center gap-2">
+                            <span class="w-1.5 h-1.5 rounded-full bg-slate-300 shrink-0"></span>
+                            <a href="{{ route('crew.index', ['category' => 'Ushers']) }}" class="hover:text-white transition-colors text-decoration-none text-slate-300">Event Ushers</a>
+                        </li>
+                        <li class="flex items-center gap-2">
+                            <span class="w-1.5 h-1.5 rounded-full bg-slate-300 shrink-0"></span>
+                            <a href="{{ route('crew.index', ['category' => 'DJ / Sound Engineer']) }}" class="hover:text-white transition-colors text-decoration-none text-slate-300">Technical Crew</a>
+                        </li>
+                        <li class="flex items-center gap-2">
+                            <span class="w-1.5 h-1.5 rounded-full bg-slate-300 shrink-0"></span>
+                            <a href="{{ route('crew.index', ['category' => 'Decorations']) }}" class="hover:text-white transition-colors text-decoration-none text-slate-300">Decorations Crew</a>
+                        </li>
+                        <li class="flex items-center gap-2">
+                            <span class="w-1.5 h-1.5 rounded-full bg-slate-300 shrink-0"></span>
+                            <a href="{{ route('crew.index', ['category' => 'Photographer / Videographer']) }}" class="hover:text-white transition-colors text-decoration-none text-slate-300">Multi-Media Crew</a>
+                        </li>
+                        <li class="flex items-center gap-2">
+                            <span class="w-1.5 h-1.5 rounded-full bg-slate-300 shrink-0"></span>
+                            <a href="{{ route('crew.index', ['category' => 'Entertainers']) }}" class="hover:text-white transition-colors text-decoration-none text-slate-300">Entertainers &amp; Performers</a>
+                        </li>
+                    </ul>
+                </div>
+
+                <!-- Col 3: Explore AfriCrew (lg:col-span-2) -->
+                <div class="lg:col-span-2 space-y-4">
+                    <h3 class="text-base sm:text-lg font-bold text-white tracking-wide m-0">
+                        Explore AfriCrew
+                    </h3>
+                    <ul class="space-y-2.5 text-sm font-medium text-slate-300 list-none p-0 m-0">
+                        <li class="flex items-center gap-2">
+                            <span class="w-1.5 h-1.5 rounded-full bg-slate-300 shrink-0"></span>
+                            <a href="https://africrew.com" class="hover:text-white transition-colors text-decoration-none text-slate-300">About AfriCrew</a>
+                        </li>
+                        <li class="flex items-center gap-2">
+                            <span class="w-1.5 h-1.5 rounded-full bg-slate-300 shrink-0"></span>
+                            <a href="{{ route('crew.create') }}" class="hover:text-white transition-colors text-decoration-none text-slate-300">Join as Crew</a>
+                        </li>
+                        <li class="flex items-center gap-2">
+                            <span class="w-1.5 h-1.5 rounded-full bg-slate-300 shrink-0"></span>
+                            <a href="https://africrew.com/hire" class="hover:text-white transition-colors text-decoration-none text-slate-300">Hire Hub</a>
+                        </li>
+                        <li class="flex items-center gap-2">
+                            <span class="w-1.5 h-1.5 rounded-full bg-slate-300 shrink-0"></span>
+                            <a href="https://africrew.com/blog" target="_blank" rel="noopener noreferrer" class="hover:text-white transition-colors text-decoration-none text-slate-300">Blog</a>
+                        </li>
+                        <li class="flex items-center gap-2">
+                            <span class="w-1.5 h-1.5 rounded-full bg-slate-300 shrink-0"></span>
+                            <a href="#contact" class="hover:text-white transition-colors text-decoration-none text-slate-300">Contact Us</a>
+                        </li>
+                    </ul>
+                </div>
+
+                <!-- Col 4: Contact & Support (lg:col-span-3) -->
+                <div class="lg:col-span-3 space-y-4">
+                    <h3 class="text-base sm:text-lg font-bold text-white tracking-wide m-0">
+                        Contact &amp; Support
+                    </h3>
+                    
+                    <div class="space-y-2 text-sm font-normal text-slate-300">
+                        <div>RWQV+QW Central, Kenya.</div>
+                        <div>
+                            <a href="tel:+254713633633" class="text-slate-300 hover:text-white transition-colors text-decoration-none font-medium">+254 713633633</a>
                         </div>
-                        <div class="flex items-center gap-2.5">
-                            <svg class="w-4 h-4 text-amber-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"/></svg>
-                            <a href="tel:+254713633633" class="hover:text-amber-600 text-slate-800 transition-colors text-decoration-none">+254 713633633</a>
-                        </div>
-                        <div class="flex items-center gap-2.5">
-                            <svg class="w-4 h-4 text-amber-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
-                            <a href="mailto:mail@africrew.com" class="hover:text-amber-600 text-slate-800 transition-colors text-decoration-none">mail@africrew.com</a>
+                        <div>
+                            <a href="mailto:mail@africrew.com" class="text-slate-300 hover:text-white transition-colors text-decoration-none font-medium">mail@africrew.com</a>
                         </div>
                     </div>
 
-                    <!-- Social Media Rounded Icons Matching africrew.com -->
-                    <div class="pt-2 space-y-2">
-                        <div class="flex items-center gap-2.5">
-                            <!-- Instagram -->
-                            <a href="https://instagram.com/africrew" target="_blank" rel="noopener noreferrer" class="w-9 h-9 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-700 flex items-center justify-center transition-all shadow-2xs" title="Instagram" aria-label="Instagram">
-                                <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="20" height="20" x="2" y="2" rx="5" ry="5"></rect><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path><line x1="17.5" x2="17.51" y1="6.5" y2="6.5"></line></svg>
+                    <p class="text-xs sm:text-sm text-slate-300 leading-relaxed font-normal pt-1 m-0">
+                        Manage on-site shifts, coordinate bookings, and hire vetted crew on the go.
+                    </p>
+
+                    <!-- App Download Badges with "SOON" Pills -->
+                    <div class="flex items-center gap-3 pt-2 flex-wrap">
+                        <!-- App Store Badge -->
+                        <div class="relative inline-block">
+                            <a href="javascript:void(0)" onclick="notifyAppSoon('iOS App Store')" class="block transition-transform hover:scale-105 active:scale-95" title="Download on the App Store">
+                                <img src="{{ asset('images/app-store-badge.svg') }}" alt="Download on the App Store" class="h-9.5 w-auto rounded-lg">
                             </a>
-                            <!-- Facebook -->
-                            <a href="https://facebook.com/africrew" target="_blank" rel="noopener noreferrer" class="w-9 h-9 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-700 flex items-center justify-center transition-all shadow-2xs" title="Facebook" aria-label="Facebook">
-                                <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"></path></svg>
-                            </a>
-                            <!-- YouTube -->
-                            <a href="https://youtube.com/@africrew" target="_blank" rel="noopener noreferrer" class="w-9 h-9 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-700 flex items-center justify-center transition-all shadow-2xs" title="YouTube" aria-label="YouTube">
-                                <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2.5 17a24.12 24.12 0 0 1 0-10 2 2 0 0 1 1.4-1.4 49.56 49.56 0 0 1 16.2 0A2 2 0 0 1 21.5 7a24.12 24.12 0 0 1 0 10 2 2 0 0 1-1.4 1.4 49.55 49.55 0 0 1-16.2 0A2 2 0 0 1 2.5 17"></path><path d="m10 15 5-3-5-3z"></path></svg>
-                            </a>
-                            <!-- TikTok -->
-                            <a href="https://tiktok.com/@africrew" target="_blank" rel="noopener noreferrer" class="w-9 h-9 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-700 flex items-center justify-center transition-all shadow-2xs" title="TikTok" aria-label="TikTok">
-                                <svg class="w-4 h-4" viewBox="0 0 24 24" fill="currentColor"><path d="M12.525 2.015c1.31-.02 2.61-.01 3.91-.02.08 1.53.63 3.09 1.75 4.17 1.12 1.11 2.7 1.62 4.24 1.79v4.03c-1.44-.05-2.89-.35-4.2-.97-.57-.26-1.1-.59-1.62-.93-.01 2.92.01 5.84-.02 8.75-.08 1.4-.54 2.79-1.35 3.94-1.31 1.92-3.58 3.17-5.91 3.21-1.43.08-2.86-.31-4.08-1.03-2.02-1.19-3.44-3.37-3.65-5.71-.02-.5-.03-1-.01-1.49.18-1.9 1.12-3.72 2.58-4.96 1.66-1.44 3.98-2.13 6.15-1.72.02 1.48-.04 2.96-.04 4.44-.99-.32-2.15-.23-3.02.37-.82.55-1.35 1.52-1.37 2.51-.04 1.25.66 2.45 1.75 3.01 1.05.57 2.37.49 3.37-.17.84-.54 1.47 1.45-2.46.04-3.53.01-7.06.02-10.59z"></path></svg>
-                            </a>
+                            <span class="absolute -top-2.5 -right-2 px-2 py-0.5 rounded-full bg-[#FF4500] text-white text-[9px] font-black uppercase tracking-wider shadow-sm pointer-events-none">
+                                SOON
+                            </span>
                         </div>
-                        <div class="flex items-center gap-2.5">
-                            <!-- X (Twitter) -->
-                            <a href="https://x.com/africrew" target="_blank" rel="noopener noreferrer" class="w-9 h-9 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-700 flex items-center justify-center transition-all shadow-2xs" title="X" aria-label="X">
-                                <svg class="w-4 h-4" viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"></path></svg>
+
+                        <!-- Google Play Badge -->
+                        <div class="relative inline-block">
+                            <a href="javascript:void(0)" onclick="notifyAppSoon('Google Play')" class="block transition-transform hover:scale-105 active:scale-95" title="Get it on Google Play">
+                                <img src="{{ asset('images/google-play-badge.svg') }}" alt="Get it on Google Play" class="h-9.5 w-auto rounded-lg">
                             </a>
-                            <!-- LinkedIn -->
-                            <a href="https://linkedin.com/company/africrew" target="_blank" rel="noopener noreferrer" class="w-9 h-9 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-700 flex items-center justify-center transition-all shadow-2xs" title="LinkedIn" aria-label="LinkedIn">
-                                <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"></path><rect width="4" height="12" x="2" y="9"></rect><circle cx="4" cy="4" r="2"></circle></svg>
-                            </a>
+                            <span class="absolute -top-2.5 -right-2 px-2 py-0.5 rounded-full bg-[#FF4500] text-white text-[9px] font-black uppercase tracking-wider shadow-sm pointer-events-none">
+                                SOON
+                            </span>
                         </div>
                     </div>
+
                 </div>
 
             </div>
 
-            <!-- Bottom Bar Matching africrew.com -->
-            <div class="pt-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs font-bold text-slate-500">
+            <!-- Bottom Bar: Copyright & Legal Navigation -->
+            <div class="flex flex-col sm:flex-row items-center justify-between gap-4 text-xs sm:text-sm text-slate-400 font-normal">
                 <div>
-                    &copy; {{ date('Y') }}. All Rights Reserved. AfriCrew™
+                    &copy; 2026. All Rights Reserved. AfriCrew&trade;
                 </div>
-                <div class="flex items-center gap-6">
-                    <a href="{{ route('privacy-policy') }}" class="hover:text-slate-900 transition-colors text-decoration-none text-slate-500">Privacy Policy</a>
-                    <a href="{{ route('terms-conditions') }}" class="hover:text-slate-900 transition-colors text-decoration-none text-slate-500">Terms of Service</a>
-                    <a href="{{ route('terms-conditions') }}" class="hover:text-slate-900 transition-colors text-decoration-none text-slate-500">Crew Guidelines</a>
+                <div class="flex items-center gap-4 sm:gap-6 flex-wrap justify-center">
+                    <a href="{{ route('privacy-policy') }}" class="text-slate-400 hover:text-white transition-colors text-decoration-none">Privacy Policy</a>
+                    <span class="text-slate-600 select-none">|</span>
+                    <a href="{{ route('terms-conditions') }}" class="text-slate-400 hover:text-white transition-colors text-decoration-none">Terms of Service</a>
+                    <span class="text-slate-600 select-none">|</span>
+                    <a href="{{ route('terms-conditions') }}" class="text-slate-400 hover:text-white transition-colors text-decoration-none">Crew Guidelines</a>
                 </div>
             </div>
 
         </div>
     </footer>
+
+    <!-- Interactive Handlers for Newsletter & App Notifications -->
+    <script>
+        function handleNewsletterSubscribe(event) {
+            event.preventDefault();
+            const input = document.getElementById('footer-newsletter-email');
+            const email = input ? input.value : '';
+
+            if (typeof Swal !== 'undefined') {
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Subscribed!',
+                    text: 'Thank you for subscribing to AfriCrew updates. We will keep you posted on crew stories and event tips.',
+                    confirmButtonColor: '#FF6B00',
+                    background: '#080D1D',
+                    color: '#ffffff'
+                });
+            } else {
+                alert('Thank you for subscribing to AfriCrew updates!');
+            }
+
+            if (input) input.value = '';
+        }
+
+        function notifyAppSoon(platform) {
+            if (typeof Swal !== 'undefined') {
+                Swal.fire({
+                    icon: 'info',
+                    title: 'App Coming Soon',
+                    text: `The AfriCrew mobile app for ${platform} is currently in final testing and will launch soon!`,
+                    confirmButtonColor: '#FF6B00',
+                    background: '#080D1D',
+                    color: '#ffffff'
+                });
+            } else {
+                alert(`The AfriCrew mobile app for ${platform} is launching soon!`);
+            }
+        }
+    </script>
 @endif

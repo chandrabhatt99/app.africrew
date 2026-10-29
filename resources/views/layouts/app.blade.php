@@ -44,6 +44,16 @@
         }
     </script>
     
+    <style>
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .no-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+    </style>
+    
     <!-- SweetAlert2 CDN -->
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     
@@ -51,6 +61,20 @@
     @include('partials.meta-pixel')
 </head>
 <body id="app-body" class="h-full font-sans bg-slate-50 text-slate-900 flex flex-col selection:bg-gold-500 selection:text-slate-950 transition-colors duration-200">
+
+    <!-- Global SVG Definitions for Gradient Icons -->
+    <svg class="sr-only" aria-hidden="true" focusable="false" style="position: absolute; width: 0; height: 0; overflow: hidden;">
+        <defs>
+            <linearGradient id="africrew-icon-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stop-color="#FF7A00" />
+                <stop offset="100%" stop-color="#E6007A" />
+            </linearGradient>
+            <linearGradient id="africrew-icon-grad-h" x1="0%" y1="50%" x2="100%" y2="50%">
+                <stop offset="0%" stop-color="#FF7A00" />
+                <stop offset="100%" stop-color="#E6007A" />
+            </linearGradient>
+        </defs>
+    </svg>
 
     <!-- Separate Header Partial -->
     @include('partials.header')
@@ -62,7 +86,9 @@
 
     <!-- Separate Footer Partial -->
     @include('partials.crew-profile-modal')
-    @include('partials.multi-crew-basket')
+    @if(!request()->is('hire-staff*') && !request()->routeIs('hire.*'))
+        @include('partials.multi-crew-basket')
+    @endif
     @include('partials.footer')
 
     <!-- Bootstrap 5 Bundle JS -->

@@ -1,0 +1,2369 @@
+{
+    "info": {
+        "_postman_id": "africrew-mobile-api-v1-6ad9e1d570419",
+        "name": "AfriCrew Mobile Apps API Collection (Client & Crew Complete Suite)",
+        "description": "Complete Postman API Collection for AfriCrew Mobile Applications.\n\nCovers the entire lifecycle for both:\n1. Client Mobile Application (Discovery, Booking, M-Pesa Escrow, Contracts, Messaging, Reviews)\n2. Crew Mobile Application (Onboarding, Status, Profile Builder, Expertises, Shifts, Wallet/Payouts, Messaging, Support)\n3. Shared Catalog & M-Pesa Payment Gateway\n\nTokens are automatically captured in {{clientToken}} and {{crewToken}} upon login or registration.",
+        "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+    },
+    "variable": [
+        {
+            "key": "baseUrl",
+            "value": "http://127.0.0.1:8000",
+            "type": "string",
+            "description": "Target server URL (use http://127.0.0.1:8000 for local development, or https://africrew-crm.databrainit.com for production)"
+        },
+        {
+            "key": "clientToken",
+            "value": "",
+            "type": "string",
+            "description": "Bearer token for authenticated Client"
+        },
+        {
+            "key": "crewToken",
+            "value": "",
+            "type": "string",
+            "description": "Bearer token for authenticated Crew Member / Professional"
+        },
+        {
+            "key": "bookingId",
+            "value": "1",
+            "type": "string",
+            "description": "Sample booking / staffing request ID"
+        },
+        {
+            "key": "contractId",
+            "value": "1",
+            "type": "string",
+            "description": "Sample contract ID"
+        },
+        {
+            "key": "shiftId",
+            "value": "1",
+            "type": "string",
+            "description": "Sample shift assignment ID"
+        },
+        {
+            "key": "crewUsername",
+            "value": "joyce01",
+            "type": "string",
+            "description": "Sample crew username for profile lookup"
+        }
+    ],
+    "item": [
+        {
+            "name": "1. Client Mobile App",
+            "description": "Endpoints for Event Organizers, Corporate Clients, and Individual Hosts to browse, hire, contract, and pay crew.",
+            "item": [
+                {
+                    "name": "1.1 Authentication & Profile",
+                    "item": [
+                        {
+                            "name": "Client Register",
+                            "event": [
+                                {
+                                    "listen": "test",
+                                    "script": {
+                                        "type": "text/javascript",
+                                        "exec": [
+                                            "var jsonData = pm.response.json();",
+                                            "if (jsonData && jsonData.token) {",
+                                            "    pm.environment.set(\"clientToken\", jsonData.token);",
+                                            "    pm.collectionVariables.set(\"clientToken\", jsonData.token);",
+                                            "    console.log(\"Token saved to clientToken: \" + jsonData.token);",
+                                            "}"
+                                        ]
+                                    }
+                                }
+                            ],
+                            "request": {
+                                "method": "POST",
+                                "header": [
+                                    {
+                                        "key": "Accept",
+                                        "value": "application/json",
+                                        "type": "text"
+                                    },
+                                    {
+                                        "key": "Content-Type",
+                                        "value": "application/json",
+                                        "type": "text"
+                                    }
+                                ],
+                                "body": {
+                                    "mode": "raw",
+                                    "raw": "{\n    \"name\": \"Sarah Mutua\",\n    \"company_name\": \"AfriEvents Ltd\",\n    \"email\": \"sarah.client@example.com\",\n    \"phone\": \"+254711223344\",\n    \"password\": \"password123\",\n    \"password_confirmation\": \"password123\"\n}"
+                                },
+                                "url": {
+                                    "raw": "{{baseUrl}}/api/v1/client/register",
+                                    "host": [
+                                        "{{baseUrl}}"
+                                    ],
+                                    "path": [
+                                        "api",
+                                        "v1",
+                                        "client",
+                                        "register"
+                                    ]
+                                },
+                                "description": "Register a new Client account. Automatically saves {{clientToken}}."
+                            }
+                        },
+                        {
+                            "name": "Client Login",
+                            "event": [
+                                {
+                                    "listen": "test",
+                                    "script": {
+                                        "type": "text/javascript",
+                                        "exec": [
+                                            "var jsonData = pm.response.json();",
+                                            "if (jsonData && jsonData.token) {",
+                                            "    pm.environment.set(\"clientToken\", jsonData.token);",
+                                            "    pm.collectionVariables.set(\"clientToken\", jsonData.token);",
+                                            "    console.log(\"Token saved to clientToken: \" + jsonData.token);",
+                                            "}"
+                                        ]
+                                    }
+                                }
+                            ],
+                            "request": {
+                                "method": "POST",
+                                "header": [
+                                    {
+                                        "key": "Accept",
+                                        "value": "application/json",
+                                        "type": "text"
+                                    },
+                                    {
+                                        "key": "Content-Type",
+                                        "value": "application/json",
+                                        "type": "text"
+                                    }
+                                ],
+                                "body": {
+                                    "mode": "raw",
+                                    "raw": "{\n    \"email\": \"sarah.client@example.com\",\n    \"password\": \"password123\"\n}"
+                                },
+                                "url": {
+                                    "raw": "{{baseUrl}}/api/v1/client/login",
+                                    "host": [
+                                        "{{baseUrl}}"
+                                    ],
+                                    "path": [
+                                        "api",
+                                        "v1",
+                                        "client",
+                                        "login"
+                                    ]
+                                },
+                                "description": "Log in as a Client. Automatically saves {{clientToken}}."
+                            }
+                        },
+                        {
+                            "name": "Get Client Profile",
+                            "request": {
+                                "method": "GET",
+                                "header": [
+                                    {
+                                        "key": "Authorization",
+                                        "value": "Bearer {{clientToken}}",
+                                        "type": "text"
+                                    },
+                                    {
+                                        "key": "Accept",
+                                        "value": "application/json",
+                                        "type": "text"
+                                    }
+                                ],
+                                "url": {
+                                    "raw": "{{baseUrl}}/api/v1/client/profile",
+                                    "host": [
+                                        "{{baseUrl}}"
+                                    ],
+                                    "path": [
+                                        "api",
+                                        "v1",
+                                        "client",
+                                        "profile"
+                                    ]
+                                },
+                                "description": "Retrieve current client profile details and active booking summary."
+                            }
+                        },
+                        {
+                            "name": "Update Client Profile",
+                            "request": {
+                                "method": "POST",
+                                "header": [
+                                    {
+                                        "key": "Accept",
+                                        "value": "application/json",
+                                        "type": "text"
+                                    },
+                                    {
+                                        "key": "Content-Type",
+                                        "value": "application/json",
+                                        "type": "text"
+                                    },
+                                    {
+                                        "key": "Authorization",
+                                        "value": "Bearer {{clientToken}}",
+                                        "type": "text"
+                                    }
+                                ],
+                                "body": {
+                                    "mode": "raw",
+                                    "raw": "{\n    \"name\": \"Sarah Mutua-Kariuki\",\n    \"company_name\": \"AfriEvents International\",\n    \"phone\": \"+254711998877\"\n}"
+                                },
+                                "url": {
+                                    "raw": "{{baseUrl}}/api/v1/client/profile",
+                                    "host": [
+                                        "{{baseUrl}}"
+                                    ],
+                                    "path": [
+                                        "api",
+                                        "v1",
+                                        "client",
+                                        "profile"
+                                    ]
+                                },
+                                "description": "Update client name, company name, phone, or avatar."
+                            }
+                        },
+                        {
+                            "name": "Client Forgot Password",
+                            "request": {
+                                "method": "POST",
+                                "header": [
+                                    {
+                                        "key": "Accept",
+                                        "value": "application/json",
+                                        "type": "text"
+                                    },
+                                    {
+                                        "key": "Content-Type",
+                                        "value": "application/json",
+                                        "type": "text"
+                                    }
+                                ],
+                                "body": {
+                                    "mode": "raw",
+                                    "raw": "{\n    \"email\": \"sarah.client@example.com\"\n}"
+                                },
+                                "url": {
+                                    "raw": "{{baseUrl}}/api/v1/client/forgot-password",
+                                    "host": [
+                                        "{{baseUrl}}"
+                                    ],
+                                    "path": [
+                                        "api",
+                                        "v1",
+                                        "client",
+                                        "forgot-password"
+                                    ]
+                                },
+                                "description": "Initiate password reset flow for client."
+                            }
+                        },
+                        {
+                            "name": "Client Reset Password",
+                            "request": {
+                                "method": "POST",
+                                "header": [
+                                    {
+                                        "key": "Accept",
+                                        "value": "application/json",
+                                        "type": "text"
+                                    },
+                                    {
+                                        "key": "Content-Type",
+                                        "value": "application/json",
+                                        "type": "text"
+                                    }
+                                ],
+                                "body": {
+                                    "mode": "raw",
+                                    "raw": "{\n    \"email\": \"sarah.client@example.com\",\n    \"token\": \"sample_reset_token\",\n    \"password\": \"newpassword123\",\n    \"password_confirmation\": \"newpassword123\"\n}"
+                                },
+                                "url": {
+                                    "raw": "{{baseUrl}}/api/v1/client/reset-password",
+                                    "host": [
+                                        "{{baseUrl}}"
+                                    ],
+                                    "path": [
+                                        "api",
+                                        "v1",
+                                        "client",
+                                        "reset-password"
+                                    ]
+                                },
+                                "description": "Submit new password with verification token."
+                            }
+                        },
+                        {
+                            "name": "Client Logout",
+                            "request": {
+                                "method": "POST",
+                                "header": [
+                                    {
+                                        "key": "Authorization",
+                                        "value": "Bearer {{clientToken}}",
+                                        "type": "text"
+                                    },
+                                    {
+                                        "key": "Accept",
+                                        "value": "application/json",
+                                        "type": "text"
+                                    }
+                                ],
+                                "url": {
+                                    "raw": "{{baseUrl}}/api/v1/client/logout",
+                                    "host": [
+                                        "{{baseUrl}}"
+                                    ],
+                                    "path": [
+                                        "api",
+                                        "v1",
+                                        "client",
+                                        "logout"
+                                    ]
+                                },
+                                "description": "Revoke current client API token."
+                            }
+                        }
+                    ]
+                },
+                {
+                    "name": "1.2 Talent Discovery & Profiles",
+                    "item": [
+                        {
+                            "name": "Browse / Search Crew Directory",
+                            "request": {
+                                "method": "GET",
+                                "header": [
+                                    {
+                                        "key": "Authorization",
+                                        "value": "Bearer {{clientToken}}",
+                                        "type": "text"
+                                    },
+                                    {
+                                        "key": "Accept",
+                                        "value": "application/json",
+                                        "type": "text"
+                                    }
+                                ],
+                                "url": {
+                                    "raw": "{{baseUrl}}/api/v1/client/crew?category=Ushers&city=Nairobi&sort=rating_desc&page=1",
+                                    "host": [
+                                        "{{baseUrl}}"
+                                    ],
+                                    "path": [
+                                        "api",
+                                        "v1",
+                                        "client",
+                                        "crew"
+                                    ],
+                                    "query": [
+                                        {
+                                            "key": "category",
+                                            "value": "Ushers",
+                                            "description": "Filter by category (e.g. Ushers, Hospitality, Sound Engineers)"
+                                        },
+                                        {
+                                            "key": "city",
+                                            "value": "Nairobi",
+                                            "description": "Filter by city"
+                                        },
+                                        {
+                                            "key": "country",
+                                            "value": "Kenya",
+                                            "disabled": true
+                                        },
+                                        {
+                                            "key": "skill",
+                                            "value": "Guest Check-in",
+                                            "disabled": true
+                                        },
+                                        {
+                                            "key": "min_rate",
+                                            "value": "1000",
+                                            "disabled": true
+                                        },
+                                        {
+                                            "key": "max_rate",
+                                            "value": "10000",
+                                            "disabled": true
+                                        },
+                                        {
+                                            "key": "search",
+                                            "value": "Joyce",
+                                            "disabled": true
+                                        },
+                                        {
+                                            "key": "sort",
+                                            "value": "rating_desc",
+                                            "description": "rating_desc, rate_asc, rate_desc, newest"
+                                        },
+                                        {
+                                            "key": "page",
+                                            "value": "1"
+                                        }
+                                    ]
+                                },
+                                "description": "Search and filter vetted event crew with pagination and sorting."
+                            }
+                        },
+                        {
+                            "name": "Get Detailed Crew Profile",
+                            "request": {
+                                "method": "GET",
+                                "header": [
+                                    {
+                                        "key": "Authorization",
+                                        "value": "Bearer {{clientToken}}",
+                                        "type": "text"
+                                    },
+                                    {
+                                        "key": "Accept",
+                                        "value": "application/json",
+                                        "type": "text"
+                                    }
+                                ],
+                                "url": {
+                                    "raw": "{{baseUrl}}/api/v1/client/crew/{{crewUsername}}",
+                                    "host": [
+                                        "{{baseUrl}}"
+                                    ],
+                                    "path": [
+                                        "api",
+                                        "v1",
+                                        "client",
+                                        "crew",
+                                        "{{crewUsername}}"
+                                    ]
+                                },
+                                "description": "Get rich crew profile including Bio, Rates, Detailed Expertise (with icons and images), Portfolio Gallery, Work History, Education, and Verified Client Reviews. Note: Confidential referees are excluded from public client viewing."
+                            }
+                        },
+                        {
+                            "name": "Get Saved Favorite Crew",
+                            "request": {
+                                "method": "GET",
+                                "header": [
+                                    {
+                                        "key": "Authorization",
+                                        "value": "Bearer {{clientToken}}",
+                                        "type": "text"
+                                    },
+                                    {
+                                        "key": "Accept",
+                                        "value": "application/json",
+                                        "type": "text"
+                                    }
+                                ],
+                                "url": {
+                                    "raw": "{{baseUrl}}/api/v1/client/favorites",
+                                    "host": [
+                                        "{{baseUrl}}"
+                                    ],
+                                    "path": [
+                                        "api",
+                                        "v1",
+                                        "client",
+                                        "favorites"
+                                    ]
+                                },
+                                "description": "List all crew members bookmarked/favorited by client."
+                            }
+                        },
+                        {
+                            "name": "Toggle Favorite Crew",
+                            "request": {
+                                "method": "POST",
+                                "header": [
+                                    {
+                                        "key": "Authorization",
+                                        "value": "Bearer {{clientToken}}",
+                                        "type": "text"
+                                    },
+                                    {
+                                        "key": "Accept",
+                                        "value": "application/json",
+                                        "type": "text"
+                                    }
+                                ],
+                                "url": {
+                                    "raw": "{{baseUrl}}/api/v1/client/favorites/1/toggle",
+                                    "host": [
+                                        "{{baseUrl}}"
+                                    ],
+                                    "path": [
+                                        "api",
+                                        "v1",
+                                        "client",
+                                        "favorites",
+                                        "1",
+                                        "toggle"
+                                    ]
+                                },
+                                "description": "Bookmark or remove crew member from client favorites list."
+                            }
+                        }
+                    ]
+                },
+                {
+                    "name": "1.3 Bookings & Gigs Management",
+                    "item": [
+                        {
+                            "name": "Create Booking / Staffing Request",
+                            "request": {
+                                "method": "POST",
+                                "header": [
+                                    {
+                                        "key": "Accept",
+                                        "value": "application/json",
+                                        "type": "text"
+                                    },
+                                    {
+                                        "key": "Content-Type",
+                                        "value": "application/json",
+                                        "type": "text"
+                                    },
+                                    {
+                                        "key": "Authorization",
+                                        "value": "Bearer {{clientToken}}",
+                                        "type": "text"
+                                    }
+                                ],
+                                "body": {
+                                    "mode": "raw",
+                                    "raw": "{\n    \"event_name\": \"East Africa Tech Summit 2026\",\n    \"event_type\": \"Corporate Conference\",\n    \"category\": \"Ushers\",\n    \"staff_count\": 3,\n    \"location\": \"Sarit Expo Centre, Nairobi\",\n    \"event_date\": \"2026-11-15\",\n    \"start_time\": \"08:00\",\n    \"end_time\": \"17:00\",\n    \"shift_duration\": \"9 hours\",\n    \"budget\": 6000,\n    \"currency\": \"KES\",\n    \"rate_type\": \"fixed\",\n    \"requirements\": \"Professional VIP guest reception, badge scanning, and hall coordination.\",\n    \"crew_ids\": [\n        1\n    ]\n}"
+                                },
+                                "url": {
+                                    "raw": "{{baseUrl}}/api/v1/client/bookings",
+                                    "host": [
+                                        "{{baseUrl}}"
+                                    ],
+                                    "path": [
+                                        "api",
+                                        "v1",
+                                        "client",
+                                        "bookings"
+                                    ]
+                                },
+                                "description": "Create a new staffing request for an event and optionally assign crew members."
+                            }
+                        },
+                        {
+                            "name": "List Client Bookings",
+                            "request": {
+                                "method": "GET",
+                                "header": [
+                                    {
+                                        "key": "Authorization",
+                                        "value": "Bearer {{clientToken}}",
+                                        "type": "text"
+                                    },
+                                    {
+                                        "key": "Accept",
+                                        "value": "application/json",
+                                        "type": "text"
+                                    }
+                                ],
+                                "url": {
+                                    "raw": "{{baseUrl}}/api/v1/client/bookings?status=all&page=1",
+                                    "host": [
+                                        "{{baseUrl}}"
+                                    ],
+                                    "path": [
+                                        "api",
+                                        "v1",
+                                        "client",
+                                        "bookings"
+                                    ],
+                                    "query": [
+                                        {
+                                            "key": "status",
+                                            "value": "all",
+                                            "description": "new, confirmed, completed, cancelled, all"
+                                        },
+                                        {
+                                            "key": "page",
+                                            "value": "1"
+                                        }
+                                    ]
+                                },
+                                "description": "Fetch all bookings created by the authenticated client."
+                            }
+                        },
+                        {
+                            "name": "Get Booking Details",
+                            "request": {
+                                "method": "GET",
+                                "header": [
+                                    {
+                                        "key": "Authorization",
+                                        "value": "Bearer {{clientToken}}",
+                                        "type": "text"
+                                    },
+                                    {
+                                        "key": "Accept",
+                                        "value": "application/json",
+                                        "type": "text"
+                                    }
+                                ],
+                                "url": {
+                                    "raw": "{{baseUrl}}/api/v1/client/bookings/{{bookingId}}",
+                                    "host": [
+                                        "{{baseUrl}}"
+                                    ],
+                                    "path": [
+                                        "api",
+                                        "v1",
+                                        "client",
+                                        "bookings",
+                                        "{{bookingId}}"
+                                    ]
+                                },
+                                "description": "Detailed view of an event booking including assigned crew, contract status, and payment summary."
+                            }
+                        },
+                        {
+                            "name": "Cancel Booking",
+                            "request": {
+                                "method": "POST",
+                                "header": [
+                                    {
+                                        "key": "Authorization",
+                                        "value": "Bearer {{clientToken}}",
+                                        "type": "text"
+                                    },
+                                    {
+                                        "key": "Accept",
+                                        "value": "application/json",
+                                        "type": "text"
+                                    }
+                                ],
+                                "url": {
+                                    "raw": "{{baseUrl}}/api/v1/client/bookings/{{bookingId}}/cancel",
+                                    "host": [
+                                        "{{baseUrl}}"
+                                    ],
+                                    "path": [
+                                        "api",
+                                        "v1",
+                                        "client",
+                                        "bookings",
+                                        "{{bookingId}}",
+                                        "cancel"
+                                    ]
+                                },
+                                "description": "Cancel an active or pending booking."
+                            }
+                        }
+                    ]
+                },
+                {
+                    "name": "1.4 Digital Contracts",
+                    "item": [
+                        {
+                            "name": "Sign Digital Contract (Client)",
+                            "request": {
+                                "method": "POST",
+                                "header": [
+                                    {
+                                        "key": "Accept",
+                                        "value": "application/json",
+                                        "type": "text"
+                                    },
+                                    {
+                                        "key": "Content-Type",
+                                        "value": "application/json",
+                                        "type": "text"
+                                    },
+                                    {
+                                        "key": "Authorization",
+                                        "value": "Bearer {{clientToken}}",
+                                        "type": "text"
+                                    }
+                                ],
+                                "body": {
+                                    "mode": "raw",
+                                    "raw": "{\n    \"signature\": \"Sarah Mutua (Authorized Director)\"\n}"
+                                },
+                                "url": {
+                                    "raw": "{{baseUrl}}/api/v1/client/contracts/{{contractId}}/sign",
+                                    "host": [
+                                        "{{baseUrl}}"
+                                    ],
+                                    "path": [
+                                        "api",
+                                        "v1",
+                                        "client",
+                                        "contracts",
+                                        "{{contractId}}",
+                                        "sign"
+                                    ]
+                                },
+                                "description": "Digitally sign a staffing agreement contract as client."
+                            }
+                        }
+                    ]
+                },
+                {
+                    "name": "1.5 Verified Reviews & Ratings",
+                    "item": [
+                        {
+                            "name": "Submit Review for Crew",
+                            "request": {
+                                "method": "POST",
+                                "header": [
+                                    {
+                                        "key": "Accept",
+                                        "value": "application/json",
+                                        "type": "text"
+                                    },
+                                    {
+                                        "key": "Content-Type",
+                                        "value": "application/json",
+                                        "type": "text"
+                                    },
+                                    {
+                                        "key": "Authorization",
+                                        "value": "Bearer {{clientToken}}",
+                                        "type": "text"
+                                    }
+                                ],
+                                "body": {
+                                    "mode": "raw",
+                                    "raw": "{\n    \"rating\": 5,\n    \"comment\": \"Outstanding professional! Punctual, articulate, and handled VIP delegates effortlessly.\",\n    \"event_name\": \"East Africa Tech Summit 2026\"\n}"
+                                },
+                                "url": {
+                                    "raw": "{{baseUrl}}/api/v1/client/crew/1/reviews",
+                                    "host": [
+                                        "{{baseUrl}}"
+                                    ],
+                                    "path": [
+                                        "api",
+                                        "v1",
+                                        "client",
+                                        "crew",
+                                        "1",
+                                        "reviews"
+                                    ]
+                                },
+                                "description": "Submit a 5-star rating and written review for a crew member after an event."
+                            }
+                        }
+                    ]
+                },
+                {
+                    "name": "1.6 In-App Direct Chat",
+                    "item": [
+                        {
+                            "name": "List Client Conversations",
+                            "request": {
+                                "method": "GET",
+                                "header": [
+                                    {
+                                        "key": "Authorization",
+                                        "value": "Bearer {{clientToken}}",
+                                        "type": "text"
+                                    },
+                                    {
+                                        "key": "Accept",
+                                        "value": "application/json",
+                                        "type": "text"
+                                    }
+                                ],
+                                "url": {
+                                    "raw": "{{baseUrl}}/api/v1/client/messages",
+                                    "host": [
+                                        "{{baseUrl}}"
+                                    ],
+                                    "path": [
+                                        "api",
+                                        "v1",
+                                        "client",
+                                        "messages"
+                                    ]
+                                },
+                                "description": "List active chat threads with crew members."
+                            }
+                        },
+                        {
+                            "name": "Send Message to Crew",
+                            "request": {
+                                "method": "POST",
+                                "header": [
+                                    {
+                                        "key": "Accept",
+                                        "value": "application/json",
+                                        "type": "text"
+                                    },
+                                    {
+                                        "key": "Content-Type",
+                                        "value": "application/json",
+                                        "type": "text"
+                                    },
+                                    {
+                                        "key": "Authorization",
+                                        "value": "Bearer {{clientToken}}",
+                                        "type": "text"
+                                    }
+                                ],
+                                "body": {
+                                    "mode": "raw",
+                                    "raw": "{\n    \"receiver_id\": 1,\n    \"message\": \"Hello Joyce, looking forward to working with you at the Tech Summit!\",\n    \"staffing_request_id\": 1\n}"
+                                },
+                                "url": {
+                                    "raw": "{{baseUrl}}/api/v1/client/messages",
+                                    "host": [
+                                        "{{baseUrl}}"
+                                    ],
+                                    "path": [
+                                        "api",
+                                        "v1",
+                                        "client",
+                                        "messages"
+                                    ]
+                                },
+                                "description": "Send real-time chat message to a crew member."
+                            }
+                        }
+                    ]
+                },
+                {
+                    "name": "1.7 M-Pesa Escrow Payment",
+                    "item": [
+                        {
+                            "name": "Initiate STK Push (Lipa na M-Pesa)",
+                            "request": {
+                                "method": "POST",
+                                "header": [
+                                    {
+                                        "key": "Accept",
+                                        "value": "application/json",
+                                        "type": "text"
+                                    },
+                                    {
+                                        "key": "Content-Type",
+                                        "value": "application/json",
+                                        "type": "text"
+                                    },
+                                    {
+                                        "key": "Authorization",
+                                        "value": "Bearer {{clientToken}}",
+                                        "type": "text"
+                                    }
+                                ],
+                                "body": {
+                                    "mode": "raw",
+                                    "raw": "{\n    \"phone_number\": \"254712345678\",\n    \"amount\": 6000,\n    \"staffing_request_id\": 1,\n    \"account_reference\": \"AFRICREW-101\",\n    \"transaction_desc\": \"Escrow Booking Payment\"\n}"
+                                },
+                                "url": {
+                                    "raw": "{{baseUrl}}/api/mpesa/stkpush",
+                                    "host": [
+                                        "{{baseUrl}}"
+                                    ],
+                                    "path": [
+                                        "api",
+                                        "mpesa",
+                                        "stkpush"
+                                    ]
+                                },
+                                "description": "Send M-Pesa STK PIN prompt to client phone to fund event escrow."
+                            }
+                        },
+                        {
+                            "name": "Check STK Payment Status",
+                            "request": {
+                                "method": "GET",
+                                "header": [
+                                    {
+                                        "key": "Authorization",
+                                        "value": "Bearer {{clientToken}}",
+                                        "type": "text"
+                                    },
+                                    {
+                                        "key": "Accept",
+                                        "value": "application/json",
+                                        "type": "text"
+                                    }
+                                ],
+                                "url": {
+                                    "raw": "{{baseUrl}}/api/mpesa/status/ws_CO_SAMPLE_CHECKOUT_ID",
+                                    "host": [
+                                        "{{baseUrl}}"
+                                    ],
+                                    "path": [
+                                        "api",
+                                        "mpesa",
+                                        "status",
+                                        "ws_CO_SAMPLE_CHECKOUT_ID"
+                                    ]
+                                },
+                                "description": "Poll payment status after STK Push prompt is sent to client phone."
+                            }
+                        },
+                        {
+                            "name": "Simulate Payment Success (Sandbox/Local)",
+                            "request": {
+                                "method": "POST",
+                                "header": [
+                                    {
+                                        "key": "Accept",
+                                        "value": "application/json",
+                                        "type": "text"
+                                    },
+                                    {
+                                        "key": "Content-Type",
+                                        "value": "application/json",
+                                        "type": "text"
+                                    },
+                                    {
+                                        "key": "Authorization",
+                                        "value": "Bearer {{clientToken}}",
+                                        "type": "text"
+                                    }
+                                ],
+                                "body": {
+                                    "mode": "raw",
+                                    "raw": "{\n    \"checkout_request_id\": \"ws_CO_SAMPLE_CHECKOUT_ID\",\n    \"mpesa_receipt_number\": \"QWE123RTY\",\n    \"staffing_request_id\": 1\n}"
+                                },
+                                "url": {
+                                    "raw": "{{baseUrl}}/api/mpesa/simulate-success",
+                                    "host": [
+                                        "{{baseUrl}}"
+                                    ],
+                                    "path": [
+                                        "api",
+                                        "mpesa",
+                                        "simulate-success"
+                                    ]
+                                },
+                                "description": "Simulate successful M-Pesa callback for local development."
+                            }
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "name": "2. Crew Mobile App",
+            "description": "Complete mobile API suite for Crew / Professionals: profile setup, expertises, shift offers, wallet, contract signing, and chat.",
+            "item": [
+                {
+                    "name": "2.1 Authentication & Status",
+                    "item": [
+                        {
+                            "name": "Crew Register",
+                            "event": [
+                                {
+                                    "listen": "test",
+                                    "script": {
+                                        "type": "text/javascript",
+                                        "exec": [
+                                            "var jsonData = pm.response.json();",
+                                            "if (jsonData && jsonData.token) {",
+                                            "    pm.environment.set(\"crewToken\", jsonData.token);",
+                                            "    pm.collectionVariables.set(\"crewToken\", jsonData.token);",
+                                            "    console.log(\"Token saved to crewToken: \" + jsonData.token);",
+                                            "}"
+                                        ]
+                                    }
+                                }
+                            ],
+                            "request": {
+                                "method": "POST",
+                                "header": [
+                                    {
+                                        "key": "Accept",
+                                        "value": "application/json",
+                                        "type": "text"
+                                    },
+                                    {
+                                        "key": "Content-Type",
+                                        "value": "application/json",
+                                        "type": "text"
+                                    }
+                                ],
+                                "body": {
+                                    "mode": "raw",
+                                    "raw": "{\n    \"full_name\": \"Joyce Omwamba\",\n    \"username\": \"joyce72\",\n    \"email\": \"joyce412@example.com\",\n    \"phone\": \"+254700112233\",\n    \"category\": \"Ushers\",\n    \"gender\": \"Female\",\n    \"city\": \"Nairobi\",\n    \"country\": \"Kenya\",\n    \"password\": \"password123\",\n    \"password_confirmation\": \"password123\"\n}"
+                                },
+                                "url": {
+                                    "raw": "{{baseUrl}}/api/v1/crew/register",
+                                    "host": [
+                                        "{{baseUrl}}"
+                                    ],
+                                    "path": [
+                                        "api",
+                                        "v1",
+                                        "crew",
+                                        "register"
+                                    ]
+                                },
+                                "description": "Register a new Crew Member. Automatically saves {{crewToken}}."
+                            }
+                        },
+                        {
+                            "name": "Crew Login",
+                            "event": [
+                                {
+                                    "listen": "test",
+                                    "script": {
+                                        "type": "text/javascript",
+                                        "exec": [
+                                            "var jsonData = pm.response.json();",
+                                            "if (jsonData && jsonData.token) {",
+                                            "    pm.environment.set(\"crewToken\", jsonData.token);",
+                                            "    pm.collectionVariables.set(\"crewToken\", jsonData.token);",
+                                            "    console.log(\"Token saved to crewToken: \" + jsonData.token);",
+                                            "}"
+                                        ]
+                                    }
+                                }
+                            ],
+                            "request": {
+                                "method": "POST",
+                                "header": [
+                                    {
+                                        "key": "Accept",
+                                        "value": "application/json",
+                                        "type": "text"
+                                    },
+                                    {
+                                        "key": "Content-Type",
+                                        "value": "application/json",
+                                        "type": "text"
+                                    }
+                                ],
+                                "body": {
+                                    "mode": "raw",
+                                    "raw": "{\n    \"login\": \"joyce01\",\n    \"password\": \"password123\"\n}"
+                                },
+                                "url": {
+                                    "raw": "{{baseUrl}}/api/v1/crew/login",
+                                    "host": [
+                                        "{{baseUrl}}"
+                                    ],
+                                    "path": [
+                                        "api",
+                                        "v1",
+                                        "crew",
+                                        "login"
+                                    ]
+                                },
+                                "description": "Log in as a Crew Member using email, username, or phone. Saves {{crewToken}}."
+                            }
+                        },
+                        {
+                            "name": "Get Crew Profile",
+                            "request": {
+                                "method": "GET",
+                                "header": [
+                                    {
+                                        "key": "Authorization",
+                                        "value": "Bearer {{crewToken}}",
+                                        "type": "text"
+                                    },
+                                    {
+                                        "key": "Accept",
+                                        "value": "application/json",
+                                        "type": "text"
+                                    }
+                                ],
+                                "url": {
+                                    "raw": "{{baseUrl}}/api/v1/crew/profile",
+                                    "host": [
+                                        "{{baseUrl}}"
+                                    ],
+                                    "path": [
+                                        "api",
+                                        "v1",
+                                        "crew",
+                                        "profile"
+                                    ]
+                                },
+                                "description": "Get full profile of authenticated crew member including rates, expertises, education, and wallet."
+                            }
+                        },
+                        {
+                            "name": "Check Pipeline Status & Progress",
+                            "request": {
+                                "method": "GET",
+                                "header": [
+                                    {
+                                        "key": "Authorization",
+                                        "value": "Bearer {{crewToken}}",
+                                        "type": "text"
+                                    },
+                                    {
+                                        "key": "Accept",
+                                        "value": "application/json",
+                                        "type": "text"
+                                    }
+                                ],
+                                "url": {
+                                    "raw": "{{baseUrl}}/api/v1/crew/status",
+                                    "host": [
+                                        "{{baseUrl}}"
+                                    ],
+                                    "path": [
+                                        "api",
+                                        "v1",
+                                        "crew",
+                                        "status"
+                                    ]
+                                },
+                                "description": "Quick status check returning profile completion %, interview schedule, approval pipeline status, and wallet snapshot."
+                            }
+                        },
+                        {
+                            "name": "Crew Forgot Password",
+                            "request": {
+                                "method": "POST",
+                                "header": [
+                                    {
+                                        "key": "Accept",
+                                        "value": "application/json",
+                                        "type": "text"
+                                    },
+                                    {
+                                        "key": "Content-Type",
+                                        "value": "application/json",
+                                        "type": "text"
+                                    }
+                                ],
+                                "body": {
+                                    "mode": "raw",
+                                    "raw": "{\n    \"email\": \"joyce01@example.com\"\n}"
+                                },
+                                "url": {
+                                    "raw": "{{baseUrl}}/api/v1/crew/forgot-password",
+                                    "host": [
+                                        "{{baseUrl}}"
+                                    ],
+                                    "path": [
+                                        "api",
+                                        "v1",
+                                        "crew",
+                                        "forgot-password"
+                                    ]
+                                },
+                                "description": "Request password reset for crew member."
+                            }
+                        },
+                        {
+                            "name": "Crew Reset Password",
+                            "request": {
+                                "method": "POST",
+                                "header": [
+                                    {
+                                        "key": "Accept",
+                                        "value": "application/json",
+                                        "type": "text"
+                                    },
+                                    {
+                                        "key": "Content-Type",
+                                        "value": "application/json",
+                                        "type": "text"
+                                    }
+                                ],
+                                "body": {
+                                    "mode": "raw",
+                                    "raw": "{\n    \"email\": \"joyce01@example.com\",\n    \"token\": \"sample_reset_token\",\n    \"password\": \"newpassword123\",\n    \"password_confirmation\": \"newpassword123\"\n}"
+                                },
+                                "url": {
+                                    "raw": "{{baseUrl}}/api/v1/crew/reset-password",
+                                    "host": [
+                                        "{{baseUrl}}"
+                                    ],
+                                    "path": [
+                                        "api",
+                                        "v1",
+                                        "crew",
+                                        "reset-password"
+                                    ]
+                                },
+                                "description": "Set new password with token."
+                            }
+                        },
+                        {
+                            "name": "Crew Logout",
+                            "request": {
+                                "method": "POST",
+                                "header": [
+                                    {
+                                        "key": "Authorization",
+                                        "value": "Bearer {{crewToken}}",
+                                        "type": "text"
+                                    },
+                                    {
+                                        "key": "Accept",
+                                        "value": "application/json",
+                                        "type": "text"
+                                    }
+                                ],
+                                "url": {
+                                    "raw": "{{baseUrl}}/api/v1/crew/logout",
+                                    "host": [
+                                        "{{baseUrl}}"
+                                    ],
+                                    "path": [
+                                        "api",
+                                        "v1",
+                                        "crew",
+                                        "logout"
+                                    ]
+                                },
+                                "description": "Revoke current crew session token."
+                            }
+                        }
+                    ]
+                },
+                {
+                    "name": "2.2 Profile Builder & Settings",
+                    "item": [
+                        {
+                            "name": "Update Bio, Rates & Core Details",
+                            "request": {
+                                "method": "POST",
+                                "header": [
+                                    {
+                                        "key": "Accept",
+                                        "value": "application/json",
+                                        "type": "text"
+                                    },
+                                    {
+                                        "key": "Content-Type",
+                                        "value": "application/json",
+                                        "type": "text"
+                                    },
+                                    {
+                                        "key": "Authorization",
+                                        "value": "Bearer {{crewToken}}",
+                                        "type": "text"
+                                    }
+                                ],
+                                "body": {
+                                    "mode": "raw",
+                                    "raw": "{\n    \"full_name\": \"Joyce Omwamba\",\n    \"phone\": \"+254700112233\",\n    \"gender\": \"Female\",\n    \"city\": \"Nairobi\",\n    \"country\": \"Kenya\",\n    \"one_day_rate\": 5000,\n    \"two_day_rate\": 9000,\n    \"rehearsal_rate\": 2000,\n    \"working_hours\": 8,\n    \"currency\": \"KES\",\n    \"skills\": \"Guest Welcoming, VIP Protocol, Ticket Scanning, Crowd Management\",\n    \"featured_skills\": [\n        \"VIP Protocol\",\n        \"Crowd Management\"\n    ],\n    \"about\": \"Senior Lead Usher with over 5 years experience across high-level diplomatic, corporate, and private luxury events in East Africa.\",\n    \"my_update\": \"Available for Q4 corporate conferences and international summits.\",\n    \"lets_connect\": \"Ready to elevate your event? Let us collaborate to ensure a flawless guest experience.\",\n    \"experience_summary\": \"Executed 120+ events with 99.8% satisfaction rating.\"\n}"
+                                },
+                                "url": {
+                                    "raw": "{{baseUrl}}/api/v1/crew/profile/update",
+                                    "host": [
+                                        "{{baseUrl}}"
+                                    ],
+                                    "path": [
+                                        "api",
+                                        "v1",
+                                        "crew",
+                                        "profile",
+                                        "update"
+                                    ]
+                                },
+                                "description": "Update personal information, day rates, working hours, core skills, bio, daily update, and invitation text."
+                            }
+                        },
+                        {
+                            "name": "Update Detailed Expertise Areas (Icon + Header + Content + Image)",
+                            "request": {
+                                "method": "POST",
+                                "header": [
+                                    {
+                                        "key": "Accept",
+                                        "value": "application/json",
+                                        "type": "text"
+                                    },
+                                    {
+                                        "key": "Content-Type",
+                                        "value": "application/json",
+                                        "type": "text"
+                                    },
+                                    {
+                                        "key": "Authorization",
+                                        "value": "Bearer {{crewToken}}",
+                                        "type": "text"
+                                    }
+                                ],
+                                "body": {
+                                    "mode": "raw",
+                                    "raw": "{\n    \"expertises\": [\n        {\n            \"name\": \"VIP Protocol & Delegations\",\n            \"description\": \"Coordination for ministerial delegations, high net-worth individuals, and keynote dignitaries.\",\n            \"icon\": \"ri-vip-crown-line\",\n            \"image\": null\n        },\n        {\n            \"name\": \"POS & Digital Ticket Scanning\",\n            \"description\": \"High-speed attendee badge validation using RFID, QR, and offline-capable scanners.\",\n            \"icon\": \"ri-qr-code-line\",\n            \"image\": null\n        },\n        {\n            \"name\": \"Crowd Logistics & Hall Directing\",\n            \"description\": \"Smooth auditorium seating management, emergency exits oversight, and orderly dismissals.\",\n            \"icon\": \"ri-group-line\",\n            \"image\": null\n        }\n    ]\n}"
+                                },
+                                "url": {
+                                    "raw": "{{baseUrl}}/api/v1/crew/profile/expertises",
+                                    "host": [
+                                        "{{baseUrl}}"
+                                    ],
+                                    "path": [
+                                        "api",
+                                        "v1",
+                                        "crew",
+                                        "profile",
+                                        "expertises"
+                                    ]
+                                },
+                                "description": "Save detailed expertise areas with Icon, Header/Name, Description Content, and optional showcase image."
+                            }
+                        },
+                        {
+                            "name": "Upload Portfolio / Gallery Photo",
+                            "request": {
+                                "method": "POST",
+                                "header": [
+                                    {
+                                        "key": "Authorization",
+                                        "value": "Bearer {{crewToken}}",
+                                        "type": "text"
+                                    },
+                                    {
+                                        "key": "Accept",
+                                        "value": "application/json",
+                                        "type": "text"
+                                    }
+                                ],
+                                "body": {
+                                    "mode": "formdata",
+                                    "formdata": [
+                                        {
+                                            "key": "photo",
+                                            "type": "file",
+                                            "src": "",
+                                            "description": "Select an event action photo (JPEG, PNG, max 5MB)"
+                                        }
+                                    ]
+                                },
+                                "url": {
+                                    "raw": "{{baseUrl}}/api/v1/crew/profile/gallery",
+                                    "host": [
+                                        "{{baseUrl}}"
+                                    ],
+                                    "path": [
+                                        "api",
+                                        "v1",
+                                        "crew",
+                                        "profile",
+                                        "gallery"
+                                    ]
+                                },
+                                "description": "Upload a photo to your Instagram-style portfolio gallery grid."
+                            }
+                        },
+                        {
+                            "name": "Delete Portfolio Photo",
+                            "request": {
+                                "method": "DELETE",
+                                "header": [
+                                    {
+                                        "key": "Accept",
+                                        "value": "application/json",
+                                        "type": "text"
+                                    },
+                                    {
+                                        "key": "Content-Type",
+                                        "value": "application/json",
+                                        "type": "text"
+                                    },
+                                    {
+                                        "key": "Authorization",
+                                        "value": "Bearer {{crewToken}}",
+                                        "type": "text"
+                                    }
+                                ],
+                                "body": {
+                                    "mode": "raw",
+                                    "raw": "{\n    \"photo_path\": \"professionals\\/gallery\\/sample_photo.jpg\"\n}"
+                                },
+                                "url": {
+                                    "raw": "{{baseUrl}}/api/v1/crew/profile/gallery",
+                                    "host": [
+                                        "{{baseUrl}}"
+                                    ],
+                                    "path": [
+                                        "api",
+                                        "v1",
+                                        "crew",
+                                        "profile",
+                                        "gallery"
+                                    ]
+                                },
+                                "description": "Remove an image from crew portfolio."
+                            }
+                        },
+                        {
+                            "name": "Update Education & Qualifications",
+                            "request": {
+                                "method": "POST",
+                                "header": [
+                                    {
+                                        "key": "Accept",
+                                        "value": "application/json",
+                                        "type": "text"
+                                    },
+                                    {
+                                        "key": "Content-Type",
+                                        "value": "application/json",
+                                        "type": "text"
+                                    },
+                                    {
+                                        "key": "Authorization",
+                                        "value": "Bearer {{crewToken}}",
+                                        "type": "text"
+                                    }
+                                ],
+                                "body": {
+                                    "mode": "raw",
+                                    "raw": "{\n    \"show_education_on_cv\": true,\n    \"education\": [\n        {\n            \"degree\": \"Bachelor of Hospitality & Event Management\",\n            \"institution\": \"Kenyatta University\",\n            \"year\": \"2021\",\n            \"document\": null\n        }\n    ]\n}"
+                                },
+                                "url": {
+                                    "raw": "{{baseUrl}}/api/v1/crew/profile/education",
+                                    "host": [
+                                        "{{baseUrl}}"
+                                    ],
+                                    "path": [
+                                        "api",
+                                        "v1",
+                                        "crew",
+                                        "profile",
+                                        "education"
+                                    ]
+                                },
+                                "description": "Save educational degrees, institutions, graduation years, and optional certificates."
+                            }
+                        },
+                        {
+                            "name": "Update Work Experience Records",
+                            "request": {
+                                "method": "POST",
+                                "header": [
+                                    {
+                                        "key": "Accept",
+                                        "value": "application/json",
+                                        "type": "text"
+                                    },
+                                    {
+                                        "key": "Content-Type",
+                                        "value": "application/json",
+                                        "type": "text"
+                                    },
+                                    {
+                                        "key": "Authorization",
+                                        "value": "Bearer {{crewToken}}",
+                                        "type": "text"
+                                    }
+                                ],
+                                "body": {
+                                    "mode": "raw",
+                                    "raw": "{\n    \"experience_records\": [\n        {\n            \"role\": \"Lead Protocol Usher\",\n            \"company\": \"Nairobi Convention Center\",\n            \"duration\": \"2022 - Present\",\n            \"description\": \"Managed 15 ushers across international summits and presidential galas.\",\n            \"document\": null\n        }\n    ]\n}"
+                                },
+                                "url": {
+                                    "raw": "{{baseUrl}}/api/v1/crew/profile/experience",
+                                    "host": [
+                                        "{{baseUrl}}"
+                                    ],
+                                    "path": [
+                                        "api",
+                                        "v1",
+                                        "crew",
+                                        "profile",
+                                        "experience"
+                                    ]
+                                },
+                                "description": "Save verified work experience records with roles, companies, and durations."
+                            }
+                        },
+                        {
+                            "name": "Update Confidential Referees (Admin Verification Only)",
+                            "request": {
+                                "method": "POST",
+                                "header": [
+                                    {
+                                        "key": "Accept",
+                                        "value": "application/json",
+                                        "type": "text"
+                                    },
+                                    {
+                                        "key": "Content-Type",
+                                        "value": "application/json",
+                                        "type": "text"
+                                    },
+                                    {
+                                        "key": "Authorization",
+                                        "value": "Bearer {{crewToken}}",
+                                        "type": "text"
+                                    }
+                                ],
+                                "body": {
+                                    "mode": "raw",
+                                    "raw": "{\n    \"referees\": [\n        {\n            \"name\": \"David Kariuki\",\n            \"phone\": \"+254722334455\",\n            \"email\": \"david@eventshub.ke\",\n            \"organization\": \"Events Hub Kenya\",\n            \"relationship\": \"Event Operations Director\"\n        }\n    ]\n}"
+                                },
+                                "url": {
+                                    "raw": "{{baseUrl}}/api/v1/crew/profile/referees",
+                                    "host": [
+                                        "{{baseUrl}}"
+                                    ],
+                                    "path": [
+                                        "api",
+                                        "v1",
+                                        "crew",
+                                        "profile",
+                                        "referees"
+                                    ]
+                                },
+                                "description": "Submit professional referees for AfriCrew background verification. (Strictly hidden from public client view)."
+                            }
+                        },
+                        {
+                            "name": "Upload ID, Resume & Photos",
+                            "request": {
+                                "method": "POST",
+                                "header": [
+                                    {
+                                        "key": "Authorization",
+                                        "value": "Bearer {{crewToken}}",
+                                        "type": "text"
+                                    },
+                                    {
+                                        "key": "Accept",
+                                        "value": "application/json",
+                                        "type": "text"
+                                    }
+                                ],
+                                "body": {
+                                    "mode": "formdata",
+                                    "formdata": [
+                                        {
+                                            "key": "profile_photo",
+                                            "type": "file",
+                                            "src": "",
+                                            "description": "Avatar profile photo (JPEG/PNG)"
+                                        },
+                                        {
+                                            "key": "cover_photo",
+                                            "type": "file",
+                                            "src": "",
+                                            "description": "Cover banner photo"
+                                        },
+                                        {
+                                            "key": "resume",
+                                            "type": "file",
+                                            "src": "",
+                                            "description": "Curriculum Vitae / Resume (PDF)"
+                                        },
+                                        {
+                                            "key": "government_id",
+                                            "type": "file",
+                                            "src": "",
+                                            "description": "National ID / Passport (Confidential to admin for KYC)"
+                                        }
+                                    ]
+                                },
+                                "url": {
+                                    "raw": "{{baseUrl}}/api/v1/crew/profile/upload-documents",
+                                    "host": [
+                                        "{{baseUrl}}"
+                                    ],
+                                    "path": [
+                                        "api",
+                                        "v1",
+                                        "crew",
+                                        "profile",
+                                        "upload-documents"
+                                    ]
+                                },
+                                "description": "Upload Avatar photo, Cover photo, Resume CV, and Government ID document for KYC."
+                            }
+                        },
+                        {
+                            "name": "Suggest New Skill to Admin",
+                            "request": {
+                                "method": "POST",
+                                "header": [
+                                    {
+                                        "key": "Accept",
+                                        "value": "application/json",
+                                        "type": "text"
+                                    },
+                                    {
+                                        "key": "Content-Type",
+                                        "value": "application/json",
+                                        "type": "text"
+                                    },
+                                    {
+                                        "key": "Authorization",
+                                        "value": "Bearer {{crewToken}}",
+                                        "type": "text"
+                                    }
+                                ],
+                                "body": {
+                                    "mode": "raw",
+                                    "raw": "{\n    \"skill_name\": \"Simultaneous Translation Assistance\",\n    \"category_name\": \"Ushers\"\n}"
+                                },
+                                "url": {
+                                    "raw": "{{baseUrl}}/api/v1/crew/skills/suggest",
+                                    "host": [
+                                        "{{baseUrl}}"
+                                    ],
+                                    "path": [
+                                        "api",
+                                        "v1",
+                                        "crew",
+                                        "skills",
+                                        "suggest"
+                                    ]
+                                },
+                                "description": "Propose a new skill to AfriCrew administrators for platform-wide addition."
+                            }
+                        }
+                    ]
+                },
+                {
+                    "name": "2.3 Shifts & Event Gigs",
+                    "item": [
+                        {
+                            "name": "Get My Shift Assignments",
+                            "request": {
+                                "method": "GET",
+                                "header": [
+                                    {
+                                        "key": "Authorization",
+                                        "value": "Bearer {{crewToken}}",
+                                        "type": "text"
+                                    },
+                                    {
+                                        "key": "Accept",
+                                        "value": "application/json",
+                                        "type": "text"
+                                    }
+                                ],
+                                "url": {
+                                    "raw": "{{baseUrl}}/api/v1/crew/shifts?status=assigned",
+                                    "host": [
+                                        "{{baseUrl}}"
+                                    ],
+                                    "path": [
+                                        "api",
+                                        "v1",
+                                        "crew",
+                                        "shifts"
+                                    ],
+                                    "query": [
+                                        {
+                                            "key": "status",
+                                            "value": "assigned",
+                                            "description": "assigned (pending offers), accepted, checked_in, completed, declined"
+                                        }
+                                    ]
+                                },
+                                "description": "List all gig offers and confirmed shifts for the crew member."
+                            }
+                        },
+                        {
+                            "name": "Get Shift Details",
+                            "request": {
+                                "method": "GET",
+                                "header": [
+                                    {
+                                        "key": "Authorization",
+                                        "value": "Bearer {{crewToken}}",
+                                        "type": "text"
+                                    },
+                                    {
+                                        "key": "Accept",
+                                        "value": "application/json",
+                                        "type": "text"
+                                    }
+                                ],
+                                "url": {
+                                    "raw": "{{baseUrl}}/api/v1/crew/shifts/{{shiftId}}",
+                                    "host": [
+                                        "{{baseUrl}}"
+                                    ],
+                                    "path": [
+                                        "api",
+                                        "v1",
+                                        "crew",
+                                        "shifts",
+                                        "{{shiftId}}"
+                                    ]
+                                },
+                                "description": "Detailed view of an event shift including client details, timings, location, and contract."
+                            }
+                        },
+                        {
+                            "name": "Respond to Shift Offer (Accept or Decline)",
+                            "request": {
+                                "method": "POST",
+                                "header": [
+                                    {
+                                        "key": "Accept",
+                                        "value": "application/json",
+                                        "type": "text"
+                                    },
+                                    {
+                                        "key": "Content-Type",
+                                        "value": "application/json",
+                                        "type": "text"
+                                    },
+                                    {
+                                        "key": "Authorization",
+                                        "value": "Bearer {{crewToken}}",
+                                        "type": "text"
+                                    }
+                                ],
+                                "body": {
+                                    "mode": "raw",
+                                    "raw": "{\n    \"response\": \"accept\",\n    \"notes\": \"Confirmed availability for shift.\"\n}"
+                                },
+                                "url": {
+                                    "raw": "{{baseUrl}}/api/v1/crew/shifts/{{shiftId}}/respond",
+                                    "host": [
+                                        "{{baseUrl}}"
+                                    ],
+                                    "path": [
+                                        "api",
+                                        "v1",
+                                        "crew",
+                                        "shifts",
+                                        "{{shiftId}}",
+                                        "respond"
+                                    ]
+                                },
+                                "description": "Accept or decline an event shift offer sent by a client or admin."
+                            }
+                        },
+                        {
+                            "name": "Shift Check-In (Clock In on Event Day)",
+                            "request": {
+                                "method": "POST",
+                                "header": [
+                                    {
+                                        "key": "Authorization",
+                                        "value": "Bearer {{crewToken}}",
+                                        "type": "text"
+                                    },
+                                    {
+                                        "key": "Accept",
+                                        "value": "application/json",
+                                        "type": "text"
+                                    }
+                                ],
+                                "url": {
+                                    "raw": "{{baseUrl}}/api/v1/crew/shifts/{{shiftId}}/check-in",
+                                    "host": [
+                                        "{{baseUrl}}"
+                                    ],
+                                    "path": [
+                                        "api",
+                                        "v1",
+                                        "crew",
+                                        "shifts",
+                                        "{{shiftId}}",
+                                        "check-in"
+                                    ]
+                                },
+                                "description": "Clock-in upon arrival at event venue."
+                            }
+                        },
+                        {
+                            "name": "Complete Shift (Mark Shift Fulfilled)",
+                            "request": {
+                                "method": "POST",
+                                "header": [
+                                    {
+                                        "key": "Authorization",
+                                        "value": "Bearer {{crewToken}}",
+                                        "type": "text"
+                                    },
+                                    {
+                                        "key": "Accept",
+                                        "value": "application/json",
+                                        "type": "text"
+                                    }
+                                ],
+                                "url": {
+                                    "raw": "{{baseUrl}}/api/v1/crew/shifts/{{shiftId}}/complete",
+                                    "host": [
+                                        "{{baseUrl}}"
+                                    ],
+                                    "path": [
+                                        "api",
+                                        "v1",
+                                        "crew",
+                                        "shifts",
+                                        "{{shiftId}}",
+                                        "complete"
+                                    ]
+                                },
+                                "description": "Mark shift as completed upon finishing duties to trigger escrow release."
+                            }
+                        },
+                        {
+                            "name": "Sign Digital Contract (Crew)",
+                            "request": {
+                                "method": "POST",
+                                "header": [
+                                    {
+                                        "key": "Accept",
+                                        "value": "application/json",
+                                        "type": "text"
+                                    },
+                                    {
+                                        "key": "Content-Type",
+                                        "value": "application/json",
+                                        "type": "text"
+                                    },
+                                    {
+                                        "key": "Authorization",
+                                        "value": "Bearer {{crewToken}}",
+                                        "type": "text"
+                                    }
+                                ],
+                                "body": {
+                                    "mode": "raw",
+                                    "raw": "{\n    \"signature\": \"Joyce Omwamba\"\n}"
+                                },
+                                "url": {
+                                    "raw": "{{baseUrl}}/api/v1/crew/contracts/{{contractId}}/sign",
+                                    "host": [
+                                        "{{baseUrl}}"
+                                    ],
+                                    "path": [
+                                        "api",
+                                        "v1",
+                                        "crew",
+                                        "contracts",
+                                        "{{contractId}}",
+                                        "sign"
+                                    ]
+                                },
+                                "description": "Digitally sign shift contract as crew member."
+                            }
+                        }
+                    ]
+                },
+                {
+                    "name": "2.4 Wallet, Earnings & Payouts",
+                    "item": [
+                        {
+                            "name": "Get Wallet Overview",
+                            "request": {
+                                "method": "GET",
+                                "header": [
+                                    {
+                                        "key": "Authorization",
+                                        "value": "Bearer {{crewToken}}",
+                                        "type": "text"
+                                    },
+                                    {
+                                        "key": "Accept",
+                                        "value": "application/json",
+                                        "type": "text"
+                                    }
+                                ],
+                                "url": {
+                                    "raw": "{{baseUrl}}/api/v1/crew/wallet",
+                                    "host": [
+                                        "{{baseUrl}}"
+                                    ],
+                                    "path": [
+                                        "api",
+                                        "v1",
+                                        "crew",
+                                        "wallet"
+                                    ]
+                                },
+                                "description": "Get available balance, pending escrow funds, total withdrawn, and maximum 50% advance withdrawal limit."
+                            }
+                        },
+                        {
+                            "name": "Save Payout Method (M-Pesa)",
+                            "request": {
+                                "method": "POST",
+                                "header": [
+                                    {
+                                        "key": "Accept",
+                                        "value": "application/json",
+                                        "type": "text"
+                                    },
+                                    {
+                                        "key": "Content-Type",
+                                        "value": "application/json",
+                                        "type": "text"
+                                    },
+                                    {
+                                        "key": "Authorization",
+                                        "value": "Bearer {{crewToken}}",
+                                        "type": "text"
+                                    }
+                                ],
+                                "body": {
+                                    "mode": "raw",
+                                    "raw": "{\n    \"type\": \"mobile_money\",\n    \"mobile_money\": {\n        \"provider\": \"mpesa\",\n        \"phone_number\": \"+254700112233\",\n        \"account_name\": \"Joyce Omwamba\"\n    }\n}"
+                                },
+                                "url": {
+                                    "raw": "{{baseUrl}}/api/v1/crew/wallet/payout-method",
+                                    "host": [
+                                        "{{baseUrl}}"
+                                    ],
+                                    "path": [
+                                        "api",
+                                        "v1",
+                                        "crew",
+                                        "wallet",
+                                        "payout-method"
+                                    ]
+                                },
+                                "description": "Save Safaricom M-Pesa phone number for instant mobile wallet disbursements."
+                            }
+                        },
+                        {
+                            "name": "Save Payout Method (Bank Account)",
+                            "request": {
+                                "method": "POST",
+                                "header": [
+                                    {
+                                        "key": "Accept",
+                                        "value": "application/json",
+                                        "type": "text"
+                                    },
+                                    {
+                                        "key": "Content-Type",
+                                        "value": "application/json",
+                                        "type": "text"
+                                    },
+                                    {
+                                        "key": "Authorization",
+                                        "value": "Bearer {{crewToken}}",
+                                        "type": "text"
+                                    }
+                                ],
+                                "body": {
+                                    "mode": "raw",
+                                    "raw": "{\n    \"type\": \"bank_account\",\n    \"bank_account\": {\n        \"bank_name\": \"Equity Bank Kenya\",\n        \"account_name\": \"Joyce Omwamba\",\n        \"account_number\": \"0180299887766\",\n        \"branch_code\": \"068\",\n        \"swift_ifsc\": \"EQBLKENA\"\n    }\n}"
+                                },
+                                "url": {
+                                    "raw": "{{baseUrl}}/api/v1/crew/wallet/payout-method",
+                                    "host": [
+                                        "{{baseUrl}}"
+                                    ],
+                                    "path": [
+                                        "api",
+                                        "v1",
+                                        "crew",
+                                        "wallet",
+                                        "payout-method"
+                                    ]
+                                },
+                                "description": "Save commercial bank account details for direct wire transfers."
+                            }
+                        },
+                        {
+                            "name": "Request Payout / Advance Withdrawal",
+                            "request": {
+                                "method": "POST",
+                                "header": [
+                                    {
+                                        "key": "Accept",
+                                        "value": "application/json",
+                                        "type": "text"
+                                    },
+                                    {
+                                        "key": "Content-Type",
+                                        "value": "application/json",
+                                        "type": "text"
+                                    },
+                                    {
+                                        "key": "Authorization",
+                                        "value": "Bearer {{crewToken}}",
+                                        "type": "text"
+                                    }
+                                ],
+                                "body": {
+                                    "mode": "raw",
+                                    "raw": "{\n    \"amount\": 3000,\n    \"payout_source\": \"saved_mobile\",\n    \"payout_method\": \"mpesa\",\n    \"is_advance\": true\n}"
+                                },
+                                "url": {
+                                    "raw": "{{baseUrl}}/api/v1/crew/wallet/withdraw",
+                                    "host": [
+                                        "{{baseUrl}}"
+                                    ],
+                                    "path": [
+                                        "api",
+                                        "v1",
+                                        "crew",
+                                        "wallet",
+                                        "withdraw"
+                                    ]
+                                },
+                                "description": "Submit a withdrawal request (including up to 50% advance on pending escrow gigs)."
+                            }
+                        },
+                        {
+                            "name": "Get Payout Transaction History",
+                            "request": {
+                                "method": "GET",
+                                "header": [
+                                    {
+                                        "key": "Authorization",
+                                        "value": "Bearer {{crewToken}}",
+                                        "type": "text"
+                                    },
+                                    {
+                                        "key": "Accept",
+                                        "value": "application/json",
+                                        "type": "text"
+                                    }
+                                ],
+                                "url": {
+                                    "raw": "{{baseUrl}}/api/v1/crew/wallet/transactions?page=1",
+                                    "host": [
+                                        "{{baseUrl}}"
+                                    ],
+                                    "path": [
+                                        "api",
+                                        "v1",
+                                        "crew",
+                                        "wallet",
+                                        "transactions"
+                                    ],
+                                    "query": [
+                                        {
+                                            "key": "page",
+                                            "value": "1"
+                                        }
+                                    ]
+                                },
+                                "description": "List past withdrawal requests with status (pending, approved, processed, rejected)."
+                            }
+                        }
+                    ]
+                },
+                {
+                    "name": "2.5 Reviews & Profile Ratings",
+                    "item": [
+                        {
+                            "name": "Get My Received Reviews",
+                            "request": {
+                                "method": "GET",
+                                "header": [
+                                    {
+                                        "key": "Authorization",
+                                        "value": "Bearer {{crewToken}}",
+                                        "type": "text"
+                                    },
+                                    {
+                                        "key": "Accept",
+                                        "value": "application/json",
+                                        "type": "text"
+                                    }
+                                ],
+                                "url": {
+                                    "raw": "{{baseUrl}}/api/v1/crew/reviews",
+                                    "host": [
+                                        "{{baseUrl}}"
+                                    ],
+                                    "path": [
+                                        "api",
+                                        "v1",
+                                        "crew",
+                                        "reviews"
+                                    ]
+                                },
+                                "description": "List all client reviews left on your profile with average rating."
+                            }
+                        },
+                        {
+                            "name": "Toggle Review Visibility",
+                            "request": {
+                                "method": "POST",
+                                "header": [
+                                    {
+                                        "key": "Authorization",
+                                        "value": "Bearer {{crewToken}}",
+                                        "type": "text"
+                                    },
+                                    {
+                                        "key": "Accept",
+                                        "value": "application/json",
+                                        "type": "text"
+                                    }
+                                ],
+                                "url": {
+                                    "raw": "{{baseUrl}}/api/v1/crew/reviews/1/toggle-visibility",
+                                    "host": [
+                                        "{{baseUrl}}"
+                                    ],
+                                    "path": [
+                                        "api",
+                                        "v1",
+                                        "crew",
+                                        "reviews",
+                                        "1",
+                                        "toggle-visibility"
+                                    ]
+                                },
+                                "description": "Show or hide a specific review from your public profile."
+                            }
+                        }
+                    ]
+                },
+                {
+                    "name": "2.6 In-App Chat & Rate Negotiation",
+                    "item": [
+                        {
+                            "name": "List Crew Conversations",
+                            "request": {
+                                "method": "GET",
+                                "header": [
+                                    {
+                                        "key": "Authorization",
+                                        "value": "Bearer {{crewToken}}",
+                                        "type": "text"
+                                    },
+                                    {
+                                        "key": "Accept",
+                                        "value": "application/json",
+                                        "type": "text"
+                                    }
+                                ],
+                                "url": {
+                                    "raw": "{{baseUrl}}/api/v1/crew/messages",
+                                    "host": [
+                                        "{{baseUrl}}"
+                                    ],
+                                    "path": [
+                                        "api",
+                                        "v1",
+                                        "crew",
+                                        "messages"
+                                    ]
+                                },
+                                "description": "List chat conversations with event clients."
+                            }
+                        },
+                        {
+                            "name": "Send Message to Client",
+                            "request": {
+                                "method": "POST",
+                                "header": [
+                                    {
+                                        "key": "Accept",
+                                        "value": "application/json",
+                                        "type": "text"
+                                    },
+                                    {
+                                        "key": "Content-Type",
+                                        "value": "application/json",
+                                        "type": "text"
+                                    },
+                                    {
+                                        "key": "Authorization",
+                                        "value": "Bearer {{crewToken}}",
+                                        "type": "text"
+                                    }
+                                ],
+                                "body": {
+                                    "mode": "raw",
+                                    "raw": "{\n    \"receiver_id\": 1,\n    \"message\": \"Hello Sarah, I received the event details. What time is the pre-briefing on Saturday?\",\n    \"staffing_request_id\": 1\n}"
+                                },
+                                "url": {
+                                    "raw": "{{baseUrl}}/api/v1/crew/messages",
+                                    "host": [
+                                        "{{baseUrl}}"
+                                    ],
+                                    "path": [
+                                        "api",
+                                        "v1",
+                                        "crew",
+                                        "messages"
+                                    ]
+                                },
+                                "description": "Send direct chat message to client regarding an event."
+                            }
+                        },
+                        {
+                            "name": "Propose Custom Rate / Quotation to Client",
+                            "request": {
+                                "method": "POST",
+                                "header": [
+                                    {
+                                        "key": "Accept",
+                                        "value": "application/json",
+                                        "type": "text"
+                                    },
+                                    {
+                                        "key": "Content-Type",
+                                        "value": "application/json",
+                                        "type": "text"
+                                    },
+                                    {
+                                        "key": "Authorization",
+                                        "value": "Bearer {{crewToken}}",
+                                        "type": "text"
+                                    }
+                                ],
+                                "body": {
+                                    "mode": "raw",
+                                    "raw": "{\n    \"receiver_id\": 1,\n    \"staffing_request_id\": 1,\n    \"proposed_rate\": 6500,\n    \"note\": \"I would love to lead your ushering team. Since this is an 11-hour shift including rehearsal, I propose KES 6,500.\"\n}"
+                                },
+                                "url": {
+                                    "raw": "{{baseUrl}}/api/v1/crew/messages/propose-rate",
+                                    "host": [
+                                        "{{baseUrl}}"
+                                    ],
+                                    "path": [
+                                        "api",
+                                        "v1",
+                                        "crew",
+                                        "messages",
+                                        "propose-rate"
+                                    ]
+                                },
+                                "description": "Send a formal rate counter-proposal / custom quotation to an event organizer."
+                            }
+                        }
+                    ]
+                },
+                {
+                    "name": "2.7 Support & Help Desk",
+                    "item": [
+                        {
+                            "name": "Get My Support Tickets",
+                            "request": {
+                                "method": "GET",
+                                "header": [
+                                    {
+                                        "key": "Authorization",
+                                        "value": "Bearer {{crewToken}}",
+                                        "type": "text"
+                                    },
+                                    {
+                                        "key": "Accept",
+                                        "value": "application/json",
+                                        "type": "text"
+                                    }
+                                ],
+                                "url": {
+                                    "raw": "{{baseUrl}}/api/v1/crew/support/tickets",
+                                    "host": [
+                                        "{{baseUrl}}"
+                                    ],
+                                    "path": [
+                                        "api",
+                                        "v1",
+                                        "crew",
+                                        "support",
+                                        "tickets"
+                                    ]
+                                },
+                                "description": "List all inquiries and support tickets filed with AfriCrew support."
+                            }
+                        },
+                        {
+                            "name": "Create Support Ticket",
+                            "request": {
+                                "method": "POST",
+                                "header": [
+                                    {
+                                        "key": "Accept",
+                                        "value": "application/json",
+                                        "type": "text"
+                                    },
+                                    {
+                                        "key": "Content-Type",
+                                        "value": "application/json",
+                                        "type": "text"
+                                    },
+                                    {
+                                        "key": "Authorization",
+                                        "value": "Bearer {{crewToken}}",
+                                        "type": "text"
+                                    }
+                                ],
+                                "body": {
+                                    "mode": "raw",
+                                    "raw": "{\n    \"subject\": \"Question regarding event overtime payment\",\n    \"category\": \"Payouts\",\n    \"priority\": \"medium\",\n    \"description\": \"The Saturday gala ran 2 hours past the scheduled time. How do we claim overtime pay?\"\n}"
+                                },
+                                "url": {
+                                    "raw": "{{baseUrl}}/api/v1/crew/support/tickets",
+                                    "host": [
+                                        "{{baseUrl}}"
+                                    ],
+                                    "path": [
+                                        "api",
+                                        "v1",
+                                        "crew",
+                                        "support",
+                                        "tickets"
+                                    ]
+                                },
+                                "description": "Submit a ticket to AfriCrew administrative team."
+                            }
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "name": "3. Common Catalog & System Lookups",
+            "description": "Public lookups for categories, category-wise skills, and system parameters.",
+            "item": [
+                {
+                    "name": "Get Categories with Skills",
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Accept",
+                                "value": "application/json",
+                                "type": "text"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{baseUrl}}/api/v1/categories-with-skills",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "api",
+                                "v1",
+                                "categories-with-skills"
+                            ]
+                        },
+                        "description": "Returns all talent categories alongside their approved skills for mobile dropdowns."
+                    }
+                },
+                {
+                    "name": "Get Skills for Specific Category",
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Accept",
+                                "value": "application/json",
+                                "type": "text"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{baseUrl}}/api/v1/categories/Ushers/skills",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "api",
+                                "v1",
+                                "categories",
+                                "Ushers",
+                                "skills"
+                            ]
+                        },
+                        "description": "Returns list of skills specifically mapped to a given category."
+                    }
+                }
+            ]
+        }
+    ]
+}

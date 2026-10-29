@@ -298,7 +298,7 @@
                 @endphp
 
                 <div class="grid grid-cols-2 sm:grid-cols-4 gap-4">
-                    @for($i = 0; $i < 4; $i++)
+                    @for($i = 0; $i < 8; $i++)
                         @php
                             $existingPhoto = $existingGallery[$i] ?? null;
                             $existingUrl = get_storage_url($existingPhoto);

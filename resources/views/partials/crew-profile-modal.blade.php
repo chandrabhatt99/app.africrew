@@ -36,7 +36,7 @@
                     
                     <!-- Left: Large Photo Banner with Avatar & Role -->
                     <div class="lg:col-span-7 space-y-4">
-                        <div class="relative rounded-3xl overflow-hidden bg-slate-900 shadow-md h-64 sm:h-72 group">
+                        <div class="relative rounded-3xl overflow-hidden  shadow-md h-64 sm:h-72 group">
                             <img id="modal-cover-img" src="{{ asset('images/hero_event_ushers.jpg') }}" alt="Crew Cover Photo" class="w-full h-full object-cover">
                             <div class="absolute inset-0 bg-gradient-to-t from-slate-950/80 via-transparent to-black/20"></div>
                             

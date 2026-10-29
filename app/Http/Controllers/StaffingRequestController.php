@@ -10,6 +10,7 @@ use Illuminate\Support\Facades\Storage;
 use Illuminate\View\View;
 
 use App\Models\User;
+use App\Services\EmailNotificationService;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 
@@ -61,6 +62,30 @@ class StaffingRequestController extends Controller
 
     public function store(Request $request): RedirectResponse
     {
+        // Pre-normalize event_date if passed as range string e.g. "18 Oct 2026 - 20 Oct 2026 (3 Days)"
+        if ($request->filled('event_date')) {
+            $rawDate = (string) $request->input('event_date');
+            $cleanDate = trim(preg_replace('/\s*\(.*?\)/', '', $rawDate));
+            if (str_contains($cleanDate, ' - ')) {
+                $parts = explode(' - ', $cleanDate);
+                $start = strtotime(trim($parts[0]));
+                $end = strtotime(trim($parts[1]));
+                if ($start) {
+                    $request->merge([
+                        'event_date' => date('Y-m-d', $start),
+                        'dates' => [date('Y-m-d', $start), $end ? date('Y-m-d', $end) : date('Y-m-d', $start)],
+                    ]);
+                }
+            } else {
+                $time = strtotime(trim($cleanDate));
+                if ($time) {
+                    $request->merge([
+                        'event_date' => date('Y-m-d', $time),
+                    ]);
+                }
+            }
+        }
+
         $data = $request->validate([
             'full_name' => ['required', 'string', 'max:150'],
             'company_name' => ['nullable', 'string', 'max:150'],
@@ -122,6 +147,7 @@ class StaffingRequestController extends Controller
                     'password' => Hash::make($password),
                     'role' => 'client',
                 ]);
+                EmailNotificationService::sendClientWelcome($user);
             }
             Auth::login($user);
             $data['user_id'] = $user->id;
@@ -133,6 +159,9 @@ class StaffingRequestController extends Controller
         }
 
         $staffingRequest = StaffingRequest::create($data);
+
+        // Send Booking Request Sent notification to Client
+        EmailNotificationService::sendBookingRequestSentToClient($staffingRequest);
 
         if (!empty($profIds)) {
             $staffingRequest->update(['status' => 'assigned']);
@@ -148,14 +177,17 @@ class StaffingRequestController extends Controller
                     'notes' => 'Direct client booking request submitted via crew profile / multi-team basket.',
                 ]);
 
-                $budgetAmount = $staffingRequest->budget ?: (($staffingRequest->currency === 'KES') ? ($prof->full_day_rate ?: 3500) : 100);
+                $perCrewBudget = count($profIds) > 1 
+                    ? round(($staffingRequest->budget ?: 3500) / count($profIds), 2)
+                    : ($staffingRequest->budget ?: (($staffingRequest->currency === 'KES') ? ($prof->full_day_rate ?: 3500) : 100));
+
                 $proposal = \App\Models\Proposal::create([
                     'staffing_request_id' => $staffingRequest->id,
                     'professional_id' => $prof->id,
-                    'custom_quote_amount' => $budgetAmount,
+                    'custom_quote_amount' => $perCrewBudget,
                     'travel_fee' => 0,
                     'status' => 'pending',
-                    'notes' => "Initial " . ($staffingRequest->rate_type === 'negotiable' ? 'Negotiable' : 'Fixed') . " Price Booking Request from " . $staffingRequest->full_name,
+                    'notes' => "Initial " . ($staffingRequest->rate_type === 'negotiable' ? 'Negotiable Price' : 'Fixed Price') . " Booking Request from " . $staffingRequest->full_name,
                 ]);
 
                 $receiverId = User::where('email', $prof->email)->first()?->id ?? User::where('is_admin', true)->first()?->id;
@@ -165,20 +197,27 @@ class StaffingRequestController extends Controller
                     'receiver_id' => $receiverId,
                     'staffing_request_id' => $staffingRequest->id,
                     'proposal_id' => $proposal->id,
-                    'message' => "👋 Hi {$prof->full_name}! Client {$staffingRequest->full_name} submitted a team booking request for '{$staffingRequest->event_name}' with a " . ($staffingRequest->rate_type === 'negotiable' ? 'Negotiable Price' : 'Fixed Rate') . " of {$staffingRequest->currency} " . number_format($budgetAmount, 2) . ". Let's discuss details and finalize pricing!",
-                    'negotiated_price' => $budgetAmount,
+                    'message' => "👋 Hi {$prof->full_name}! Client {$staffingRequest->full_name} submitted a booking request for '{$staffingRequest->event_name}' with an offered " . ($staffingRequest->rate_type === 'negotiable' ? 'Negotiable Price' : 'Fixed Rate') . " of {$staffingRequest->currency} " . number_format($perCrewBudget, 2) . ". Let's discuss details and finalize pricing!",
+                    'negotiated_price' => $perCrewBudget,
                     'negotiation_status' => 'proposed',
                     'price_breakdown' => [
-                        'base_rate' => $budgetAmount,
-                        'rate_type' => $staffingRequest->rate_type ?? 'fixed',
-                        'currency' => $staffingRequest->currency ?? 'USD',
+                        'base_rate' => $perCrewBudget,
+                        'rate_type' => $staffingRequest->rate_type ?? 'negotiable',
+                        'currency' => $staffingRequest->currency ?? 'KES',
                     ],
                 ]);
 
                 try {
                     event(new \App\Events\NewMessageSent($msgObj));
                 } catch (\Throwable $e) {}
+
+                // Send email notification to Crew Member
+                EmailNotificationService::sendBookingRequestToCrew($prof, $staffingRequest);
+                EmailNotificationService::sendCrewBooked($prof, $staffingRequest);
             }
+
+            // Send confirmation & contract signing email to Client
+            EmailNotificationService::sendCrewConfirmedToClient($staffingRequest);
         }
 
         return redirect()->route('client.dashboard')->with('success', 'Your staffing request and client portal account have been created successfully!');

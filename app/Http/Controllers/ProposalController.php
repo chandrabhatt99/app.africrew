@@ -53,6 +53,12 @@ class ProposalController extends Controller
 
         if ($data['action'] === 'accept') {
             $proposal->update(['status' => 'accepted']);
+            if ($proposal->staffingRequest) {
+                \App\Services\EmailNotificationService::sendCrewConfirmedToClient(
+                    $proposal->staffingRequest,
+                    $proposal->professional?->full_name
+                );
+            }
             $msg = "Proposal accepted!";
         } elseif ($data['action'] === 'counter') {
             $proposal->update([

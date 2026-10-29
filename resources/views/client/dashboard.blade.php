@@ -18,8 +18,10 @@
         @php
             $newRequests = $requests->whereIn('status', ['new', 'under_review', 'staff_matching', 'assigned']);
             $oldRequests = $requests->whereIn('status', ['completed', 'cancelled']);
-            $totalBudget = $requests->sum('budget') ?: ($requests->count() * 250);
+            $totalBudget = $requests->sum('budget') ?: ($requests->count() * 3500);
             $totalAssignedTalent = $requests->flatMap->assignments->count();
+            $paidRequests = $requests->whereIn('payment_status', ['paid', 'paid_to_admin', 'released_to_crew']);
+            $unpaidRequests = $requests->whereNotIn('payment_status', ['paid', 'paid_to_admin', 'released_to_crew']);
 
             // Prepare dynamic Chart.js analytics data for the past 6 months
             $chartMonths = [];
@@ -134,16 +136,22 @@
                     </span>
                 </div>
                 <div class="text-2xl sm:text-3xl font-black text-slate-900 mt-2">
-                    ${{ number_format($totalBudget, 2) }}
+                    KES {{ number_format($totalBudget) }}
                 </div>
                 <div class="flex items-center justify-between mt-2 pt-2 border-t border-slate-100 text-[11px]">
-                    <span class="text-emerald-700 font-extrabold flex items-center gap-1">
-                        <span>Paid / Invoiced</span>
+                    <span class="text-slate-600 font-extrabold flex items-center gap-1">
+                        <span>Total Commitment</span>
                         <span class="group-hover:translate-x-1 transition-transform">→</span>
                     </span>
-                    <span class="text-[10px] font-extrabold bg-emerald-50 text-emerald-800 px-2 py-0.5 rounded-md opacity-0 group-hover:opacity-100 transition-opacity">
-                        🛡️ Escrow
-                    </span>
+                    @if($paidRequests->count() > 0)
+                        <span class="text-[10px] font-extrabold bg-emerald-50 text-emerald-800 px-2 py-0.5 rounded-md">
+                            ● {{ $paidRequests->count() }} Escrow Secured
+                        </span>
+                    @else
+                        <span class="text-[10px] font-extrabold bg-amber-50 text-amber-800 px-2 py-0.5 rounded-md">
+                            ● {{ $unpaidRequests->count() }} Pending Escrow
+                        </span>
+                    @endif
                 </div>
             </div>
 
@@ -209,7 +217,10 @@
             <div id="content-payments" class="client-tab-content hidden pt-6 space-y-6">
                 <div class="border border-slate-200 rounded-2xl p-5 bg-slate-50 space-y-4">
                     <div class="flex items-center justify-between border-b border-slate-200 pb-3">
-                        <h3 class="text-sm font-black text-slate-900">Payment Statements & Billing History</h3>
+                        <div>
+                            <h3 class="text-sm font-black text-slate-900">Payment Statements & Billing History</h3>
+                            <p class="text-xs text-slate-500 mt-0.5">Real-time record of all event booking escrow deposits, settled amounts, and billing invoices.</p>
+                        </div>
                         <span class="px-3 py-1 rounded-full bg-emerald-100 text-emerald-800 font-bold text-xs">✓ Account Verified</span>
                     </div>
 
@@ -222,7 +233,7 @@
                                     <th class="pb-2">Event Date</th>
                                     <th class="pb-2">Budget / Amount</th>
                                     <th class="pb-2">Payment Status</th>
-                                    <th class="pb-2 text-right">Invoice</th>
+                                    <th class="pb-2 text-right">Invoice & Action</th>
                                 </tr>
                             </thead>
                             <tbody class="divide-y divide-slate-200/60 font-semibold text-slate-700">
@@ -231,16 +242,40 @@
                                         <td class="py-3 font-bold text-slate-900">#{{ $req->id }}</td>
                                         <td class="py-3 font-extrabold text-slate-900">{{ $req->event_name }}</td>
                                         <td class="py-3">{{ $req->event_date ? $req->event_date->format('M j, Y') : 'N/A' }}</td>
-                                        <td class="py-3 font-bold text-amber-700">${{ number_format($req->budget ?: 250, 2) }}</td>
+                                        <td class="py-3 font-bold text-amber-700">
+                                            {{ ($req->currency ?? 'KES') === 'KES' ? 'KES ' . number_format($req->budget ?: 3500) : ($req->currency ?? 'USD') . ' ' . number_format($req->budget ?: 250, 2) }}
+                                        </td>
                                         <td class="py-3">
-                                            <span class="px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase bg-emerald-100 text-emerald-800">
-                                                Paid / Invoiced
-                                            </span>
+                                            @if(in_array($req->payment_status, ['paid', 'released_to_crew']))
+                                                <span class="px-2.5 py-1 rounded-full text-[10px] font-black uppercase bg-emerald-100 text-emerald-800 border border-emerald-200 inline-flex items-center gap-1 shadow-2xs">
+                                                    ✓ Paid in Full
+                                                </span>
+                                            @elseif($req->payment_status === 'paid_to_admin')
+                                                <span class="px-2.5 py-1 rounded-full text-[10px] font-black uppercase bg-teal-100 text-teal-800 border border-teal-200 inline-flex items-center gap-1 shadow-2xs">
+                                                    ✓ 50% Escrow Secured
+                                                </span>
+                                            @elseif($req->payment_status === 'refunded')
+                                                <span class="px-2.5 py-1 rounded-full text-[10px] font-black uppercase bg-slate-100 text-slate-700 border border-slate-300 inline-flex items-center gap-1 shadow-2xs">
+                                                    Refunded
+                                                </span>
+                                            @else
+                                                <span class="px-2.5 py-1 rounded-full text-[10px] font-black uppercase bg-amber-50 text-amber-800 border border-amber-200 inline-flex items-center gap-1.5 shadow-2xs">
+                                                    <span class="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse"></span>
+                                                    Pending Escrow
+                                                </span>
+                                            @endif
                                         </td>
                                         <td class="py-3 text-right">
-                                            <button type="button" onclick="Swal.fire({ icon: 'info', title: 'Invoice Download', text: 'Generating official PDF invoice for Order #{{ $req->id }}...', confirmButtonColor: '#F59E0B' })" class="px-3 py-1 rounded-lg bg-slate-900 text-amber-400 font-bold text-[10px] hover:bg-slate-800">
-                                                📥 Download PDF
-                                            </button>
+                                            <div class="flex items-center justify-end gap-2 flex-wrap">
+                                                @if(!in_array($req->payment_status, ['paid', 'paid_to_admin', 'released_to_crew']))
+                                                    <button type="button" onclick="openPaymentModal({{ $req->id }}, {{ $req->budget ?: 3500 }}, '{{ $req->currency ?? 'KES' }}')" class="px-3 py-1.5 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-black text-[10px] shadow-sm transition-all flex items-center gap-1 cursor-pointer">
+                                                        <span>Pay Escrow ⚡</span>
+                                                    </button>
+                                                @endif
+                                                <button type="button" onclick="Swal.fire({ icon: 'info', title: 'Invoice Download', text: 'Generating official PDF invoice for Order #{{ $req->id }}...', confirmButtonColor: '#F59E0B' })" class="px-3 py-1.5 rounded-xl bg-slate-900 text-amber-400 font-bold text-[10px] hover:bg-slate-800 transition-all flex items-center gap-1 cursor-pointer">
+                                                    📥 Download PDF
+                                                </button>
+                                            </div>
                                         </td>
                                     </tr>
                                 @empty
@@ -499,51 +534,259 @@ function openProposalCounterModal(proposalId, currentQuote) {
 }
 
 function openPaymentModal(requestId, amount, currency) {
-    const depositAmount = (amount * 0.5).toFixed(2);
+    // If currency is USD, calculate approximate KES equivalent for Safaricom M-Pesa (e.g. 1 USD ~ 130 KES)
+    let displayCurrency = currency || 'KES';
+    let numericAmount = parseFloat(amount) || 5000;
+    let kesAmount = (displayCurrency === 'USD') ? Math.round(numericAmount * 130) : Math.round(numericAmount);
+    let kesDeposit = Math.round(kesAmount * 0.5);
+
     Swal.fire({
-        title: `Escrow Payment for Order #${requestId}`,
+        title: '',
         html: `
-            <div class="text-left space-y-3 text-xs">
-                <div class="p-3 bg-amber-50 rounded-xl border border-amber-200 text-amber-900 font-bold">
-                    <span>💳 Escrow Rule: 50% Deposit Now, 50% Balance on Event Completion.</span>
+            <div class="text-left space-y-4">
+                <!-- Header with M-Pesa Branding -->
+                <div class="flex items-center justify-between pb-3 border-b border-slate-200">
+                    <div class="flex items-center gap-2.5">
+                        <div class="w-10 h-10 rounded-xl bg-emerald-600 flex items-center justify-center text-white font-black text-sm shadow-md">
+                            M
+                        </div>
+                        <div>
+                            <h3 class="font-extrabold text-slate-900 text-base m-0">Lipa na M-Pesa Online</h3>
+                            <span class="text-[11px] text-slate-500 font-semibold block">Order #${requestId} · 50% Escrow Deposit</span>
+                        </div>
+                    </div>
+                    <span class="px-2.5 py-1 rounded-full bg-emerald-100 text-emerald-800 text-[10px] font-black uppercase tracking-wider">
+                        Instant STK
+                    </span>
                 </div>
-                <div class="grid grid-cols-2 gap-2 text-slate-700 font-semibold">
-                    <div>Total Price: <strong>${currency === 'KES' ? 'KSh ' + amount : '$' + amount}</strong></div>
-                    <div>50% Deposit: <strong class="text-emerald-700 font-black">${currency === 'KES' ? 'KSh ' + (amount * 0.5) : '$' + depositAmount}</strong></div>
+
+                <!-- Price Breakdown Box -->
+                <div class="p-3.5 bg-slate-50 rounded-2xl border border-slate-200/80 space-y-2 text-xs">
+                    <div class="flex justify-between text-slate-600 font-medium">
+                        <span>Total Project Value:</span>
+                        <span class="font-bold text-slate-900">KES ${kesAmount.toLocaleString()}</span>
+                    </div>
+                    <div class="flex justify-between text-slate-900 font-black text-sm pt-1 border-t border-slate-200">
+                        <span class="text-emerald-800">50% Escrow Required:</span>
+                        <span class="text-emerald-700 text-base">KES ${kesDeposit.toLocaleString()}</span>
+                    </div>
+                    <div class="text-[10px] text-slate-400 font-medium">
+                        🛡️ Funds are held safely in Escrow and only released to crew upon shift completion.
+                    </div>
                 </div>
-                <div>
-                    <label class="block font-bold text-slate-700 mb-1">Payment Method:</label>
-                    <select id="swal-payment-method" class="w-full border border-slate-300 rounded-xl px-3 py-2 font-bold text-slate-900">
-                        <option value="mpesa">📱 M-Pesa Express / Mobile Money</option>
-                        <option value="card">💳 Credit / Debit Card (Visa, MasterCard)</option>
-                        <option value="bank">🏛️ Direct Bank Transfer</option>
-                    </select>
-                </div>
-                <div>
-                    <label class="block font-bold text-slate-700 mb-1">Account / Phone Number:</label>
-                    <input type="text" id="swal-payment-phone" placeholder="e.g. +254 700 000 000" class="w-full border border-slate-300 rounded-xl px-3 py-2 text-slate-900 font-bold">
+
+                <!-- Form Fields -->
+                <div class="space-y-3 text-xs">
+                    <div>
+                        <label class="block font-bold text-slate-700 mb-1">Payment Method</label>
+                        <select id="mpesa-payment-method" class="w-full border border-slate-300 rounded-xl px-3.5 py-2.5 font-bold text-slate-900 bg-white focus:outline-none focus:border-emerald-500">
+                            <option value="mpesa" selected>🟢 M-Pesa Express (STK Push to Phone)</option>
+                            <option value="bank">🏛️ Direct Bank Transfer (Manual)</option>
+                            <option value="card">💳 Credit / Debit Card (Visa/MasterCard)</option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <label class="block font-bold text-slate-700 mb-1">
+                            Safaricom Mobile Number <span class="text-rose-500">*</span>
+                        </label>
+                        <input 
+                            type="tel" 
+                            id="mpesa-phone-number" 
+                            placeholder="e.g. 0712 345 678 or 254712345678" 
+                            class="w-full border border-slate-300 rounded-xl px-3.5 py-2.5 text-slate-900 font-bold focus:outline-none focus:border-emerald-500 text-sm"
+                            value="{{ auth()->user()->phone ?? '' }}"
+                        >
+                        <span class="text-[10px] text-slate-400 mt-1 block">
+                            You will receive an STK Push PIN prompt directly on this handset.
+                        </span>
+                    </div>
                 </div>
             </div>
         `,
         showCancelButton: true,
-        confirmButtonText: `Pay 50% Escrow (${currency === 'KES' ? 'KSh ' + (amount * 0.5) : '$' + depositAmount}) ⚡`,
+        confirmButtonText: `Send STK Prompt (KES ${kesDeposit.toLocaleString()}) 📲`,
         confirmButtonColor: '#059669',
+        cancelButtonText: 'Cancel',
+        cancelButtonColor: '#94a3b8',
+        showLoaderOnConfirm: true,
         preConfirm: () => {
-            const phone = document.getElementById('swal-payment-phone').value;
+            const phone = document.getElementById('mpesa-phone-number').value.trim();
+            const method = document.getElementById('mpesa-payment-method').value;
+
             if (!phone) {
-                Swal.showValidationMessage('Please enter phone or account number');
+                Swal.showValidationMessage('Please enter your Safaricom phone number.');
+                return false;
             }
-            return { phone, method: document.getElementById('swal-payment-method').value };
-        }
+
+            if (method !== 'mpesa') {
+                Swal.showValidationMessage('Please select M-Pesa Express for automatic payment processing.');
+                return false;
+            }
+
+            // Initiate M-Pesa STK Push
+            return fetch('/payments/mpesa/stk-push', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                    'Accept': 'application/json'
+                },
+                body: JSON.stringify({
+                    phone: phone,
+                    amount: kesDeposit,
+                    staffing_request_id: requestId,
+                    account_reference: 'Order #' + requestId,
+                    transaction_desc: '50% Escrow'
+                })
+            })
+            .then(response => {
+                if (!response.ok) {
+                    return response.json().then(err => { throw new Error(err.message || 'M-Pesa request failed'); });
+                }
+                return response.json();
+            })
+            .catch(error => {
+                Swal.showValidationMessage(error.message || 'Failed to initiate STK push');
+            });
+        },
+        allowOutsideClick: () => !Swal.isLoading()
     }).then((result) => {
-        if (result.isConfirmed) {
+        if (result.isConfirmed && result.value && result.value.success) {
+            const checkoutId = result.value.checkout_request_id;
+            startMpesaPolling(checkoutId, requestId, kesDeposit);
+        }
+    });
+}
+
+function startMpesaPolling(checkoutRequestId, requestId, amount) {
+    let secondsLeft = 60;
+    let pollInterval = null;
+
+    Swal.fire({
+        title: '',
+        html: `
+            <div class="text-center py-4 space-y-4">
+                <div class="w-16 h-16 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center mx-auto text-2xl animate-pulse">
+                    📲
+                </div>
+                <div>
+                    <h3 class="text-base font-black text-slate-900 m-0">STK Push Sent to Your Phone!</h3>
+                    <p class="text-xs text-slate-600 font-medium mt-1">
+                        Please check your phone screen and enter your <strong>M-Pesa PIN</strong> to approve payment of <strong>KES ${amount.toLocaleString()}</strong>.
+                    </p>
+                </div>
+                <div class="p-3 bg-slate-50 rounded-xl border border-slate-200 text-xs font-semibold text-slate-500">
+                    <span>Waiting for confirmation... </span>
+                    <span id="mpesa-timer" class="font-black text-emerald-600">60s</span>
+                </div>
+                <div class="pt-2 flex flex-col gap-2">
+                    <button type="button" onclick="simulateMpesaApproval('${checkoutRequestId}')" class="px-3 py-1.5 rounded-lg bg-amber-100 hover:bg-amber-200 text-amber-900 text-xs font-bold transition-colors">
+                        ⚡ Test Approval (Sandbox Mode)
+                    </button>
+                </div>
+            </div>
+        `,
+        showCancelButton: true,
+        cancelButtonText: 'Cancel Waiting',
+        showConfirmButton: false,
+        allowOutsideClick: false,
+        didOpen: () => {
+            const timerEl = document.getElementById('mpesa-timer');
+            pollInterval = setInterval(() => {
+                secondsLeft -= 3;
+                if (timerEl) timerEl.textContent = `${Math.max(0, secondsLeft)}s`;
+
+                // Query transaction status
+                fetch(`/payments/mpesa/status/${checkoutRequestId}`)
+                    .then(res => res.json())
+                    .then(data => {
+                        if (data.is_paid) {
+                            clearInterval(pollInterval);
+                            showMpesaSuccess(data.receipt, amount);
+                        } else if (data.status === 'failed' || data.status === 'cancelled') {
+                            clearInterval(pollInterval);
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Payment Not Completed',
+                                text: data.result_desc || 'The transaction was cancelled or timed out.',
+                                confirmButtonColor: '#dc2626'
+                            });
+                        }
+                    })
+                    .catch(() => {});
+
+                if (secondsLeft <= 0) {
+                    clearInterval(pollInterval);
+                    Swal.fire({
+                        icon: 'warning',
+                        title: 'Request Timed Out',
+                        text: 'We have not received PIN confirmation yet. If you completed payment, the status will update shortly.',
+                        confirmButtonColor: '#F59E0B'
+                    });
+                }
+            }, 3000);
+        },
+        willClose: () => {
+            if (pollInterval) clearInterval(pollInterval);
+        }
+    });
+}
+
+function simulateMpesaApproval(checkoutRequestId) {
+    const btn = event ? (event.target || event.currentTarget) : null;
+    if (btn) {
+        btn.innerText = 'Approving Simulation... ⏳';
+        btn.disabled = true;
+    }
+    fetch('/payments/mpesa/simulate-success', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRF-TOKEN': '{{ csrf_token() }}',
+            'Accept': 'application/json'
+        },
+        body: JSON.stringify({ checkout_request_id: checkoutRequestId })
+    })
+    .then(res => res.json())
+    .then(data => {
+        if (data.success) {
+            showMpesaSuccess(data.receipt, 0);
+        } else {
             Swal.fire({
-                icon: 'success',
-                title: '50% Escrow Payment Processed!',
-                text: `Payment prompt sent to ${result.value.phone}. Funds are safely held in Escrow by AfriCrew Admin.`,
-                confirmButtonColor: '#F59E0B'
+                icon: 'error',
+                title: 'Simulation Error',
+                text: data.message || 'Failed to simulate M-Pesa approval.'
             });
         }
+    })
+    .catch(err => {
+        console.error('Simulation error:', err);
+        Swal.fire({
+            icon: 'error',
+            title: 'Request Failed',
+            text: err.message
+        });
+    });
+}
+
+function showMpesaSuccess(receipt, amount) {
+    Swal.fire({
+        icon: 'success',
+        title: 'M-Pesa Payment Successful! 🎉',
+        html: `
+            <div class="text-left space-y-2 text-xs pt-2">
+                <div class="p-3 bg-emerald-50 rounded-xl border border-emerald-200 text-emerald-950 font-bold">
+                    ✓ 50% Escrow Deposit Verified &amp; Safely Locked.
+                </div>
+                ${receipt ? `<div class="font-semibold text-slate-700">M-Pesa Receipt: <strong class="text-slate-900">${receipt}</strong></div>` : ''}
+                <div class="text-slate-500 font-medium">Your event staff has been confirmed. Reloading bookings...</div>
+            </div>
+        `,
+        confirmButtonColor: '#059669',
+        confirmButtonText: 'Great, Continue!'
+    }).then(() => {
+        window.location.reload();
     });
 }
 
@@ -577,6 +820,94 @@ function openDirectChatModal(profName, profId) {
                 timer: 1800,
                 showConfirmButton: false
             });
+        }
+    });
+}
+
+function openRescheduleModal(requestId, currentDate) {
+    const minDate = new Date();
+    minDate.setDate(minDate.getDate() + 1);
+    const minDateStr = minDate.toISOString().split('T')[0];
+
+    Swal.fire({
+        title: 'Reschedule Event Booking',
+        html: `
+            <div class="text-left space-y-3 text-xs pt-2">
+                <p class="text-slate-600">Select the new event date. An updated schedule notification and revised contract will be emailed to you and all assigned crew members.</p>
+                <div>
+                    <label class="block font-bold text-slate-800 uppercase tracking-wider mb-1">New Event Date</label>
+                    <input type="date" id="swal-reschedule-date" value="${currentDate}" min="${minDateStr}" class="w-full border border-slate-300 rounded-xl px-3 py-2 text-sm text-slate-900 font-semibold focus:border-amber-500 focus:outline-none">
+                </div>
+            </div>
+        `,
+        showCancelButton: true,
+        confirmButtonText: 'Confirm Reschedule 📅',
+        confirmButtonColor: '#0284c7',
+        cancelButtonText: 'Cancel',
+        preConfirm: () => {
+            const dateVal = document.getElementById('swal-reschedule-date').value;
+            if (!dateVal) {
+                Swal.showValidationMessage('Please select a valid new event date.');
+                return false;
+            }
+            return dateVal;
+        }
+    }).then((result) => {
+        if (result.isConfirmed && result.value) {
+            const form = document.createElement('form');
+            form.method = 'POST';
+            form.action = `/client/bookings/${requestId}/reschedule`;
+
+            const csrfInput = document.createElement('input');
+            csrfInput.type = 'hidden';
+            csrfInput.name = '_token';
+            csrfInput.value = '{{ csrf_token() }}';
+            form.appendChild(csrfInput);
+
+            const dateInput = document.createElement('input');
+            dateInput.type = 'hidden';
+            dateInput.name = 'event_date';
+            dateInput.value = result.value;
+            form.appendChild(dateInput);
+
+            document.body.appendChild(form);
+            form.submit();
+        }
+    });
+}
+
+function confirmCancelBooking(requestId, eventName) {
+    Swal.fire({
+        title: 'Cancel Booking?',
+        html: `
+            <div class="text-left space-y-2 text-xs pt-2">
+                <div class="p-3 bg-rose-50 rounded-xl border border-rose-200 text-rose-900 font-medium">
+                    Are you sure you want to cancel the booking for <strong>${eventName}</strong>?
+                </div>
+                <p class="text-slate-600">All assigned crew members will be immediately notified via email. Any eligible deposit refund will be processed according to the cancellation policy.</p>
+            </div>
+        `,
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonText: 'Yes, Cancel Booking',
+        confirmButtonColor: '#e11d48',
+        cancelButtonText: 'Keep Booking'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            const form = document.createElement('form');
+            form.method = 'POST';
+            form.action = `/client/bookings/${requestId}/cancel`;
+
+            const csrfInput = document.createElement('input');
+            csrfInput.type = 'hidden';
+            csrfInput.name = '_token';
+            csrfInput.value = '{{ csrf_token() }}';
+            form.appendChild(csrfInput);
+
+            document.body.appendChild(form);
+            form.submit();
+        }
+    });
 }
 </script>
 @endsection

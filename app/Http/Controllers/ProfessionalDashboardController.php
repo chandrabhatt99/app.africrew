@@ -4,8 +4,11 @@ namespace App\Http\Controllers;
 
 use App\Models\Professional;
 use App\Models\StaffingAssignment;
+use App\Services\EmailNotificationService;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\View\View;
 
 class ProfessionalDashboardController extends Controller
@@ -22,6 +25,17 @@ class ProfessionalDashboardController extends Controller
 
     private function ensureOnboarded(Professional $professional): ?RedirectResponse
     {
+        // Only redirect to verification/interview notice if new applicant who has not yet completed onboarding/approval
+        if ($professional->status === 'pending' && !$professional->is_onboarded) {
+            return redirect()->route('staff.verify.notice')->with([
+                'submitted_name' => $professional->full_name,
+                'submitted_email' => $professional->email,
+                'submitted_category' => $professional->category,
+                'ref_id' => 'AFR-CRW-' . str_pad($professional->id, 5, '0', STR_PAD_LEFT),
+                'info' => 'Your crew application is currently under review by our administration team. You will be notified via email once approved.'
+            ]);
+        }
+
         if (is_null($professional->email_verified_at)) {
             return redirect()->route('staff.verify.notice')->with('error', 'Please verify your email address to continue.');
         }
@@ -315,6 +329,10 @@ class ProfessionalDashboardController extends Controller
         if ($job->staffingRequest) {
             if ($data['status'] === 'accepted') {
                 $job->staffingRequest->update(['status' => 'assigned']);
+                \App\Services\EmailNotificationService::sendCrewConfirmedToClient(
+                    $job->staffingRequest,
+                    $job->professional?->full_name
+                );
             } elseif ($data['status'] === 'declined') {
                 $hasOtherAssignments = $job->staffingRequest->assignments()
                     ->where('id', '!=', $job->id)
@@ -326,6 +344,7 @@ class ProfessionalDashboardController extends Controller
                 }
             } elseif ($data['status'] === 'completed') {
                 $job->staffingRequest->update(['status' => 'completed']);
+                \App\Services\EmailNotificationService::sendEventCompleteToClient($job->staffingRequest);
             }
         }
 
@@ -379,19 +398,26 @@ class ProfessionalDashboardController extends Controller
             'assignment_types' => ['nullable', 'array'],
             'skills' => ['nullable', 'string', 'max:2000'],
             'featured_skills' => ['nullable', 'array'],
+            'expertises' => ['nullable', 'array'],
             'services' => ['nullable', 'array'],
             'about' => ['nullable', 'string', 'max:3000'],
+            'my_update' => ['nullable', 'string', 'max:200'],
+            'lets_connect' => ['nullable', 'string', 'max:200'],
+            'experience_summary' => ['nullable', 'string', 'max:3000'],
             'highlight_quote' => ['nullable', 'string', 'max:1000'],
             'social_links' => ['nullable', 'array'],
             'education' => ['nullable', 'array'],
             'show_education_on_cv' => ['nullable', 'boolean'],
             'experience_records' => ['nullable', 'array'],
             'referees' => ['nullable', 'array'],
+            'education_documents.*' => ['nullable', 'file', 'mimes:pdf,jpg,jpeg,png,doc,docx', 'max:10240'],
+            'experience_documents.*' => ['nullable', 'file', 'mimes:pdf,jpg,jpeg,png,doc,docx', 'max:10240'],
             'profile_photo' => ['nullable', 'image', 'max:5120'],
             'cover_photo' => ['nullable', 'image', 'max:5120'],
             'resume' => ['nullable', 'file', 'mimes:pdf,doc,docx', 'max:10240'],
             'government_id' => ['nullable', 'file', 'mimes:pdf,jpg,jpeg,png', 'max:10240'],
             'gallery_photos.*' => ['nullable', 'image', 'max:5120'],
+            'expertise_images.*' => ['nullable', 'image', 'max:5120'],
             'is_public' => ['nullable', 'boolean'],
         ]);
 
@@ -399,17 +425,47 @@ class ProfessionalDashboardController extends Controller
             $data['preferred_locations'] = array_map('trim', explode(',', $data['preferred_locations']));
         }
 
-        if (isset($data['skills'])) {
+        if ($request->has('skills_arr') && is_array($request->skills_arr)) {
+            $skillsArr = array_values(array_filter(array_map('trim', $request->skills_arr)));
+            $data['skills'] = implode(', ', array_slice($skillsArr, 0, 3));
+        } elseif (isset($data['skills'])) {
             $skillsArr = is_array($data['skills']) ? $data['skills'] : array_map('trim', explode(',', (string)$data['skills']));
             $skillsArr = array_values(array_filter($skillsArr));
-            if (count($skillsArr) > 10) {
-                $skillsArr = array_slice($skillsArr, 0, 10);
-            }
-            $data['skills'] = implode(', ', $skillsArr);
+            $data['skills'] = implode(', ', array_slice($skillsArr, 0, 3));
         }
 
         if (isset($data['featured_skills']) && is_array($data['featured_skills'])) {
             $data['featured_skills'] = array_slice(array_values(array_unique(array_filter($data['featured_skills']))), 0, 3);
+        }
+
+        // Process rich expertises - strictly capped to 4 cards
+        if (isset($data['expertises']) && is_array($data['expertises'])) {
+            $cleanedExpertises = [];
+            foreach (array_slice($data['expertises'], 0, 4) as $idx => $item) {
+                if (is_string($item)) {
+                    $item = json_decode($item, true);
+                }
+                if (is_array($item) && !empty(trim($item['name'] ?? ''))) {
+                    $imgUrl = $item['image'] ?? null;
+                    if ($request->hasFile("expertise_images.{$idx}")) {
+                        $imgUrl = $request->file("expertise_images.{$idx}")->store('professionals/expertises', 'public');
+                    }
+                    $kSkills = $item['skills'] ?? ($item['key_skills'] ?? []);
+                    if (is_string($kSkills)) {
+                        $kSkills = array_map('trim', explode(',', $kSkills));
+                    }
+                    $kSkills = array_slice(array_values(array_filter((array)$kSkills)), 0, 3);
+
+                    $cleanedExpertises[] = [
+                        'name' => trim($item['name']),
+                        'description' => trim($item['description'] ?? ''),
+                        'icon' => trim($item['icon'] ?? '⚡'),
+                        'image' => $imgUrl,
+                        'skills' => $kSkills,
+                    ];
+                }
+            }
+            $data['expertises'] = array_slice(array_values($cleanedExpertises), 0, 4);
         }
 
         if (isset($data['other_cities']) && is_array($data['other_cities'])) {
@@ -436,51 +492,125 @@ class ProfessionalDashboardController extends Controller
             }
         }
 
-        // Handle controlled editing: if full_name modified after approval, reset to pending
-        if (!empty($data['full_name']) && $professional->status === 'approved' && $data['full_name'] !== $professional->full_name) {
-            $data['status'] = 'pending';
-            $data['submitted_for_review_at'] = now();
-        }
+        // Updating profile does not reset status to pending or trigger an interview
+        // (Vetting interview is only for initial crew self-registration)
 
-        // Clean education array items
+        // Clean education array items & handle verification document uploads
+        $existingEdu = is_array($professional->education) ? $professional->education : [];
         if (isset($data['education']) && is_array($data['education'])) {
             $cleanedEdu = [];
-            foreach ($data['education'] as $item) {
+            foreach ($data['education'] as $idx => $item) {
                 if (is_string($item)) {
                     $item = json_decode($item, true);
                 }
                 if (is_array($item) && (!empty(trim($item['institution'] ?? '')) || !empty(trim($item['degree'] ?? '')))) {
+                    // Check if a new file was uploaded for this education record
+                    if ($request->hasFile("education_documents.{$idx}")) {
+                        $item['document'] = $request->file("education_documents.{$idx}")->store("professionals/education_docs", 'public');
+                    } elseif (isset($existingEdu[$idx]['document']) && empty($item['document'])) {
+                        $item['document'] = $existingEdu[$idx]['document'];
+                    }
                     $cleanedEdu[] = $item;
                 }
             }
             $data['education'] = array_values($cleanedEdu);
         }
 
-        // Clean referees array items
+        // Clean referees array items (confidential, seen only by admin to verify work)
+        $existingReferees = is_array($professional->referees) ? $professional->referees : [];
         if (isset($data['referees']) && is_array($data['referees'])) {
             $cleanedRef = [];
-            foreach ($data['referees'] as $ref) {
+            foreach ($data['referees'] as $idx => $ref) {
                 if (is_string($ref)) {
                     $ref = json_decode($ref, true);
                 }
                 if (is_array($ref) && !empty(trim($ref['name'] ?? ''))) {
-                    if (empty($ref['status'])) {
-                        $ref['status'] = 'Not Requested';
+                    $email = trim($ref['email'] ?? '');
+
+                    // Match existing referee record to preserve token & verification state
+                    $matchedExisting = null;
+                    if (!empty($email)) {
+                        foreach ($existingReferees as $ex) {
+                            $exItem = is_string($ex) ? json_decode($ex, true) : $ex;
+                            if (is_array($exItem) && !empty($exItem['email']) && strtolower($exItem['email']) === strtolower($email)) {
+                                $matchedExisting = $exItem;
+                                break;
+                            }
+                        }
                     }
-                    $cleanedRef[] = $ref;
+                    if (!$matchedExisting && isset($existingReferees[$idx])) {
+                        $matchedExisting = is_string($existingReferees[$idx]) ? json_decode($existingReferees[$idx], true) : $existingReferees[$idx];
+                    }
+
+                    $consentToken = $matchedExisting['consent_token'] ?? \Illuminate\Support\Str::random(40);
+                    $status = $matchedExisting['status'] ?? (!empty($email) ? 'requested' : 'requested');
+
+                    $refItem = [
+                        'name' => trim($ref['name'] ?? ''),
+                        'organization' => trim($ref['organization'] ?? ''),
+                        'relationship' => trim($ref['relationship'] ?? ''),
+                        'period' => trim($ref['period'] ?? ($matchedExisting['period'] ?? '')),
+                        'crew_role' => trim($ref['crew_role'] ?? ($matchedExisting['crew_role'] ?? '')),
+                        'email' => $email,
+                        'phone' => trim($ref['phone'] ?? ''),
+                        'status' => $status,
+                        'consent_token' => $consentToken,
+                        'consent_sent_at' => $matchedExisting['consent_sent_at'] ?? null,
+                        'verified_at' => $matchedExisting['verified_at'] ?? null,
+                        'unverified_at' => $matchedExisting['unverified_at'] ?? null,
+                        'unverified_reason' => $matchedExisting['unverified_reason'] ?? null,
+                        'unverified_notes' => $matchedExisting['unverified_notes'] ?? null,
+                        'show_on_cv' => !empty($matchedExisting['show_on_cv']),
+                        'rating' => $matchedExisting['rating'] ?? null,
+                        'comments' => $matchedExisting['comments'] ?? null,
+                        'suggested_correction' => $matchedExisting['suggested_correction'] ?? null,
+                    ];
+
+                    // Automatically send verification email if referee has email and was not yet verified or sent
+                    $isNewEmail = !empty($email) && (empty($matchedExisting['email']) || strtolower($matchedExisting['email']) !== strtolower($email));
+                    $neverSent = !empty($email) && empty($matchedExisting['consent_sent_at']);
+
+                    if (($isNewEmail || $neverSent) && $status !== 'verified') {
+                        $reviewUrl = route('referee.review', ['token' => $consentToken]);
+                        try {
+                            \Illuminate\Support\Facades\Mail::to($email)->send(new \App\Mail\RefereeConsentRequestMail(
+                                refereeName: $refItem['name'],
+                                refereeOrg: $refItem['organization'] ?: 'Professional Reference',
+                                crewName: $professional->full_name,
+                                crewCategory: $refItem['crew_role'] ?: ($professional->category ?: 'Crew Member'),
+                                reviewUrl: $reviewUrl,
+                                period: $refItem['period'] ?: 'recent projects',
+                                companyOrProject: $refItem['organization'] ?: 'Event Project'
+                            ));
+                            $refItem['status'] = 'requested';
+                            $refItem['consent_sent_at'] = now()->toDateTimeString();
+                            \Illuminate\Support\Facades\Log::info("Referee verification email auto-sent to {$email} for {$professional->full_name}");
+                        } catch (\Throwable $e) {
+                            \Illuminate\Support\Facades\Log::error("Failed auto-sending referee email to {$email}: " . $e->getMessage());
+                        }
+                    }
+
+                    $cleanedRef[] = $refItem;
                 }
             }
             $data['referees'] = array_values($cleanedRef);
         }
 
-        // Clean experience array items
+        // Clean experience array items & handle verification document uploads
+        $existingExp = is_array($professional->experience_records) ? $professional->experience_records : [];
         if (isset($data['experience_records']) && is_array($data['experience_records'])) {
             $cleanedExp = [];
-            foreach ($data['experience_records'] as $item) {
+            foreach ($data['experience_records'] as $eIdx => $item) {
                 if (is_string($item)) {
                     $item = json_decode($item, true);
                 }
                 if (is_array($item) && (!empty(trim($item['employer'] ?? '')) || !empty(trim($item['role'] ?? '')))) {
+                    // Check if a new file was uploaded for this work experience record
+                    if ($request->hasFile("experience_documents.{$eIdx}")) {
+                        $item['document'] = $request->file("experience_documents.{$eIdx}")->store("professionals/experience_docs", 'public');
+                    } elseif (isset($existingExp[$eIdx]['document']) && empty($item['document'])) {
+                        $item['document'] = $existingExp[$eIdx]['document'];
+                    }
                     $cleanedExp[] = $item;
                 }
             }
@@ -493,7 +623,7 @@ class ProfessionalDashboardController extends Controller
             }
         }
 
-        $existingGallery = is_array($professional->gallery_photos) ? $professional->gallery_photos : [];
+        $existingGallery = is_array($professional->gallery_photos) ? array_values(array_filter($professional->gallery_photos)) : [];
         if ($request->hasFile('gallery_photos')) {
             $newPaths = [];
             foreach ($request->file('gallery_photos') as $gFile) {
@@ -503,12 +633,12 @@ class ProfessionalDashboardController extends Controller
             }
             if (!empty($newPaths)) {
                 $merged = array_values(array_unique(array_filter(array_merge($existingGallery, $newPaths))));
-                $data['gallery_photos'] = array_slice($merged, 0, 4);
+                $data['gallery_photos'] = array_slice($merged, 0, 8);
             } else {
-                $data['gallery_photos'] = array_slice(array_values(array_unique(array_filter($existingGallery))), 0, 4);
+                $data['gallery_photos'] = array_slice($existingGallery, 0, 8);
             }
         } else {
-            $data['gallery_photos'] = array_slice(array_values(array_unique(array_filter($existingGallery))), 0, 4);
+            $data['gallery_photos'] = array_slice($existingGallery, 0, 8);
         }
 
         // Calculate completion status
@@ -516,6 +646,9 @@ class ProfessionalDashboardController extends Controller
         $data['is_onboarded'] = ($professional->completion_percentage >= 80);
 
         $professional->update($data);
+
+        // Send profile updated email notification
+        EmailNotificationService::sendProfileUpdated($professional);
 
         $activeTab = $request->input('active_tab', 'personal');
 
@@ -568,11 +701,41 @@ class ProfessionalDashboardController extends Controller
         $referees = is_array($professional->referees) ? $professional->referees : [];
 
         if (isset($referees[$refereeIndex])) {
-            $referees[$refereeIndex]['status'] = 'Pending';
+            $ref = is_string($referees[$refereeIndex]) ? json_decode($referees[$refereeIndex], true) : $referees[$refereeIndex];
+            if (empty($ref['email'])) {
+                return response()->json(['error' => 'Please provide an email address for this referee before requesting verification.'], 422);
+            }
+
+            if (empty($ref['consent_token'])) {
+                $ref['consent_token'] = \Illuminate\Support\Str::random(40);
+            }
+
+            $reviewUrl = route('referee.review', ['token' => $ref['consent_token']]);
+
+            try {
+                \Illuminate\Support\Facades\Mail::to($ref['email'])->send(new \App\Mail\RefereeConsentRequestMail(
+                    refereeName: $ref['name'] ?? 'Referee',
+                    refereeOrg: $ref['organization'] ?? ($ref['relationship'] ?? 'Professional Reference'),
+                    crewName: $professional->full_name,
+                    crewCategory: $ref['crew_role'] ?? ($professional->category ?: 'Event Crew'),
+                    reviewUrl: $reviewUrl,
+                    period: $ref['period'] ?? 'recent projects',
+                    companyOrProject: $ref['organization'] ?? 'Event Project'
+                ));
+                \Illuminate\Support\Facades\Log::info("Referee verification email sent to {$ref['email']} for professional {$professional->id}");
+            } catch (\Throwable $e) {
+                \Illuminate\Support\Facades\Log::error("Failed to send referee consent email to {$ref['email']}: " . $e->getMessage());
+            }
+
+            $ref['status'] = 'requested';
+            $ref['consent_sent_at'] = now()->toDateTimeString();
+            $referees[$refereeIndex] = $ref;
             $professional->update(['referees' => $referees]);
+
             return response()->json([
                 'success' => true,
-                'message' => 'Verification request sent to referee. Setup can continue while verification is pending.'
+                'status' => 'requested',
+                'message' => "Verification request email sent to {$ref['email']}! Once your referee reviews and verifies, their verified reference status will update automatically."
             ]);
         }
 
@@ -586,12 +749,16 @@ class ProfessionalDashboardController extends Controller
             return redirect()->route('staff.login');
         }
 
-        $professional->update([
-            'submitted_for_review_at' => now(),
-            'status' => 'pending',
-        ]);
+        // Only newly registered unapproved applicants are flagged pending for initial review
+        if ($professional->status !== 'approved') {
+            $professional->update([
+                'submitted_for_review_at' => now(),
+                'status' => 'pending',
+            ]);
+            return back()->with('success', "Your profile details have been submitted for administrator review.");
+        }
 
-        return back()->with('success', "Your profile has been submitted for review. We’ll contact you if we need more information or an interview.");
+        return back()->with('success', "Your profile changes have been saved and are live on your public profile!");
     }
 
     public function reviewsTab(Request $request): View|RedirectResponse
@@ -643,23 +810,41 @@ class ProfessionalDashboardController extends Controller
         return back()->with('success', 'Review has been reported to admin moderation for investigation.');
     }
 
-    public function deleteGalleryPhoto(Request $request): RedirectResponse
+    public function deleteGalleryPhoto(Request $request): JsonResponse|RedirectResponse
     {
         $professional = $this->getAuthenticatedProfessional($request);
 
         if (!$professional) {
+            if ($request->ajax() || $request->wantsJson()) {
+                return response()->json(['status' => false, 'message' => 'Unauthenticated.'], 401);
+            }
             return redirect()->route('staff.login');
         }
 
         $photoPath = $request->input('photo_path');
         if ($photoPath && is_array($professional->gallery_photos)) {
-            $updated = array_values(array_filter($professional->gallery_photos, function ($p) use ($photoPath) {
-                return $p !== $photoPath;
-            }));
-            $professional->update(['gallery_photos' => $updated]);
+            $updated = [];
+            foreach ($professional->gallery_photos as $p) {
+                if ($p === $photoPath || get_storage_url($p) === $photoPath || basename($p) === basename($photoPath)) {
+                    if (Storage::disk('public')->exists($p)) {
+                        Storage::disk('public')->delete($p);
+                    }
+                } else {
+                    $updated[] = $p;
+                }
+            }
+            $professional->update(['gallery_photos' => array_values($updated)]);
         }
 
-        return back()->with('success', 'Photo removed from portfolio gallery.');
+        if ($request->ajax() || $request->wantsJson()) {
+            return response()->json([
+                'status' => true,
+                'message' => 'Photo removed from portfolio gallery.',
+                'gallery_photos' => $professional->fresh()->gallery_photos ?? []
+            ]);
+        }
+
+        return back()->with('active_tab', 'photos')->with('success', 'Photo removed from portfolio gallery.');
     }
 
     public function wallet(Request $request): View|RedirectResponse

@@ -10,12 +10,12 @@ class Professional extends Model
     protected $fillable = [
         'full_name', 'first_name', 'last_name', 'username', 'email', 'phone', 'password', 'profile_photo', 'cover_photo',
         'date_of_birth', 'gender', 'city', 'state', 'country',
-        'languages', 'category', 'skills', 'featured_skills', 'services', 'education', 'show_education_on_cv', 'experience_records', 'experience_years', 'referees',
-        'about', 'highlight_quote', 'hourly_rate', 'half_day_rate', 'full_day_rate',
+        'languages', 'category', 'rating', 'custom_reviews_count', 'skills', 'featured_skills', 'expertises', 'services', 'education', 'show_education_on_cv', 'experience_records', 'experience_years', 'referees',
+        'about', 'experience_summary', 'my_update', 'lets_connect', 'highlight_quote', 'hourly_rate', 'half_day_rate', 'full_day_rate',
         'one_day_rate', 'two_day_rate', 'rehearsal_rate', 'working_hours', 'rehearsal_option', 'has_multi_day_discount', 'multi_day_discount_pct', 'multi_day_min_days', 'multi_day_discount', 'rate_type', 'currency',
         'booking_policy', 'availability_dates', 'blocked_dates', 'assignment_types', 'gallery_photos',
         'availability', 'preferred_locations', 'other_cities', 'social_links', 'resume',
-        'government_id', 'status', 'is_public', 'submitted_for_review_at', 'interview_date', 'interview_time', 'interviewer_name', 'interview_notes', 'interview_status', 'payment_details',
+        'government_id', 'status', 'is_public', 'submitted_for_review_at', 'interview_date', 'interview_time', 'interview_link', 'interviewer_name', 'interview_notes', 'interview_status', 'payment_details',
         'email_verified_at', 'verification_token', 'is_onboarded',
         'wallet_pending', 'wallet_balance', 'wallet_withdrawn',
         'google_id', 'facebook_id', 'auth_provider', 'api_token'
@@ -41,6 +41,7 @@ class Professional extends Model
         'experience_records' => 'array',
         'referees' => 'array',
         'featured_skills' => 'array',
+        'expertises' => 'array',
         'availability_dates' => 'array',
         'blocked_dates' => 'array',
         'assignment_types' => 'array',
@@ -176,12 +177,27 @@ class Professional extends Model
 
     public function getAverageRatingAttribute(): float
     {
-        $avg = $this->reviews()->avg('rating');
-        return $avg !== null ? (float) round($avg, 1) : 0.0;
+        $visibleCount = $this->visibleReviews()->count();
+        if ($visibleCount > 0) {
+            $avg = $this->visibleReviews()->avg('rating');
+            return $avg !== null ? (float) round($avg, 1) : 0.0;
+        }
+
+        if ($this->reviews()->count() > 0) {
+            $avg = $this->reviews()->avg('rating');
+            return $avg !== null ? (float) round($avg, 1) : 0.0;
+        }
+
+        return 0.0;
     }
 
     public function getReviewsCountAttribute(): int
     {
+        $visibleCount = $this->visibleReviews()->count();
+        if ($visibleCount > 0) {
+            return $visibleCount;
+        }
+
         return $this->reviews()->count();
     }
 
@@ -217,5 +233,19 @@ class Professional extends Model
     public function getCoverPhotoUrlAttribute(): ?string
     {
         return get_storage_url($this->cover_photo);
+    }
+
+    public function getVerifiedRefereesAttribute(): array
+    {
+        if (!is_array($this->referees)) {
+            return [];
+        }
+
+        return array_values(array_filter($this->referees, function ($ref) {
+            $item = is_string($ref) ? json_decode($ref, true) : $ref;
+            if (!is_array($item)) return false;
+            $status = strtolower($item['status'] ?? '');
+            return ($status === 'verified' || !empty($item['is_confirmed']));
+        }));
     }
 }

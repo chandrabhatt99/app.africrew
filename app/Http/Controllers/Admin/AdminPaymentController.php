@@ -32,6 +32,11 @@ class AdminPaymentController extends Controller
         $pendingWithdrawalsCount = WithdrawalRequest::where('status', 'pending')->count();
         $pendingWithdrawalsSum = WithdrawalRequest::where('status', 'pending')->sum('amount');
 
+        $mpesaTransactions = \App\Models\MpesaTransaction::with(['staffingRequest', 'user'])
+            ->latest()
+            ->paginate(10, ['*'], 'mpesa_page');
+        $totalMpesaProcessed = \App\Models\MpesaTransaction::where('status', 'completed')->sum('amount');
+
         return view('admin.payments.index', compact(
             'requests',
             'withdrawalRequests',
@@ -39,7 +44,9 @@ class AdminPaymentController extends Controller
             'totalEscrowHeld',
             'totalAvailableWallets',
             'pendingWithdrawalsCount',
-            'pendingWithdrawalsSum'
+            'pendingWithdrawalsSum',
+            'mpesaTransactions',
+            'totalMpesaProcessed'
         ));
     }
 
@@ -76,6 +83,13 @@ class AdminPaymentController extends Controller
             }
         });
 
+        // Send official payment receipt and payment confirmation email to client
+        \App\Services\EmailNotificationService::sendReceiptToClient($staffingRequest, $data['payment_amount']);
+        \App\Services\EmailNotificationService::sendPaymentConfirmedToClient($staffingRequest, $data['payment_amount']);
+
+        // Notify assigned crew that client deposit is secured
+        \App\Services\EmailNotificationService::sendDepositSecuredToAllCrew($staffingRequest);
+
         return back()->with('success', 'Client payment recorded successfully! Funds are held in Escrow pending project completion.');
     }
 
@@ -104,6 +118,14 @@ class AdminPaymentController extends Controller
                             'admin_notes' => $data['admin_notes'] ?? null,
                             'processed_at' => now(),
                         ]);
+
+                        // Send Payout Released email to crew member
+                        $gigId = 'WTH-' . str_pad($withdrawal->id, 5, '0', STR_PAD_LEFT);
+                        \App\Services\EmailNotificationService::sendPayoutReleasedToCrew(
+                            $prof,
+                            $withdrawal->amount,
+                            $gigId
+                        );
                     } else {
                         throw new \Exception('Insufficient available wallet balance for this professional.');
                     }

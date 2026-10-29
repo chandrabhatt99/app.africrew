@@ -15,6 +15,7 @@
     $eventDate = request('event_date', date('d October Y', strtotime('+3 days')));
     $locationStr = request('location', ($primaryProf ? ($primaryProf->city . ', ' . ($primaryProf->country ?? 'Kenya')) : 'Nairobi, Kenya'));
     $serviceStr = request('category', ($primaryProf->category ?? 'Corporate Event Ushering'));
+    $baseDailyRate = $primaryProf ? ($primaryProf->full_day_rate ?: ($primaryProf->one_day_rate ?: 3500)) : 3500;
 @endphp
 
 <div class="bg-[#FAF9F6] text-slate-900 min-h-screen py-8 px-4 sm:px-6 lg:px-8 font-sans">
@@ -119,9 +120,10 @@
             <input type="hidden" name="shift_duration" id="hidden_shift_duration" value="full_day">
             <input type="hidden" name="start_time" value="09:00">
             <input type="hidden" name="end_time" value="17:00">
-            <input type="hidden" name="currency" value="KES">
-            <input type="hidden" name="rate_type" value="fixed">
-            <input type="hidden" name="budget" value="3500">
+            <input type="hidden" name="currency" id="hidden_currency" value="KES">
+            <input type="hidden" name="rate_type" id="hidden_rate_type" value="{{ old('rate_type', 'negotiable') }}">
+            <input type="hidden" name="budget" id="hidden_budget" value="{{ old('budget', $baseDailyRate * max(1, $profs->count())) }}">
+            <input type="hidden" name="daily_rate" id="hidden_daily_rate" value="{{ old('daily_rate', $baseDailyRate) }}">
 
 
             <!-- ========================================================= -->
@@ -301,6 +303,11 @@
                                 <span class="text-[10px] font-extrabold uppercase text-slate-400 block tracking-wider">DURATION</span>
                                 <span id="sidebar-duration" class="font-extrabold text-slate-800 text-sm block mt-0.5">8 Hours</span>
                             </div>
+
+                            <div>
+                                <span class="text-[10px] font-extrabold uppercase text-slate-400 block tracking-wider">OFFER / BUDGET</span>
+                                <span id="sidebar-budget" class="font-extrabold text-emerald-600 text-sm block mt-0.5">KES {{ number_format($baseDailyRate) }} (Negotiable)</span>
+                            </div>
                         </div>
 
                         <!-- Talent Quote Box -->
@@ -410,6 +417,147 @@
                             </div>
                         </div>
 
+                        <!-- Daily Shift Hours & Dynamic Duration Calculation -->
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-6 items-center">
+                            <div>
+                                <label class="block text-xs font-extrabold uppercase tracking-wider text-slate-500 mb-2">
+                                    DAILY SHIFT DURATION <span class="text-rose-500">*</span>
+                                </label>
+                                <div class="relative">
+                                    <span class="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 text-base pointer-events-none">⏱️</span>
+                                    <select id="shift_hours_select" name="shift_hours" onchange="syncSidebarValues()"
+                                        class="w-full bg-[#FAF9F6] border border-slate-200 rounded-2xl pl-11 pr-5 py-4 text-slate-900 text-sm outline-none focus:border-rose-500 focus:bg-white transition-all font-bold appearance-none cursor-pointer">
+                                        <option value="8" selected>8 Hours / Day (Standard Full Day)</option>
+                                        <option value="4">4 Hours / Day (Half Day Shift)</option>
+                                        <option value="5">5 Hours / Day (5-Hour Shift)</option>
+                                        <option value="6">6 Hours / Day (6-Hour Shift)</option>
+                                        <option value="10">10 Hours / Day (Extended Shift)</option>
+                                        <option value="12">12 Hours / Day (Full Day + Overtime)</option>
+                                    </select>
+                                    <span class="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 text-xs pointer-events-none">▼</span>
+                                </div>
+                            </div>
+
+                            <div>
+                                <label class="block text-xs font-extrabold uppercase tracking-wider text-slate-500 mb-2">
+                                    CALCULATED WORKLOAD COMMITMENT
+                                </label>
+                                <div id="calculated_duration_box" class="w-full bg-rose-50/70 border border-rose-200/80 rounded-2xl px-5 py-3.5 flex items-center justify-between">
+                                    <div class="flex items-center gap-2">
+                                        <span class="text-rose-500 text-base">📊</span>
+                                        <span class="text-xs font-bold text-slate-600">Total Commitment:</span>
+                                    </div>
+                                    <span id="calculated_duration_display" class="text-xs sm:text-sm font-black text-rose-600 bg-white px-3 py-1 rounded-xl shadow-xs border border-rose-100">
+                                        1 Day (8 Hours Full Day)
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Rate & Negotiation Price Section -->
+                        <div class="bg-gradient-to-br from-amber-50/70 via-white to-rose-50/40 border border-amber-200/80 rounded-[28px] p-6 sm:p-7 space-y-6 shadow-xs">
+                            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-amber-100/80 pb-4">
+                                <div>
+                                    <div class="flex items-center gap-2">
+                                        <span class="text-base">💰</span>
+                                        <h3 class="text-sm sm:text-base font-extrabold text-slate-900 uppercase tracking-wide">
+                                            Pricing & Negotiation Preference
+                                        </h3>
+                                    </div>
+                                    <p class="text-xs text-slate-500 mt-0.5">
+                                        Set your offered rate per day. You can propose a negotiable price to discuss with the crew or offer a fixed price.
+                                    </p>
+                                </div>
+                                <span class="text-[11px] font-black text-amber-800 bg-amber-100/90 px-3 py-1 rounded-full border border-amber-200 shrink-0 self-start sm:self-auto">
+                                    Standard Rate: KES {{ number_format($baseDailyRate) }}/day
+                                </span>
+                            </div>
+
+                            <!-- Rate Type Toggle Cards -->
+                            <div>
+                                <label class="block text-xs font-extrabold uppercase tracking-wider text-slate-500 mb-3">
+                                    SELECT RATE TYPE <span class="text-rose-500">*</span>
+                                </label>
+                                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                    <!-- Negotiable Option -->
+                                    <div id="rate-type-card-negotiable" onclick="setRateType('negotiable')"
+                                        class="cursor-pointer p-4 rounded-2xl border-2 border-amber-500 bg-amber-50/50 hover:bg-amber-50 transition-all flex items-start gap-3.5 shadow-xs">
+                                        <div class="w-5 h-5 rounded-full border-2 border-amber-500 bg-amber-500 flex items-center justify-center shrink-0 mt-0.5 text-white text-[10px] font-black" id="rate-radio-negotiable">
+                                            ✓
+                                        </div>
+                                        <div class="space-y-0.5">
+                                            <div class="text-xs font-black text-slate-900 flex items-center gap-1.5">
+                                                <span>Negotiable Price</span>
+                                                <span class="px-2 py-0.5 rounded-md bg-amber-200 text-amber-900 text-[9px] font-extrabold uppercase">Recommended</span>
+                                            </div>
+                                            <p class="text-[11px] text-slate-500 leading-relaxed font-medium">
+                                                Propose your offer. Crew can accept or discuss counter-offers directly with you in chat.
+                                            </p>
+                                        </div>
+                                    </div>
+
+                                    <!-- Fixed Option -->
+                                    <div id="rate-type-card-fixed" onclick="setRateType('fixed')"
+                                        class="cursor-pointer p-4 rounded-2xl border-2 border-slate-200 bg-white hover:border-slate-300 transition-all flex items-start gap-3.5">
+                                        <div class="w-5 h-5 rounded-full border-2 border-slate-300 bg-white flex items-center justify-center shrink-0 mt-0.5 text-white text-[10px] font-black" id="rate-radio-fixed">
+                                        </div>
+                                        <div class="space-y-0.5">
+                                            <div class="text-xs font-black text-slate-900">
+                                                Fixed Rate Offer
+                                            </div>
+                                            <p class="text-[11px] text-slate-500 leading-relaxed font-medium">
+                                                Lock in a firm price. Crew members will review and accept your set fixed rate without negotiation.
+                                            </p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Negotiation Price Input & Live Calculation -->
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-6 items-center pt-1">
+                                <div>
+                                    <label class="block text-xs font-extrabold uppercase tracking-wider text-slate-500 mb-2">
+                                        <span id="rate_input_label">OFFERED NEGOTIATION RATE (PER DAY / CREW)</span> <span class="text-rose-500">*</span>
+                                    </label>
+                                    <div class="relative">
+                                        <span class="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500 text-xs font-black pointer-events-none">KES</span>
+                                        <input type="number" id="offered_daily_rate" name="daily_rate_input" value="{{ old('daily_rate', $baseDailyRate) }}" min="500" step="100" required
+                                            placeholder="{{ $baseDailyRate }}"
+                                            oninput="syncSidebarValues()"
+                                            class="w-full bg-[#FAF9F6] border border-slate-200 rounded-2xl pl-13 pr-5 py-4 text-slate-900 text-sm outline-none focus:border-amber-500 focus:bg-white transition-all font-black">
+                                    </div>
+                                    <div class="flex items-center gap-2 mt-2">
+                                        <span class="text-[11px] text-slate-400">Quick set:</span>
+                                        <button type="button" onclick="setQuickRate({{ $baseDailyRate }})" class="text-[11px] font-bold text-amber-700 bg-amber-100/70 hover:bg-amber-100 px-2 py-0.5 rounded-md border border-amber-200 cursor-pointer">
+                                            Standard (KES {{ number_format($baseDailyRate) }})
+                                        </button>
+                                        @if($baseDailyRate > 2500)
+                                            <button type="button" onclick="setQuickRate({{ round($baseDailyRate * 0.85, -2) }})" class="text-[11px] font-bold text-slate-600 bg-slate-100 hover:bg-slate-200 px-2 py-0.5 rounded-md border border-slate-200 cursor-pointer">
+                                                Target Offer (KES {{ number_format(round($baseDailyRate * 0.85, -2)) }})
+                                            </button>
+                                        @endif
+                                    </div>
+                                </div>
+
+                                <div>
+                                    <label class="block text-xs font-extrabold uppercase tracking-wider text-slate-500 mb-2">
+                                        ESTIMATED TOTAL ESCROW BUDGET
+                                    </label>
+                                    <div class="w-full bg-emerald-50/70 border border-emerald-200/80 rounded-2xl p-4 space-y-1">
+                                        <div class="flex items-center justify-between">
+                                            <span class="text-xs font-bold text-slate-600">Total Commitment:</span>
+                                            <span id="calculated_budget_display" class="text-sm font-black text-emerald-700 bg-white px-3 py-1 rounded-xl shadow-xs border border-emerald-100">
+                                                KES {{ number_format($baseDailyRate) }}
+                                            </span>
+                                        </div>
+                                        <p id="budget_breakdown_note" class="text-[10px] text-slate-400 font-medium">
+                                            1 Day × 1 Crew Member @ KES {{ number_format($baseDailyRate) }}/day
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
                         <!-- Project / Event Description -->
                         <div>
                             <label class="block text-xs font-extrabold uppercase tracking-wider text-slate-500 mb-2">
@@ -479,6 +627,14 @@
                             <div class="flex justify-between items-center py-1">
                                 <span class="text-slate-400 font-bold">Date</span>
                                 <span class="font-extrabold text-slate-800" id="sidebar2-date">{{ $eventDate }}</span>
+                            </div>
+                            <div class="flex justify-between items-center py-1">
+                                <span class="text-slate-400 font-bold">Duration</span>
+                                <span class="font-extrabold text-rose-600" id="sidebar2-duration">8 Hours</span>
+                            </div>
+                            <div class="flex justify-between items-center py-1">
+                                <span class="text-slate-400 font-bold">Budget</span>
+                                <span class="font-extrabold text-emerald-600" id="sidebar2-budget">KES {{ number_format($baseDailyRate) }}</span>
                             </div>
                             <div class="flex justify-between items-center py-1">
                                 <span class="text-slate-400 font-bold">Email</span>
@@ -579,6 +735,14 @@
                                 <span class="text-slate-400 font-bold">Duties</span>
                                 <span class="font-extrabold text-slate-800" id="sidebar3-duties">Registration Lead</span>
                             </div>
+                            <div class="flex justify-between items-center">
+                                <span class="text-slate-400 font-bold">Duration</span>
+                                <span class="font-extrabold text-rose-600" id="sidebar3-duration">8 Hours</span>
+                            </div>
+                            <div class="flex justify-between items-center">
+                                <span class="text-slate-400 font-bold">Budget</span>
+                                <span class="font-extrabold text-emerald-600" id="sidebar3-budget">KES {{ number_format($baseDailyRate) }}</span>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -587,73 +751,166 @@
 
 
             <!-- ========================================================= -->
-            <!-- STEP 4: REVIEW & CONFIRM (PDF PAGE 7 & 8 SPECIFICATIONS) -->
+            <!-- STEP 4: REVIEW & CONFIRM -->
             <!-- ========================================================= -->
-            <div id="step-container-4" class="hidden grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+            <div id="step-container-4" class="hidden max-w-5xl mx-auto space-y-8">
                 
-                <!-- Left Main Form Card -->
-                <div class="lg:col-span-8 bg-white border border-slate-100 rounded-[32px] p-8 sm:p-12 shadow-xl shadow-slate-200/40 space-y-8">
+                <!-- Main Master Review Card -->
+                <div class="bg-white border border-slate-100 rounded-[32px] p-6 sm:p-10 lg:p-12 shadow-xl shadow-slate-200/40 space-y-8">
                     
-                    <div>
-                        <span class="inline-block px-3.5 py-1 rounded-full bg-amber-50 border border-amber-200/60 text-amber-800 text-[11px] font-extrabold uppercase tracking-wider mb-3">
-                            STEP 04 OF 04
-                        </span>
-                        <h1 class="text-3xl sm:text-4xl font-extrabold text-slate-900 tracking-tight leading-tight">
-                            Review & Send Order Request
-                        </h1>
-                        <p class="text-slate-500 text-sm sm:text-base font-normal mt-2 leading-relaxed">
-                                <span class="text-slate-400 font-bold">Project</span>
-                                <span id="review-event" class="font-extrabold text-slate-900">Annual Tech Summit</span>
-                            </div>
-                            <div class="flex justify-between py-1">
-                                <span class="text-slate-400 font-bold">Duration</span>
-                                <span class="font-extrabold text-slate-900">8 Hours (Full Day)</span>
+                    <!-- Header -->
+                    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-100 pb-6">
+                        <div>
+                            <span class="inline-block px-3.5 py-1 rounded-full bg-amber-50 border border-amber-200/60 text-amber-800 text-[11px] font-extrabold uppercase tracking-wider mb-2">
+                                STEP 04 OF 04
+                            </span>
+                            <h1 class="text-2xl sm:text-3xl lg:text-4xl font-extrabold text-slate-900 tracking-tight leading-tight">
+                                Review & Send Order Request
+                            </h1>
+                            <p class="text-slate-500 text-xs sm:text-sm font-normal mt-1 leading-relaxed">
+                                Please review your event specifications, schedule commitment, and selected crew before submitting.
+                            </p>
+                        </div>
+                        <div class="shrink-0 bg-rose-50 border border-rose-100 px-4 py-2.5 rounded-2xl flex items-center gap-2">
+                            <span class="text-base">✨</span>
+                            <span class="text-xs font-black text-rose-700">Almost Done</span>
+                        </div>
+                    </div>
+
+                    <!-- 4-Column Specifications Grid -->
+                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                        <!-- Project -->
+                        <div class="bg-[#FAF9F6] border border-slate-200/70 rounded-2xl p-4 space-y-1">
+                            <span class="text-[10px] font-extrabold uppercase tracking-wider text-slate-400 block">PROJECT / EVENT</span>
+                            <div id="review-event" class="font-extrabold text-slate-900 text-sm truncate">Annual Tech Summit</div>
+                            <div id="review-type" class="text-xs text-slate-500 font-semibold truncate">Corporate Gala</div>
+                        </div>
+
+                        <!-- Schedule & Duration -->
+                        <div class="bg-[#FAF9F6] border border-slate-200/70 rounded-2xl p-4 space-y-1">
+                            <span class="text-[10px] font-extrabold uppercase tracking-wider text-slate-400 block">SCHEDULE & DURATION</span>
+                            <div id="review-date" class="font-extrabold text-slate-900 text-xs truncate">Select dates</div>
+                            <div id="review-duration" class="font-black text-rose-600 bg-rose-100/70 border border-rose-200/80 px-2 py-0.5 rounded-lg text-[11px] inline-block mt-0.5">
+                                8 Hours (1 Day)
                             </div>
                         </div>
 
-                        <!-- Talent Selection Box (Single or Multi-Crew List) -->
-                        <div class="p-6 rounded-2xl bg-[#FAF9F6] border border-slate-100 space-y-2">
-                            <span class="text-[10px] font-extrabold uppercase tracking-wider text-slate-400 block">TALENT SELECTION</span>
-                            <div class="space-y-2 pt-1 max-h-36 overflow-y-auto">
-                                @forelse($profs as $p)
-                                    @php
-                                        $pAvatar = $p->profile_photo ? get_storage_url($p->profile_photo) : 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=400';
-                                    @endphp
-                                    <div class="flex items-center gap-3">
-                                        <img src="{{ $pAvatar }}" alt="{{ $p->full_name }}" class="w-10 h-10 rounded-xl object-cover border border-slate-200 shrink-0">
-                                        <div>
-                                            <div class="text-xs font-extrabold text-slate-900">{{ $p->full_name }}</div>
-                                            <div class="text-[10px] text-slate-400 font-medium uppercase">{{ $p->category ?: 'Event Usher' }}</div>
+                        <!-- Venue / Location -->
+                        <div class="bg-[#FAF9F6] border border-slate-200/70 rounded-2xl p-4 space-y-1">
+                            <span class="text-[10px] font-extrabold uppercase tracking-wider text-slate-400 block">LOCATION / VENUE</span>
+                            <div id="review-location" class="font-extrabold text-slate-900 text-sm truncate">Nairobi, Kenya</div>
+                            <div class="text-xs text-slate-400 font-medium">On-Site Event Crew</div>
+                        </div>
+
+                        <!-- Contact -->
+                        <div class="bg-[#FAF9F6] border border-slate-200/70 rounded-2xl p-4 space-y-1">
+                            <span class="text-[10px] font-extrabold uppercase tracking-wider text-slate-400 block">CLIENT CONTACT</span>
+                            <div id="review-name" class="font-extrabold text-slate-900 text-sm truncate">Client</div>
+                            <div id="review-email" class="text-xs text-slate-500 font-medium truncate">client@example.com</div>
+                        </div>
+                    </div>
+
+                    <!-- Pricing & Negotiation Specification Box -->
+                    <div class="bg-gradient-to-r from-amber-50/70 via-white to-emerald-50/70 border border-slate-200/90 rounded-2xl p-5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+                        <div class="flex items-center gap-3.5">
+                            <div class="w-11 h-11 rounded-2xl bg-amber-500/10 text-amber-700 border border-amber-200 flex items-center justify-center text-xl shrink-0">
+                                💰
+                            </div>
+                            <div>
+                                <span class="text-[10px] font-extrabold uppercase tracking-wider text-slate-400 block">OFFERED RATE & PRICING</span>
+                                <div class="flex items-center gap-2 mt-0.5">
+                                    <span id="review-daily-rate" class="font-black text-slate-900 text-sm">KES {{ number_format($baseDailyRate) }} / Day</span>
+                                    <span id="review-rate-type" class="text-[10px] font-black text-amber-800 bg-amber-100 px-2.5 py-0.5 rounded-md border border-amber-200">Negotiable Price</span>
+                                </div>
+                                <span class="text-[11px] text-slate-500 font-medium">Crew will review and accept your offer or discuss terms directly with you in chat.</span>
+                            </div>
+                        </div>
+
+                        <div class="sm:text-right bg-white sm:bg-transparent p-3 sm:p-0 rounded-xl border sm:border-0 border-emerald-100 w-full sm:w-auto">
+                            <span class="text-[10px] font-extrabold uppercase tracking-wider text-slate-400 block">ESTIMATED TOTAL BUDGET</span>
+                            <div id="review-total-budget" class="text-base sm:text-lg font-black text-emerald-700">
+                                KES {{ number_format($baseDailyRate) }} Total
+                            </div>
+                            <span id="review-budget-sub" class="text-[10px] text-slate-400 font-medium block">
+                                1 Day × 1 Crew Member
+                            </span>
+                        </div>
+                    </div>
+
+                    <!-- Selected Crew Talent Showcase -->
+                    <div class="bg-[#FAF9F6] border border-slate-200/80 rounded-2xl p-6 space-y-4">
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center gap-2">
+                                <span class="text-[11px] font-black uppercase tracking-wider text-slate-500">SELECTED TALENT CREW</span>
+                                <span class="text-[10px] font-black px-2.5 py-0.5 rounded-full bg-slate-200 text-slate-700">
+                                    {{ $profs->count() }} {{ $profs->count() === 1 ? 'Talent' : 'Talents' }}
+                                </span>
+                            </div>
+                            <span class="text-xs font-bold text-slate-400">Step 4 of 4</span>
+                        </div>
+
+                        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3.5 max-h-64 overflow-y-auto pr-1">
+                            @forelse($profs as $p)
+                                @php
+                                    $pAvatar = $p->profile_photo ? get_storage_url($p->profile_photo) : 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=400';
+                                @endphp
+                                <div class="bg-white p-3.5 rounded-2xl border border-slate-200/90 flex items-center gap-3 shadow-xs hover:border-rose-300 transition-all">
+                                    <img src="{{ $pAvatar }}" alt="{{ $p->full_name }}" class="w-12 h-12 rounded-xl object-cover border border-slate-200 shrink-0">
+                                    <div class="min-w-0 flex-1">
+                                        <div class="text-xs font-black text-slate-900 truncate">{{ $p->full_name }}</div>
+                                        <div class="text-[10px] text-slate-500 font-bold uppercase truncate">{{ $p->category ?: 'Event Usher' }}</div>
+                                        <div class="text-[10px] text-emerald-600 font-black flex items-center gap-1 mt-0.5">
+                                            <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 inline-block"></span>
+                                            Available For Assignment
                                         </div>
                                     </div>
-                                @empty
-                                    <div class="text-xs font-bold text-slate-700">General Event Crew</div>
-                                @endforelse
+                                </div>
+                            @empty
+                                <div class="col-span-full p-4 rounded-xl bg-white border border-slate-200 text-xs font-bold text-slate-700">
+                                    General Event Crew Selection
+                                </div>
+                            @endforelse
+                        </div>
+                    </div>
+
+                    <!-- Duties & Brief Attachments Row -->
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div class="bg-[#FAF9F6] border border-slate-200/70 rounded-2xl p-5 space-y-2">
+                            <span class="text-[10px] font-extrabold uppercase tracking-wider text-slate-400 block">CREW DUTIES & NOTES</span>
+                            <div id="review-duties" class="text-xs font-semibold text-slate-700 leading-relaxed bg-white p-3.5 rounded-xl border border-slate-100 min-h-[56px] flex items-center">
+                                Guest check-in, seating assistance
                             </div>
                         </div>
 
-                        <!-- Attachments Box -->
-                        <div class="p-6 rounded-2xl bg-[#FAF9F6] border border-slate-100 space-y-2">
-                            <span class="text-[10px] font-extrabold uppercase tracking-wider text-slate-400 block">ATTACHMENTS</span>
-                            <div class="flex items-center gap-3 pt-1">
-                                <div class="w-8 h-8 rounded-lg bg-rose-500 text-white font-bold text-xs flex items-center justify-center">FILE</div>
-                                <div>
-                                    <div id="review-file-name" class="text-xs font-extrabold text-slate-900">No file attached</div>
-                                    <div class="text-[10px] text-slate-400 font-medium">Optional</div>
+                        <div class="bg-[#FAF9F6] border border-slate-200/70 rounded-2xl p-5 space-y-2">
+                            <span class="text-[10px] font-extrabold uppercase tracking-wider text-slate-400 block">ATTACHED RUN SHEET / BRIEF</span>
+                            <div class="bg-white p-3.5 rounded-xl border border-slate-100 min-h-[56px] flex items-center gap-3">
+                                <div class="w-9 h-9 rounded-xl bg-gradient-to-br from-rose-500 to-pink-500 text-white font-black text-[11px] flex items-center justify-center shrink-0 shadow-xs">
+                                    FILE
+                                </div>
+                                <div class="min-w-0 flex-1">
+                                    <div id="review-file-name" class="text-xs font-black text-slate-900 truncate">No file attached</div>
+                                    <div class="text-[10px] text-slate-400 font-medium">Optional supporting document</div>
                                 </div>
                             </div>
                         </div>
-
                     </div>
 
-                    <!-- Final Action Button & Disclaimer -->
-                    <div class="text-center pt-6 space-y-4">
-                        <button type="submit" class="w-full sm:w-auto px-12 py-4 rounded-full bg-gradient-to-r from-orange-500 via-pink-500 to-rose-500 text-white font-extrabold text-base shadow-2xl shadow-pink-500/30 hover:scale-105 transition-all flex items-center justify-center gap-2 mx-auto uppercase">
-                            <span>SEND HIRING REQUEST</span>
-                            <span>🪄</span>
-                        </button>
+                    <!-- Final Action Button & Navigation -->
+                    <div class="pt-6 border-t border-slate-100 space-y-5">
+                        <div class="flex flex-col sm:flex-row items-center justify-between gap-4">
+                            <button type="button" onclick="goToStep(3)" class="text-slate-500 font-bold text-sm hover:text-slate-900 transition-all flex items-center gap-2 order-2 sm:order-1 cursor-pointer">
+                                <span>←</span>
+                                <span>Back to Edit Details</span>
+                            </button>
 
-                        <p class="text-xs text-slate-400 max-w-md mx-auto leading-relaxed">
+                            <button type="submit" class="w-full sm:w-auto px-10 py-4 rounded-full bg-gradient-to-r from-orange-500 via-pink-500 to-rose-500 text-white font-extrabold text-sm sm:text-base shadow-xl shadow-pink-500/25 hover:scale-[1.02] active:scale-[0.98] transition-all flex items-center justify-center gap-2.5 uppercase cursor-pointer order-1 sm:order-2">
+                                <span>SEND HIRING REQUEST</span>
+                                <span>🪄</span>
+                            </button>
+                        </div>
+
+                        <p class="text-center text-xs text-slate-400 max-w-lg mx-auto leading-relaxed">
                             By sending, you agree to AfriCrew's terms. You'll be able to proceed through the hiring and secure payment process after crew accept your request.
                         </p>
                     </div>
@@ -758,27 +1015,204 @@ function goToStep(step) {
     window.scrollTo({ top: 100, behavior: 'smooth' });
 }
 
+let currentRateType = 'negotiable';
+
+function setRateType(type) {
+    currentRateType = type;
+    const cardNeg = document.getElementById('rate-type-card-negotiable');
+    const cardFix = document.getElementById('rate-type-card-fixed');
+    const radioNeg = document.getElementById('rate-radio-negotiable');
+    const radioFix = document.getElementById('rate-radio-fixed');
+    const inputLabel = document.getElementById('rate_input_label');
+
+    if (type === 'negotiable') {
+        if (cardNeg) cardNeg.className = "cursor-pointer p-4 rounded-2xl border-2 border-amber-500 bg-amber-50/50 hover:bg-amber-50 transition-all flex items-start gap-3.5 shadow-xs";
+        if (cardFix) cardFix.className = "cursor-pointer p-4 rounded-2xl border-2 border-slate-200 bg-white hover:border-slate-300 transition-all flex items-start gap-3.5";
+        if (radioNeg) { radioNeg.className = "w-5 h-5 rounded-full border-2 border-amber-500 bg-amber-500 flex items-center justify-center shrink-0 mt-0.5 text-white text-[10px] font-black"; radioNeg.textContent = '✓'; }
+        if (radioFix) { radioFix.className = "w-5 h-5 rounded-full border-2 border-slate-300 bg-white flex items-center justify-center shrink-0 mt-0.5 text-white text-[10px] font-black"; radioFix.textContent = ''; }
+        if (inputLabel) inputLabel.textContent = "OFFERED NEGOTIATION RATE (PER DAY / CREW)";
+    } else {
+        if (cardNeg) cardNeg.className = "cursor-pointer p-4 rounded-2xl border-2 border-slate-200 bg-white hover:border-slate-300 transition-all flex items-start gap-3.5";
+        if (cardFix) cardFix.className = "cursor-pointer p-4 rounded-2xl border-2 border-amber-500 bg-amber-50/50 hover:bg-amber-50 transition-all flex items-start gap-3.5 shadow-xs";
+        if (radioNeg) { radioNeg.className = "w-5 h-5 rounded-full border-2 border-slate-300 bg-white flex items-center justify-center shrink-0 mt-0.5 text-white text-[10px] font-black"; radioNeg.textContent = ''; }
+        if (radioFix) { radioFix.className = "w-5 h-5 rounded-full border-2 border-amber-500 bg-amber-500 flex items-center justify-center shrink-0 mt-0.5 text-white text-[10px] font-black"; radioFix.textContent = '✓'; }
+        if (inputLabel) inputLabel.textContent = "FIXED RATE (PER DAY / CREW)";
+    }
+    syncSidebarValues();
+}
+
+function setQuickRate(amount) {
+    const rateInput = document.getElementById('offered_daily_rate');
+    if (rateInput) {
+        rateInput.value = amount;
+        syncSidebarValues();
+    }
+}
+
+let calculatedDaysCount = 1;
+
+function getSelectedDaysCount() {
+    if (window.fpStaffPicker && window.fpStaffPicker.selectedDates && window.fpStaffPicker.selectedDates.length > 0) {
+        if (window.fpStaffPicker.selectedDates.length === 2) {
+            const diffMs = Math.abs(window.fpStaffPicker.selectedDates[1].getTime() - window.fpStaffPicker.selectedDates[0].getTime());
+            return Math.max(1, Math.round(diffMs / (1000 * 60 * 60 * 24)) + 1);
+        }
+        return 1;
+    }
+    const dateInput = document.getElementById('event_date');
+    if (dateInput && dateInput.value) {
+        const val = dateInput.value;
+        const match = val.match(/\((\d+)\s*Days?\)/i);
+        if (match) {
+            return parseInt(match[1]) || 1;
+        }
+        if (val.includes(' - ')) {
+            const parts = val.split(' - ');
+            const d1 = new Date(parts[0].trim());
+            const d2 = new Date(parts[1].trim());
+            if (!isNaN(d1.getTime()) && !isNaN(d2.getTime())) {
+                const diffMs = Math.abs(d2.getTime() - d1.getTime());
+                return Math.max(1, Math.round(diffMs / (1000 * 60 * 60 * 24)) + 1);
+            }
+        }
+    }
+    return calculatedDaysCount || 1;
+}
+
+function getDailyHours() {
+    const hoursSelect = document.getElementById('shift_hours_select');
+    return hoursSelect ? (parseInt(hoursSelect.value) || 8) : 8;
+}
+
+function getDurationSummary() {
+    const days = getSelectedDaysCount();
+    const hoursPerDay = getDailyHours();
+    const totalHours = days * hoursPerDay;
+
+    if (days <= 1) {
+        return {
+            days: 1,
+            hoursPerDay: hoursPerDay,
+            totalHours: hoursPerDay,
+            display: `${hoursPerDay} Hours (1 Day · Full Shift)`,
+            badge: '1 Day',
+            raw: `${hoursPerDay} Hours (1 Day)`
+        };
+    } else {
+        return {
+            days: days,
+            hoursPerDay: hoursPerDay,
+            totalHours: totalHours,
+            display: `${days} Days (${hoursPerDay}h/day · ${totalHours} Hours Total)`,
+            badge: `${days} Days`,
+            raw: `${days} Days (${hoursPerDay}h/day · ${totalHours} Hours Total)`
+        };
+    }
+}
+
 function syncSidebarValues() {
     const email = document.getElementById('email_step1')?.value || 'client@example.com';
     const name = document.getElementById('full_name')?.value || 'Client';
     const eventName = document.getElementById('event_name')?.value || 'Annual Tech Summit';
-    const duties = document.getElementById('crew_duties')?.value || 'Registration Lead';
+    const eventType = document.getElementById('event_type')?.value || 'Corporate Gala';
+    const duties = document.getElementById('crew_duties')?.value || 'Guest check-in, seating assistance';
     const dateVal = document.getElementById('event_date')?.value || '';
-    const locVal = document.getElementById('location')?.value || '';
+    const locVal = document.getElementById('location')?.value || 'Nairobi, Kenya';
 
+    const dur = getDurationSummary();
+
+    // Duration hidden input & display
+    const hiddenDuration = document.getElementById('hidden_shift_duration');
+    if (hiddenDuration) hiddenDuration.value = dur.raw;
+
+    const eventDaysBadge = document.getElementById('event_days_badge');
+    if (eventDaysBadge) eventDaysBadge.textContent = dur.badge;
+
+    const calcDisplay = document.getElementById('calculated_duration_display');
+    if (calcDisplay) calcDisplay.textContent = dur.display;
+
+    // Pricing calculation
+    const crewCount = {{ max(1, $profs->count()) }};
+    const daysCount = getSelectedDaysCount();
+    const dailyRateInput = document.getElementById('offered_daily_rate');
+    const dailyRate = dailyRateInput ? (parseFloat(dailyRateInput.value) || {{ $baseDailyRate }}) : {{ $baseDailyRate }};
+    const totalBudget = Math.round(dailyRate * daysCount * crewCount);
+
+    // Update hidden inputs for backend submission
+    const hiddenRateType = document.getElementById('hidden_rate_type');
+    if (hiddenRateType) hiddenRateType.value = currentRateType;
+
+    const hiddenBudget = document.getElementById('hidden_budget');
+    if (hiddenBudget) hiddenBudget.value = totalBudget;
+
+    const hiddenDailyRate = document.getElementById('hidden_daily_rate');
+    if (hiddenDailyRate) hiddenDailyRate.value = dailyRate;
+
+    // Step 2 Budget displays
+    const calcBudgetDisplay = document.getElementById('calculated_budget_display');
+    if (calcBudgetDisplay) calcBudgetDisplay.textContent = `KES ${totalBudget.toLocaleString()}`;
+
+    const budgetBreakdownNote = document.getElementById('budget_breakdown_note');
+    if (budgetBreakdownNote) {
+        budgetBreakdownNote.textContent = `${daysCount} ${daysCount === 1 ? 'Day' : 'Days'} × ${crewCount} ${crewCount === 1 ? 'Crew Member' : 'Crew Members'} @ KES ${dailyRate.toLocaleString()}/day`;
+    }
+
+    // Step 4 Review elements
     const reviewEmail = document.getElementById('review-email');
     const reviewName = document.getElementById('review-name');
     const reviewEvent = document.getElementById('review-event');
-    const sidebarEmail = document.getElementById('sidebar2-email');
-    const sidebarEvent = document.getElementById('sidebar3-event');
-    const sidebarDuties = document.getElementById('sidebar3-duties');
+    const reviewType = document.getElementById('review-type');
+    const reviewDate = document.getElementById('review-date');
+    const reviewDuration = document.getElementById('review-duration');
+    const reviewLocation = document.getElementById('review-location');
+    const reviewDuties = document.getElementById('review-duties');
+    const reviewDailyRate = document.getElementById('review-daily-rate');
+    const reviewRateType = document.getElementById('review-rate-type');
+    const reviewTotalBudget = document.getElementById('review-total-budget');
+    const reviewBudgetSub = document.getElementById('review-budget-sub');
 
     if (reviewEmail) reviewEmail.textContent = email;
     if (reviewName) reviewName.textContent = name;
     if (reviewEvent) reviewEvent.textContent = eventName;
+    if (reviewType) reviewType.textContent = eventType;
+    if (reviewDate) reviewDate.textContent = dateVal || 'Dates to be selected';
+    if (reviewDuration) reviewDuration.textContent = dur.display;
+    if (reviewLocation) reviewLocation.textContent = locVal;
+    if (reviewDuties) reviewDuties.textContent = duties;
+
+    if (reviewDailyRate) reviewDailyRate.textContent = `KES ${dailyRate.toLocaleString()} / Day`;
+    if (reviewRateType) {
+        reviewRateType.textContent = currentRateType === 'negotiable' ? 'Negotiable Price' : 'Fixed Rate';
+        reviewRateType.className = currentRateType === 'negotiable' 
+            ? 'text-[10px] font-black text-amber-800 bg-amber-100 px-2.5 py-0.5 rounded-md border border-amber-200' 
+            : 'text-[10px] font-black text-emerald-800 bg-emerald-100 px-2.5 py-0.5 rounded-md border border-emerald-200';
+    }
+    if (reviewTotalBudget) reviewTotalBudget.textContent = `KES ${totalBudget.toLocaleString()} Total`;
+    if (reviewBudgetSub) {
+        reviewBudgetSub.textContent = `${daysCount} ${daysCount === 1 ? 'Day' : 'Days'} × ${crewCount} ${crewCount === 1 ? 'Crew Member' : 'Crew Members'}`;
+    }
+
+    // Sidebar elements
+    const sidebarEmail = document.getElementById('sidebar2-email');
+    const sidebarEvent = document.getElementById('sidebar3-event');
+    const sidebarDuties = document.getElementById('sidebar3-duties');
+    const sidebarDuration = document.getElementById('sidebar-duration');
+    const sidebar2Duration = document.getElementById('sidebar2-duration');
+    const sidebar3Duration = document.getElementById('sidebar3-duration');
+    const sidebarBudget = document.getElementById('sidebar-budget');
+    const sidebar2Budget = document.getElementById('sidebar2-budget');
+    const sidebar3Budget = document.getElementById('sidebar3-budget');
+
     if (sidebarEmail) sidebarEmail.textContent = email;
     if (sidebarEvent) sidebarEvent.textContent = eventName;
     if (sidebarDuties) sidebarDuties.textContent = duties;
+    if (sidebarDuration) sidebarDuration.textContent = dur.display;
+    if (sidebar2Duration) sidebar2Duration.textContent = dur.display;
+    if (sidebar3Duration) sidebar3Duration.textContent = dur.display;
+
+    if (sidebarBudget) sidebarBudget.textContent = `KES ${totalBudget.toLocaleString()} (${currentRateType === 'negotiable' ? 'Negotiable' : 'Fixed'})`;
+    if (sidebar2Budget) sidebar2Budget.textContent = `KES ${totalBudget.toLocaleString()}`;
+    if (sidebar3Budget) sidebar3Budget.textContent = `KES ${totalBudget.toLocaleString()}`;
 
     if (dateVal) {
         const sidebarDate = document.getElementById('sidebar-date');
@@ -812,24 +1246,21 @@ function handleFileSelected(input) {
 <script>
 document.addEventListener('DOMContentLoaded', () => {
     if (typeof flatpickr !== 'undefined') {
-        flatpickr('#event_date', {
+        window.fpStaffPicker = flatpickr('#event_date', {
             mode: 'range',
             dateFormat: 'd M Y',
             minDate: new Date(Date.now() + 6 * 60 * 60 * 1000),
             onChange: function(selectedDates, dateStr, instance) {
                 if (selectedDates.length === 2) {
                     const diffMs = Math.abs(selectedDates[1].getTime() - selectedDates[0].getTime());
-                    const daysCount = Math.round(diffMs / (1000 * 60 * 60 * 24)) + 1;
+                    calculatedDaysCount = Math.round(diffMs / (1000 * 60 * 60 * 24)) + 1;
                     const startStr = instance.formatDate(selectedDates[0], 'd M Y');
                     const endStr = instance.formatDate(selectedDates[1], 'd M Y');
-                    instance.input.value = `${startStr} - ${endStr} (${daysCount} ${daysCount === 1 ? 'Day' : 'Days'})`;
-                    const badge = document.getElementById('event_days_badge');
-                    if (badge) badge.textContent = `${daysCount} ${daysCount === 1 ? 'Day' : 'Days'}`;
+                    instance.input.value = `${startStr} - ${endStr} (${calculatedDaysCount} ${calculatedDaysCount === 1 ? 'Day' : 'Days'})`;
                 } else if (selectedDates.length === 1) {
+                    calculatedDaysCount = 1;
                     const startStr = instance.formatDate(selectedDates[0], 'd M Y');
                     instance.input.value = `${startStr} (1 Day)`;
-                    const badge = document.getElementById('event_days_badge');
-                    if (badge) badge.textContent = '1 Day';
                 }
                 syncSidebarValues();
             }

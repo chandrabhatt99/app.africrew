@@ -168,6 +168,25 @@
                 <label class="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-2">Biography / Summary (About)</label>
                 <textarea name="about" rows="5" placeholder="Detailed professional bio..." class="w-full bg-slate-50 border border-slate-200 rounded-xl p-4 text-slate-900 text-sm font-medium focus:outline-none focus:border-amber-500">{{ old('about', $professional->about) }}</textarea>
             </div>
+
+            <!-- Tier 1 & Tier 3 Persona: My Update & Let's Connect -->
+            <div class="grid sm:grid-cols-2 gap-6">
+                <div>
+                    <label class="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-2 flex items-center justify-between">
+                        <span>Today / My Daily Update (Tier 1)</span>
+                        <span class="text-[10px] text-slate-400 font-semibold lowercase">max 200 chars</span>
+                    </label>
+                    <textarea name="my_update" rows="2" maxlength="200" placeholder="e.g. Good sound starts long before the first microphone goes live..." class="w-full bg-slate-50 border border-slate-200 rounded-xl p-3.5 text-slate-900 text-xs font-semibold focus:outline-none focus:border-amber-500">{{ old('my_update', $professional->my_update) }}</textarea>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-2 flex items-center justify-between">
+                        <span>Let's Connect / Personal Invitation (Tier 3)</span>
+                        <span class="text-[10px] text-slate-400 font-semibold lowercase">max 200 chars</span>
+                    </label>
+                    <textarea name="lets_connect" rows="2" maxlength="200" placeholder="e.g. Available for live tours, corporate galas, and festivals across East Africa..." class="w-full bg-slate-50 border border-slate-200 rounded-xl p-3.5 text-slate-900 text-xs font-semibold focus:outline-none focus:border-amber-500">{{ old('lets_connect', $professional->lets_connect) }}</textarea>
+                </div>
+            </div>
         </div>
     </div>
 

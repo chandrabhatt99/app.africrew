@@ -44,6 +44,18 @@
             <button type="button" onclick="openNegotiationModal({{ $req->id }}, {{ $req->budget ?: 250 }})" class="text-xs text-indigo-900 font-black bg-indigo-50 hover:bg-indigo-600 hover:text-white px-3.5 py-1.5 rounded-2xl border border-indigo-200 transition-all flex items-center gap-1.5 shadow-2xs">
                 💬 Negotiate Rate
             </button>
+
+            @if(!in_array($req->status, ['completed', 'cancelled']))
+                <!-- Reschedule Event Date -->
+                <button type="button" onclick="openRescheduleModal({{ $req->id }}, '{{ $req->event_date ? $req->event_date->format('Y-m-d') : date('Y-m-d') }}')" class="text-xs text-sky-900 font-black bg-sky-50 hover:bg-sky-600 hover:text-white px-3.5 py-1.5 rounded-2xl border border-sky-200 transition-all flex items-center gap-1.5 shadow-2xs" title="Reschedule event date">
+                    📅 Reschedule
+                </button>
+
+                <!-- Cancel Booking -->
+                <button type="button" onclick="confirmCancelBooking({{ $req->id }}, '{{ addslashes($req->event_name) }}')" class="text-xs text-rose-800 font-black bg-rose-50 hover:bg-rose-600 hover:text-white px-3.5 py-1.5 rounded-2xl border border-rose-200 transition-all flex items-center gap-1.5 shadow-2xs" title="Cancel booking">
+                    ✕ Cancel
+                </button>
+            @endif
         </div>
     </div>
 
@@ -71,8 +83,14 @@
 
         <div>
             <span class="text-[10px] font-extrabold text-slate-400 uppercase tracking-wider block">🛡️ Payment Status</span>
-            <span class="font-black text-xs sm:text-sm mt-0.5 block {{ $req->payment_status === 'paid' ? 'text-emerald-700' : 'text-amber-800' }}">
-                {{ $req->payment_status === 'paid' ? '✓ Paid in Full' : ($req->payment_status === 'deposit_paid' ? '✓ 50% Escrow Paid' : 'Pending Escrow') }}
+            <span class="font-black text-xs sm:text-sm mt-0.5 block {{ in_array($req->payment_status, ['paid', 'paid_to_admin', 'released_to_crew']) ? 'text-emerald-700' : 'text-amber-800' }}">
+                @if(in_array($req->payment_status, ['paid', 'released_to_crew']))
+                    ✓ Paid & Released
+                @elseif($req->payment_status === 'paid_to_admin')
+                    ✓ 50% Escrow Secured
+                @else
+                    Pending Escrow
+                @endif
             </span>
             <span class="text-[10px] text-slate-500 font-bold block">Escrow Protected</span>
         </div>
@@ -90,13 +108,13 @@
             </div>
         </div>
 
-        @if($req->payment_status !== 'paid')
+        @if(!in_array($req->payment_status, ['paid', 'paid_to_admin', 'released_to_crew']))
             <button type="button" onclick="openPaymentModal({{ $req->id }}, {{ $req->budget ?: 250 }}, '{{ $req->currency ?? 'USD' }}')" class="px-4 py-2.5 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-black text-xs shadow-lg transition-all shrink-0 flex items-center gap-1.5 border border-emerald-400">
                 <span>Pay Escrow Amount ⚡</span>
             </button>
         @else
             <span class="px-4 py-2 rounded-xl bg-emerald-500/20 border border-emerald-500/30 text-emerald-300 font-black text-xs shrink-0 flex items-center gap-1">
-                ✓ Escrow Fully Paid
+                ✓ 50% Escrow Safely Secured
             </span>
         @endif
     </div>
@@ -135,24 +153,20 @@
                             @endif
                         </div>
 
-                        @if($prop->status === 'pending' || $prop->status === 'countered')
+                        @if($prop->status === 'pending')
                             <div class="flex items-center gap-2 flex-wrap shrink-0">
-                                <!-- Accept Quote -->
-                                <form method="POST" action="{{ route('proposals.respond', $prop) }}" class="m-0">
-                                    @csrf
-                                    <input type="hidden" name="action" value="accept">
-                                    <button type="submit" class="px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-black text-xs shadow-2xs border-0">
-                                        ✓ Accept Quote
-                                    </button>
-                                </form>
+                                <span class="px-3 py-1.5 rounded-xl bg-amber-50 border border-amber-200 text-amber-800 font-extrabold text-xs flex items-center gap-1.5 shadow-2xs">
+                                    <span class="w-2 h-2 rounded-full bg-amber-500 animate-pulse"></span>
+                                    Awaiting Crew Acceptance
+                                </span>
 
                                 <!-- Client Counter Rate Button -->
-                                <button type="button" onclick="openProposalCounterModal({{ $prop->id }}, {{ $prop->custom_quote_amount ?: 250 }})" class="px-3.5 py-2 rounded-xl bg-amber-500 hover:bg-amber-600 text-slate-950 font-black text-xs shadow-2xs border-0">
+                                <button type="button" onclick="openProposalCounterModal({{ $prop->id }}, {{ $prop->custom_quote_amount ?: 250 }})" class="px-3.5 py-1.5 rounded-xl bg-amber-500 hover:bg-amber-600 text-slate-950 font-black text-xs shadow-2xs border-0 cursor-pointer">
                                     💬 Counter Rate
                                 </button>
 
                                 <!-- Live Chat Link -->
-                                <a href="{{ route('messages') }}" class="px-3 py-2 rounded-xl bg-slate-900 hover:bg-slate-800 text-amber-400 font-bold text-xs text-decoration-none">
+                                <a href="{{ route('messages') }}" class="px-3 py-1.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-amber-400 font-bold text-xs text-decoration-none">
                                     💬 Chat
                                 </a>
 
@@ -160,7 +174,32 @@
                                 <form method="POST" action="{{ route('proposals.respond', $prop) }}" class="m-0">
                                     @csrf
                                     <input type="hidden" name="action" value="reject">
-                                    <button type="submit" class="px-3.5 py-2 rounded-xl bg-rose-50 hover:bg-rose-100 text-rose-700 font-extrabold text-xs border border-rose-200">
+                                    <button type="submit" onclick="return confirm('Withdraw this booking request?');" class="px-3.5 py-1.5 rounded-xl bg-rose-50 hover:bg-rose-100 text-rose-700 font-extrabold text-xs border border-rose-200 cursor-pointer">
+                                        Decline
+                                    </button>
+                                </form>
+                            </div>
+                        @elseif($prop->status === 'countered')
+                            <div class="flex items-center gap-2 flex-wrap shrink-0">
+                                <span class="px-3 py-1.5 rounded-xl bg-purple-50 border border-purple-200 text-purple-800 font-extrabold text-xs">
+                                    🔄 Counter-Offer Received
+                                </span>
+
+                                <!-- Client Counter Rate Button -->
+                                <button type="button" onclick="openProposalCounterModal({{ $prop->id }}, {{ $prop->custom_quote_amount ?: 250 }})" class="px-3.5 py-1.5 rounded-xl bg-amber-500 hover:bg-amber-600 text-slate-950 font-black text-xs shadow-2xs border-0 cursor-pointer">
+                                    💬 Counter Rate
+                                </button>
+
+                                <!-- Live Chat Link -->
+                                <a href="{{ route('messages') }}" class="px-3 py-1.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-amber-400 font-bold text-xs text-decoration-none">
+                                    💬 Chat
+                                </a>
+
+                                <!-- Reject Quote -->
+                                <form method="POST" action="{{ route('proposals.respond', $prop) }}" class="m-0">
+                                    @csrf
+                                    <input type="hidden" name="action" value="reject">
+                                    <button type="submit" class="px-3.5 py-1.5 rounded-xl bg-rose-50 hover:bg-rose-100 text-rose-700 font-extrabold text-xs border border-rose-200 cursor-pointer">
                                         Decline
                                     </button>
                                 </form>

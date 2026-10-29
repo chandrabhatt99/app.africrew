@@ -293,9 +293,16 @@ class ProfessionalController extends Controller
         ]);
 
         $request->session()->put('pending_email', $professional->email);
+        $request->session()->put('submitted_name', $professional->full_name);
+        $request->session()->put('submitted_email', $professional->email);
+        $request->session()->put('submitted_category', $professional->category);
+        $request->session()->put('ref_id', 'AFR-CRW-' . str_pad($professional->id, 5, '0', STR_PAD_LEFT));
         $request->session()->put('verification_token', $token);
 
-        return redirect()->route('staff.verify.notice')->with('success', 'Account created! Please check your email to verify your address before continuing.');
+        // Send application received confirmation email to crew applicant
+        \App\Services\EmailNotificationService::sendApplicationReceivedToCrew($professional);
+
+        return redirect()->route('staff.verify.notice')->with('success', 'Application submitted! Your account is currently under review by the AfriCrew administration team.');
     }
 
     /**

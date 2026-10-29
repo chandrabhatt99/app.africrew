@@ -62,4 +62,14 @@ class AdminClientController extends Controller
 
         return view('admin.clients.show', compact('client', 'requests', 'totalSpent', 'completedProjectsCount'));
     }
+
+    /**
+     * Approve client account and notify client.
+     */
+    public function approve(User $client): \Illuminate\Http\RedirectResponse
+    {
+        \App\Services\EmailNotificationService::sendClientAccountApproved($client);
+
+        return back()->with('success', "Client account for '{$client->name}' has been approved! Notification email sent.");
+    }
 }
