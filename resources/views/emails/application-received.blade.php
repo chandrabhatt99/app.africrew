@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>We've received your application - AfriCrew</title>
+<title>Verify your email address - AfriCrew</title>
 </head>
 <body style="margin:0; padding:0; background-color:#F5F5F3; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;">
 <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background-color:#F5F5F3; padding:24px 0;">
@@ -15,12 +15,12 @@
 </td></tr>
 <!-- Content -->
 <tr><td style="padding:32px 32px 8px 32px;">
-<h1 style="margin:0 0 16px 0; font-size:20px; color:#111111; font-weight:700; line-height:26px;">We've received your application - AfriCrew</h1>
+<h1 style="margin:0 0 16px 0; font-size:20px; color:#111111; font-weight:700; line-height:26px;">Verify your email address</h1>
 <p style="margin:0 0 16px 0; font-size:15px; color:#2D2D2D; line-height:24px;">Hi {{ $firstName }},</p>
-<p style="margin:0 0 16px 0; font-size:15px; color:#2D2D2D; line-height:24px;">Thanks for applying to join AfriCrew.</p>
-<p style="margin:0 0 16px 0; font-size:15px; color:#2D2D2D; line-height:24px;">Your profile is now under review. Our team will verify your details within 24-48 hours.</p>
-<p style="margin:0 0 16px 0; font-size:15px; color:#2D2D2D; line-height:24px;">You'll get an update as soon as you're approved.</p>
-<p style="margin:0 0 16px 0; font-size:15px; color:#2D2D2D; line-height:24px;"><br>AfriCrew Team</p>
+<p style="margin:0 0 16px 0; font-size:15px; color:#2D2D2D; line-height:24px;">Thanks for creating an AfriCrew crew account. Verify your email to continue building your resume and submit your profile for review.</p>
+<p style="margin:24px 0; text-align:center;"><a href="{{ $verificationUrl }}" style="display:inline-block; padding:14px 24px; border-radius:10px; background:#0A0A0A; color:#FFB52E; font-size:14px; font-weight:700; text-decoration:none;">Verify email and continue</a></p>
+<p style="margin:0 0 16px 0; font-size:13px; color:#6B7280; line-height:21px;">If the button doesn’t work, copy and paste this link into your browser:<br><a href="{{ $verificationUrl }}" style="color:#B45309; word-break:break-all;">{{ $verificationUrl }}</a></p>
+<p style="margin:0 0 16px 0; font-size:15px; color:#2D2D2D; line-height:24px;">AfriCrew Team</p>
 
 </td></tr>
 

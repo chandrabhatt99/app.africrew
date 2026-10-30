@@ -9,6 +9,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
+use Illuminate\Validation\Rules\Password;
 
 class CrewApiController extends Controller
 {
@@ -22,7 +23,7 @@ class CrewApiController extends Controller
             'username' => ['required', 'string', 'max:100', 'unique:professionals,username'],
             'email' => ['required', 'string', 'email', 'max:150', 'unique:professionals,email'],
             'phone' => ['required', 'string', 'max:30'],
-            'password' => ['required', 'string', 'min:8', 'confirmed'],
+            'password' => ['required', 'string', Password::min(8)->mixedCase()->numbers()->symbols(), 'confirmed'],
             'category' => ['required', 'string', 'max:100'],
             'gender' => ['nullable', 'string', 'in:Male,Female,Other'],
             'city' => ['nullable', 'string', 'max:100'],

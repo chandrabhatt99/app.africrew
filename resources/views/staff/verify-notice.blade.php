@@ -25,7 +25,35 @@
 
     <div class="max-w-xl w-full bg-white border border-slate-200/90 rounded-3xl p-6 sm:p-10 shadow-xl relative z-10 text-center">
 
-        @if($isRejected)
+        @if($professional && !$professional->email_verified_at)
+            <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-amber-500/10 border border-amber-500/20 text-amber-800 text-xs font-black uppercase tracking-wider mb-6">
+                <span>✉️ Email Verification Required</span>
+            </div>
+
+            <div class="w-20 h-20 rounded-3xl bg-amber-50 border-2 border-amber-200 text-amber-600 flex items-center justify-center mx-auto mb-5 shadow-sm text-3xl">
+                ✉️
+            </div>
+
+            <h1 class="text-2xl sm:text-3xl font-black text-slate-950 tracking-tight">Verify your email to continue</h1>
+            <p class="text-slate-600 text-sm leading-relaxed mt-3 max-w-md mx-auto">
+                We sent a verification button to <strong class="text-slate-900">{{ $email }}</strong>. Open that email and select <strong>Verify email and continue</strong> to go directly to your crew profile and resume.
+            </p>
+
+            @if(session('success') || session('error'))
+                <div class="mt-4 p-3.5 rounded-2xl {{ session('error') ? 'bg-rose-50 border-rose-200 text-rose-900' : 'bg-emerald-50 border-emerald-200 text-emerald-900' }} border text-xs font-bold">
+                    {{ session('error') ?: session('success') }}
+                </div>
+            @endif
+
+            <form method="POST" action="{{ route('staff.verify.resend') }}" class="mt-6">
+                @csrf
+                <input type="hidden" name="email" value="{{ $email }}">
+                <button type="submit" class="px-7 py-3 rounded-full bg-slate-950 hover:bg-slate-900 text-amber-400 font-extrabold text-xs transition-all shadow-md">
+                    Resend verification email
+                </button>
+            </form>
+
+        @elseif($isRejected)
             <!-- REJECTED STATE -->
             <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-rose-500/10 border border-rose-500/20 text-rose-800 text-xs font-black uppercase tracking-wider mb-6">
                 <span>✕ Application Not Approved</span>

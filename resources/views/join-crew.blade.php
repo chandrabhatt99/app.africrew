@@ -1,6 +1,31 @@
 @extends('layouts.app')
 
 @section('content')
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/intl-tel-input@25.12.2/build/css/intlTelInput.css">
+<style>
+    .iti {
+        display: block;
+        width: 100%;
+    }
+
+    #crew-phone-input {
+        box-sizing: border-box;
+        height: 48px;
+        padding-left: 112px !important;
+        padding-right: 16px !important;
+    }
+
+    .iti__country-container {
+        padding: 4px;
+    }
+
+    .iti__selected-country {
+        height: 100%;
+        border-right: 1px solid #e2e8f0;
+        border-radius: 0.55rem 0 0 0.55rem;
+    }
+</style>
+
 <section class="max-w-xl mx-auto px-6 py-16">
     <!-- Header -->
     <div class="mb-8 text-center">
@@ -24,6 +49,9 @@
                 @endforeach
             </ul>
         </div>
+    @endif
+    @if(session('error'))
+        <div class="mb-6 p-4 rounded-xl bg-rose-50 border border-rose-200 text-rose-800 text-sm">{{ session('error') }}</div>
     @endif
 
     <!-- Registration Card -->
@@ -60,7 +88,7 @@
             </div>
         </div>
 
-        <form method="POST" action="{{ route('crew.store') }}" class="space-y-5">
+        <form id="crew-registration-form" method="POST" action="{{ route('crew.store') }}" class="space-y-5">
             @csrf
 
             <!-- Full Name -->
@@ -133,7 +161,7 @@
             </div>
 
             <!-- Email Address & Phone Number -->
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div class="grid grid-cols-1 gap-4">
                 <div>
                     <label class="block text-xs font-extrabold uppercase tracking-wider text-slate-700 mb-1.5">
                         Email Address <span class="text-amber-600">*</span>
@@ -145,8 +173,11 @@
                     <label class="block text-xs font-extrabold uppercase tracking-wider text-slate-700 mb-1.5">
                         Phone Number <span class="text-amber-600">*</span>
                     </label>
-                    <input type="text" name="phone" value="{{ old('phone') }}" required placeholder="e.g. +254 712 345 678"
+                    <input type="tel" id="crew-phone-input" required inputmode="tel" autocomplete="tel" placeholder="Enter your phone number"
                         class="w-full bg-slate-50 border border-slate-200 text-slate-900 placeholder-slate-400 text-sm rounded-xl px-4 py-3 outline-none focus:border-amber-500 focus:bg-white transition-colors">
+                    <input type="hidden" id="crew-phone-number" name="phone" value="{{ old('phone') }}">
+                    <input type="hidden" id="crew-phone-country" name="phone_country_iso2" value="{{ old('phone_country_iso2', 'KE') }}">
+                    <p id="crew-phone-error" class="mt-1 text-xs text-rose-600" aria-live="polite"></p>
                 </div>
             </div>
 
@@ -155,8 +186,12 @@
                 <label class="block text-xs font-extrabold uppercase tracking-wider text-slate-700 mb-1.5">
                     Password <span class="text-amber-600">*</span>
                 </label>
-                <input type="password" name="password" required placeholder="Minimum 8 characters"
-                    class="w-full bg-slate-50 border border-slate-200 text-slate-900 placeholder-slate-400 text-sm rounded-xl px-4 py-3 outline-none focus:border-amber-500 focus:bg-white transition-colors">
+                <div class="relative">
+                    <input type="password" id="password" name="password" data-password-strength required minlength="8" placeholder="At least 8 characters"
+                        class="w-full bg-slate-50 border border-slate-200 text-slate-900 placeholder-slate-400 text-sm rounded-xl px-4 pr-12 py-3 outline-none focus:border-amber-500 focus:bg-white transition-colors">
+                    @include('components.password-visibility', ['inputId' => 'password'])
+                </div>
+                @include('components.password-strength-checklist', ['inputId' => 'password'])
             </div>
 
             <!-- Confirm Password -->
@@ -164,8 +199,11 @@
                 <label class="block text-xs font-extrabold uppercase tracking-wider text-slate-700 mb-1.5">
                     Confirm Password <span class="text-amber-600">*</span>
                 </label>
-                <input type="password" name="password_confirmation" required placeholder="Re-enter your password"
-                    class="w-full bg-slate-50 border border-slate-200 text-slate-900 placeholder-slate-400 text-sm rounded-xl px-4 py-3 outline-none focus:border-amber-500 focus:bg-white transition-colors">
+                <div class="relative">
+                    <input type="password" id="password_confirmation" name="password_confirmation" required placeholder="Re-enter your password"
+                        class="w-full bg-slate-50 border border-slate-200 text-slate-900 placeholder-slate-400 text-sm rounded-xl px-4 pr-12 py-3 outline-none focus:border-amber-500 focus:bg-white transition-colors">
+                    @include('components.password-visibility', ['inputId' => 'password_confirmation', 'label' => 'password confirmation'])
+                </div>
             </div>
 
             <!-- Accessible Terms & Conditions Scrollable Box -->
@@ -212,6 +250,7 @@
     </div>
 </section>
 
+<script src="https://cdn.jsdelivr.net/npm/intl-tel-input@25.12.2/build/js/intlTelInput.min.js"></script>
 <script>
     let usernameTimeout = null;
 
@@ -267,5 +306,60 @@
         const submitBtn = document.getElementById('submit-btn');
         submitBtn.disabled = !checkbox.checked;
     }
+
+    document.addEventListener('DOMContentLoaded', () => {
+        const phoneInput = document.getElementById('crew-phone-input');
+        const phoneNumber = document.getElementById('crew-phone-number');
+        const phoneCountry = document.getElementById('crew-phone-country');
+        const phoneError = document.getElementById('crew-phone-error');
+        const form = document.getElementById('crew-registration-form');
+
+        if (!window.intlTelInput) {
+            phoneError.textContent = 'The country selector could not be loaded. Please refresh the page and try again.';
+            form.querySelector('[type="submit"]').disabled = true;
+            return;
+        }
+
+        const phoneInputInstance = window.intlTelInput(phoneInput, {
+            initialCountry: phoneCountry.value.toLowerCase(),
+            separateDialCode: true,
+            nationalMode: true,
+            countrySearch: true,
+            showFlags: true,
+            validationNumberType: null,
+            loadUtils: () => import('https://cdn.jsdelivr.net/npm/intl-tel-input@25.12.2/build/js/utils.js'),
+        });
+
+        phoneInputInstance.promise.then(() => {
+            if (phoneNumber.value) {
+                phoneInputInstance.setNumber(phoneNumber.value);
+            }
+        });
+
+        phoneInput.addEventListener('countrychange', () => {
+            phoneCountry.value = phoneInputInstance.getSelectedCountryData().iso2.toUpperCase();
+        });
+
+        phoneInput.addEventListener('input', () => {
+            phoneInput.setCustomValidity('');
+            phoneError.textContent = '';
+        });
+
+        form.addEventListener('submit', async (event) => {
+            event.preventDefault();
+            await phoneInputInstance.promise;
+
+            if (!phoneInput.value.trim() || !phoneInputInstance.isValidNumber()) {
+                phoneInput.setCustomValidity('Enter a valid phone number for the selected country.');
+                phoneInput.reportValidity();
+                phoneError.textContent = 'Enter a valid phone number for the selected country.';
+                return;
+            }
+
+            phoneNumber.value = phoneInputInstance.getNumber();
+            phoneCountry.value = phoneInputInstance.getSelectedCountryData().iso2.toUpperCase();
+            form.submit();
+        });
+    });
 </script>
 @endsection

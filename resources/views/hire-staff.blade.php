@@ -101,6 +101,9 @@
                 </ul>
             </div>
         @endif
+        @if(session('error'))
+            <div class="p-4 rounded-2xl bg-rose-50 border border-rose-200 text-rose-800 text-xs font-bold shadow-xs">{{ session('error') }}</div>
+        @endif
 
         <!-- MAIN WIZARD FORM -->
         <form id="hiring-form" method="POST" action="{{ route('hire.store') }}" enctype="multipart/form-data">
@@ -219,11 +222,18 @@
                             <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2 border-t border-slate-200/60">
                                 <div>
                                     <label class="block text-xs font-bold text-slate-600 mb-1">Create Password *</label>
-                                    <input type="password" id="password" name="password" required placeholder="Min 6 characters" class="w-full bg-white border border-slate-200 rounded-xl px-4 py-3 text-sm text-slate-900 outline-none focus:border-rose-500">
+                                    <div class="relative">
+                                        <input type="password" id="password" name="password" data-password-strength required minlength="8" placeholder="At least 8 characters" class="w-full bg-white border border-slate-200 rounded-xl px-4 pr-12 py-3 text-sm text-slate-900 outline-none focus:border-rose-500">
+                                        @include('components.password-visibility', ['inputId' => 'password'])
+                                    </div>
+                                    @include('components.password-strength-checklist', ['inputId' => 'password'])
                                 </div>
                                 <div>
                                     <label class="block text-xs font-bold text-slate-600 mb-1">Confirm Password *</label>
-                                    <input type="password" id="password_confirmation" name="password_confirmation" required placeholder="Re-enter password" class="w-full bg-white border border-slate-200 rounded-xl px-4 py-3 text-sm text-slate-900 outline-none focus:border-rose-500">
+                                    <div class="relative">
+                                        <input type="password" id="password_confirmation" name="password_confirmation" required placeholder="Re-enter password" class="w-full bg-white border border-slate-200 rounded-xl px-4 pr-12 py-3 text-sm text-slate-900 outline-none focus:border-rose-500">
+                                        @include('components.password-visibility', ['inputId' => 'password_confirmation', 'label' => 'password confirmation'])
+                                    </div>
                                 </div>
                             </div>
                         @else

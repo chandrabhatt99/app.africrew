@@ -58,9 +58,13 @@
                 @if(Auth::check() && (!Auth::user()->is_admin || Auth::user()->role === 'client' || request()->routeIs('client.*')))
                     <!-- Client Portal User Badge -->
                     <a href="{{ route('client.dashboard') }}" class="flex items-center gap-2 text-decoration-none group">
-                        <div class="w-8 h-8 rounded-xl bg-slate-900 text-amber-400 font-black flex items-center justify-center text-xs shadow-xs group-hover:scale-105 transition-transform border border-amber-400/40">
-                            {{ strtoupper(substr(Auth::user()->name ?? 'C', 0, 1)) }}
-                        </div>
+                        @if(Auth::user()->avatar)
+                            <img src="{{ Auth::user()->avatar }}" alt="{{ Auth::user()->name }}" class="w-8 h-8 rounded-xl object-cover border border-amber-400 shadow-xs group-hover:scale-105 transition-transform">
+                        @else
+                            <div class="w-8 h-8 rounded-xl bg-slate-900 text-amber-400 font-black flex items-center justify-center text-xs shadow-xs group-hover:scale-105 transition-transform border border-amber-400/40">
+                                {{ strtoupper(substr(Auth::user()->name ?? 'C', 0, 1)) }}
+                            </div>
+                        @endif
                         <div class="hidden sm:flex flex-col text-left">
                             <span class="text-xs font-black text-slate-900 group-hover:text-amber-600 transition-colors">{{ Auth::user()->name }}</span>
                             <span class="text-[9px] font-black uppercase tracking-wider text-amber-700">CLIENT</span>
@@ -195,9 +199,13 @@
                 @if(Auth::check() && (!Auth::user()->is_admin || Auth::user()->role === 'client'))
                     <a href="{{ route('client.dashboard') }}" class="px-5 py-2.5 rounded-full bg-amber-50 border border-amber-200 text-amber-900 font-extrabold text-sm text-decoration-none flex items-center gap-2 hover:bg-amber-100 transition-all shadow-2xs">
                         <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-                        <div class="w-6 h-6 rounded-full bg-slate-900 text-amber-400 font-black flex items-center justify-center text-[11px]">
-                            {{ strtoupper(substr(Auth::user()->name ?? 'C', 0, 1)) }}
-                        </div>
+                        @if(Auth::user()->avatar)
+                            <img src="{{ Auth::user()->avatar }}" alt="{{ Auth::user()->name }}" class="w-6 h-6 rounded-full object-cover border border-amber-400">
+                        @else
+                            <div class="w-6 h-6 rounded-full bg-slate-900 text-amber-400 font-black flex items-center justify-center text-[11px]">
+                                {{ strtoupper(substr(Auth::user()->name ?? 'C', 0, 1)) }}
+                            </div>
+                        @endif
                         <span>Client Portal</span>
                     </a>
                     <form method="POST" action="{{ route('client.logout') }}" class="m-0">

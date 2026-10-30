@@ -13,6 +13,7 @@ use App\Models\User;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Validation\Rules\Password;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
 
@@ -68,7 +69,7 @@ class ClientMobileController extends Controller
         $validator = Validator::make($request->all(), [
             'email' => 'required|email',
             'token' => 'required|string',
-            'password' => 'required|string|min:8|confirmed',
+            'password' => ['required', 'string', Password::min(8)->mixedCase()->numbers()->symbols(), 'confirmed'],
         ]);
 
         if ($validator->fails()) {
@@ -118,7 +119,7 @@ class ClientMobileController extends Controller
             'phone' => ['nullable', 'string', 'max:50'],
             'company_name' => ['nullable', 'string', 'max:255'],
             'current_password' => ['nullable', 'string'],
-            'new_password' => ['nullable', 'string', 'min:8', 'confirmed'],
+            'new_password' => ['nullable', 'string', Password::min(8)->mixedCase()->numbers()->symbols(), 'confirmed'],
             'avatar' => ['nullable', 'image', 'max:5120'],
         ]);
 

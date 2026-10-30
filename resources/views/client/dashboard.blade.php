@@ -13,6 +13,52 @@
             </div>
         @endif
 
+        <section class="bg-white border border-slate-200 rounded-3xl p-5 sm:p-6 shadow-xs">
+            <div class="flex flex-col lg:flex-row lg:items-start gap-5">
+                <div class="flex items-center gap-3 lg:w-1/3">
+                    @if($user->avatar)
+                        <img src="{{ $user->avatar }}" alt="{{ $user->name }}" class="w-14 h-14 rounded-2xl object-cover border border-amber-300 shadow-xs">
+                    @else
+                        <div class="w-14 h-14 rounded-2xl bg-slate-900 text-amber-400 font-black flex items-center justify-center text-xl">
+                            {{ strtoupper(substr($user->name ?: 'C', 0, 1)) }}
+                        </div>
+                    @endif
+                    <div class="min-w-0">
+                        <h2 class="text-base font-black text-slate-900">Your Account Profile</h2>
+                        <p class="text-xs text-slate-500 break-all">{{ $user->email }}</p>
+                        @if($user->auth_provider)
+                            <span class="inline-flex mt-1 px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-800 text-[10px] font-bold">
+                                Signed in with {{ ucfirst($user->auth_provider) }}
+                            </span>
+                        @endif
+                    </div>
+                </div>
+
+                <form method="POST" action="{{ route('client.profile.update') }}" class="grid grid-cols-1 sm:grid-cols-2 gap-3 flex-1">
+                    @csrf
+                    <div>
+                        <label for="client-profile-name" class="block text-xs font-bold text-slate-600 mb-1">Full name</label>
+                        <input id="client-profile-name" type="text" name="name" value="{{ old('name', $user->name) }}" required maxlength="255"
+                            class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2.5 text-sm text-slate-900 focus:border-amber-500 outline-none">
+                    </div>
+                    <div>
+                        <label for="client-profile-phone" class="block text-xs font-bold text-slate-600 mb-1">Phone</label>
+                        <input id="client-profile-phone" type="tel" name="phone" value="{{ old('phone', $user->phone) }}" maxlength="50"
+                            class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2.5 text-sm text-slate-900 focus:border-amber-500 outline-none">
+                    </div>
+                    <div>
+                        <label for="client-profile-company" class="block text-xs font-bold text-slate-600 mb-1">Company</label>
+                        <input id="client-profile-company" type="text" name="company_name" value="{{ old('company_name', $user->company_name) }}" maxlength="255"
+                            class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2.5 text-sm text-slate-900 focus:border-amber-500 outline-none">
+                    </div>
+                    <div class="flex items-end">
+                        <button type="submit" class="w-full sm:w-auto px-5 py-2.5 rounded-xl bg-slate-900 text-amber-400 text-xs font-black hover:bg-slate-800 transition-colors">
+                            Save Profile
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </section>
 
 
         @php

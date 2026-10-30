@@ -23,6 +23,9 @@
                 @endforeach
             </div>
         @endif
+        @if(session('error'))
+            <div class="p-4 rounded-2xl bg-rose-50 border border-rose-200 text-rose-800 text-xs font-bold shadow-xs">{{ session('error') }}</div>
+        @endif
 
         <!-- Social Login Options -->
         <div class="space-y-3">

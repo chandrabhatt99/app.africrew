@@ -13,7 +13,9 @@
     $userName = $isClientView 
         ? (Auth::user()->name ?? 'Client User')
         : ($sidebarProf ? ($sidebarProf->full_name ?? $sidebarProf->username ?? 'Crew Member') : 'Crew Member');
-    $userAvatar = $sidebarProf ? $sidebarProf->profile_photo_url : null;
+    $userAvatar = $isClientView
+        ? Auth::user()->avatar
+        : ($sidebarProf ? $sidebarProf->profile_photo_url : null);
 
     $sidebarUnreadCount = 0;
     if (Auth::check()) {
@@ -432,5 +434,4 @@
         }
     }
 </script>
-
 

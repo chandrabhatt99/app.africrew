@@ -25,22 +25,11 @@ class ProfessionalDashboardController extends Controller
 
     private function ensureOnboarded(Professional $professional): ?RedirectResponse
     {
-        // Only redirect to verification/interview notice if new applicant who has not yet completed onboarding/approval
-        if ($professional->status === 'pending' && !$professional->is_onboarded) {
-            return redirect()->route('staff.verify.notice')->with([
-                'submitted_name' => $professional->full_name,
-                'submitted_email' => $professional->email,
-                'submitted_category' => $professional->category,
-                'ref_id' => 'AFR-CRW-' . str_pad($professional->id, 5, '0', STR_PAD_LEFT),
-                'info' => 'Your crew application is currently under review by our administration team. You will be notified via email once approved.'
-            ]);
-        }
-
         if (is_null($professional->email_verified_at)) {
             return redirect()->route('staff.verify.notice')->with('error', 'Please verify your email address to continue.');
         }
 
-        $isComplete = ($professional->completion_percentage >= 80) || (bool)$professional->is_onboarded;
+        $isComplete = ($professional->completion_percentage >= 60) || (bool)$professional->is_onboarded;
 
         // If staff has not completed profile setup and is attempting to access non-profile pages, force redirect to profile wizard
         if (!$isComplete && !request()->routeIs('professional.profile', 'professional.profile.update', 'professional.suggest-skill', 'professional.referees.request-verification', 'professional.submit-review-request')) {
@@ -492,9 +481,6 @@ class ProfessionalDashboardController extends Controller
             }
         }
 
-        // Updating profile does not reset status to pending or trigger an interview
-        // (Vetting interview is only for initial crew self-registration)
-
         // Clean education array items & handle verification document uploads
         $existingEdu = is_array($professional->education) ? $professional->education : [];
         if (isset($data['education']) && is_array($data['education'])) {
@@ -643,7 +629,12 @@ class ProfessionalDashboardController extends Controller
 
         // Calculate completion status
         $professional->fill($data);
-        $data['is_onboarded'] = ($professional->completion_percentage >= 80);
+        $data['is_onboarded'] = ($professional->completion_percentage >= 60);
+
+        if ($professional->status === 'approved') {
+            $data['status'] = 'pending';
+            $data['submitted_for_review_at'] = $professional->completion_percentage >= 60 ? now() : null;
+        }
 
         $professional->update($data);
 
@@ -660,6 +651,10 @@ class ProfessionalDashboardController extends Controller
                 'next_requirement' => $professional->next_incomplete_requirement,
                 'message' => 'Saved'
             ]);
+        }
+
+        if ($request->input('action') === 'submit_for_review') {
+            return $this->submitReviewRequest($request);
         }
 
         return back()->with('active_tab', $activeTab)->with('success', 'Profile section saved successfully!');
@@ -749,16 +744,21 @@ class ProfessionalDashboardController extends Controller
             return redirect()->route('staff.login');
         }
 
-        // Only newly registered unapproved applicants are flagged pending for initial review
-        if ($professional->status !== 'approved') {
-            $professional->update([
-                'submitted_for_review_at' => now(),
-                'status' => 'pending',
-            ]);
-            return back()->with('success', "Your profile details have been submitted for administrator review.");
+        if (!$professional->email_verified_at) {
+            return back()->withErrors(['profile' => 'Verify your email address before submitting your profile for review.']);
         }
 
-        return back()->with('success', "Your profile changes have been saved and are live on your public profile!");
+        if ($professional->completion_percentage < 60) {
+            return back()->withErrors(['profile' => 'Your profile must be at least 60% complete before you can submit it for review.']);
+        }
+
+        $professional->update([
+            'submitted_for_review_at' => now(),
+            'status' => 'pending',
+            'is_onboarded' => true,
+        ]);
+
+        return back()->with('success', 'Your profile has been submitted for administrator review. Any profile updates will be approved before becoming public.');
     }
 
     public function reviewsTab(Request $request): View|RedirectResponse

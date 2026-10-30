@@ -18,6 +18,7 @@ use App\Services\EmailNotificationService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Validation\Rules\Password;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Storage;
@@ -76,7 +77,7 @@ class CrewMobileController extends Controller
         $validator = Validator::make($request->all(), [
             'email' => 'required|email',
             'token' => 'required|string',
-            'password' => 'required|string|min:8|confirmed',
+            'password' => ['required', 'string', Password::min(8)->mixedCase()->numbers()->symbols(), 'confirmed'],
         ]);
 
         if ($validator->fails()) {

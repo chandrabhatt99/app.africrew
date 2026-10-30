@@ -71,8 +71,11 @@ class Professional extends Model
         if ($this->status === 'suspended') {
             return 'Account Suspended';
         }
-        if ($this->interview_status === 'scheduled' || !empty($this->interview_notes)) {
-            return 'More Information Required / Interview Requested';
+        if ($this->interview_status === 'scheduled') {
+            return 'Interview Scheduled';
+        }
+        if (!empty($this->interview_notes)) {
+            return 'More Information Required';
         }
         if (!is_null($this->submitted_for_review_at)) {
             return 'Under Review';

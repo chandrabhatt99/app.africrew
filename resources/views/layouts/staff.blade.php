@@ -42,6 +42,11 @@
     <!-- SweetAlert2 CDN -->
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
+    <!-- Facebook Open Graph App ID -->
+    @if(config('services.facebook.client_id'))
+    <meta property="fb:app_id" content="{{ config('services.facebook.client_id') }}">
+    @endif
+
     <!-- Meta Pixel Code -->
     @include('partials.meta-pixel')
 </head>

@@ -28,12 +28,19 @@
 
             <div>
                 <label class="block text-slate-700 mb-1">New Password</label>
-                <input type="password" name="password" placeholder="At least 8 characters" required class="w-full px-4 py-3 border border-slate-300 rounded-2xl focus:outline-none focus:border-amber-500">
+                <div class="relative">
+                    <input type="password" id="password" name="password" data-password-strength placeholder="At least 8 characters" minlength="8" required class="w-full px-4 pr-12 py-3 border border-slate-300 rounded-2xl focus:outline-none focus:border-amber-500">
+                    @include('components.password-visibility', ['inputId' => 'password'])
+                </div>
+                @include('components.password-strength-checklist', ['inputId' => 'password'])
             </div>
 
             <div>
                 <label class="block text-slate-700 mb-1">Confirm New Password</label>
-                <input type="password" name="password_confirmation" placeholder="Re-enter password" required class="w-full px-4 py-3 border border-slate-300 rounded-2xl focus:outline-none focus:border-amber-500">
+                <div class="relative">
+                    <input type="password" id="password_confirmation" name="password_confirmation" placeholder="Re-enter password" required class="w-full px-4 pr-12 py-3 border border-slate-300 rounded-2xl focus:outline-none focus:border-amber-500">
+                    @include('components.password-visibility', ['inputId' => 'password_confirmation', 'label' => 'password confirmation'])
+                </div>
             </div>
 
             <button type="submit" class="w-full py-3.5 bg-gradient-to-r from-amber-500 via-orange-500 to-rose-500 text-white font-black rounded-2xl text-xs shadow-md hover:opacity-95 transition-all">

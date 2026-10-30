@@ -13,6 +13,7 @@ use App\Models\User;
 use App\Services\EmailNotificationService;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Validation\Rules\Password;
 
 class StaffingRequestController extends Controller
 {
@@ -106,7 +107,7 @@ class StaffingRequestController extends Controller
             'rate_type' => ['nullable', 'string', 'in:fixed,negotiable'],
             'currency' => ['nullable', 'string', 'in:USD,KES'],
             'attachment' => ['nullable', 'file', 'max:10240'],
-            'password' => [Auth::check() ? 'nullable' : 'required', 'string', 'min:8', 'confirmed'],
+            'password' => [Auth::check() ? 'nullable' : 'required', 'string', Password::min(8)->mixedCase()->numbers()->symbols(), 'confirmed'],
             'requested_professional_id' => ['nullable'],
             'requested_professional_ids' => ['nullable'],
         ]);

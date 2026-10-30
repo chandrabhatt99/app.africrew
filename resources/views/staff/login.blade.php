@@ -107,6 +107,9 @@
                 <span>✓ {{ session('success') }}</span>
             </div>
         @endif
+        @if(session('error'))
+            <div class="p-3.5 rounded-2xl bg-rose-50 border border-rose-200 text-rose-800 text-xs font-bold shadow-xs">{{ session('error') }}</div>
+        @endif
 
         @if($errors->any() && !session('status_rejected'))
             <div class="p-3.5 rounded-2xl bg-rose-50 border border-rose-200 text-rose-800 text-xs font-bold shadow-xs">

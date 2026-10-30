@@ -442,8 +442,9 @@
             </div>
         @endif
 
-        <!-- 1. FULL WIDTH COVER PHOTO BANNER (END-TO-END) -->
-        <div class="relative h-60 sm:h-72 md:h-80 w-full overflow-hidden bg-gradient-to-r from-slate-950 via-slate-900 to-slate-950">
+        <!-- 1. COVER PHOTO BANNER -->
+        <div class="w-full crew-side-padding pt-4">
+        <div class="relative h-60 sm:h-72 md:h-80 w-full overflow-hidden rounded-t-3xl bg-gradient-to-r from-slate-950 via-slate-900 to-slate-950">
             <img src="{{ $coverPhoto }}" alt="{{ $displayName }} Cover Header" class="w-full h-full object-cover object-center opacity-85 transform hover:scale-105 transition-transform duration-700">
             <div class="absolute inset-0 bg-gradient-to-t from-[#090E1A] via-[#090E1A]/40 to-black/30"></div>
 
@@ -474,9 +475,11 @@
                 </form>
             </div>
         </div>
+        </div>
 
-        <!-- 2. FULL WIDTH NAME & PROFILE DETAILS BAR (END-TO-END) -->
-        <div class="w-full bg-[#090E1A] border-b border-slate-800/80 shadow-xl relative z-20">
+        <!-- 2. NAME & PROFILE DETAILS BAR -->
+        <div class="w-full crew-side-padding">
+        <div class="w-full bg-[#090E1A] rounded-b-3xl border-b border-slate-800/80 shadow-xl relative z-20">
             <div class="w-full px-4 sm:px-6 lg:px-8 pb-6 pt-3">
                 <div class="flex flex-col md:flex-row items-start md:items-end justify-between gap-6 relative z-20">
 
@@ -609,9 +612,10 @@
                 </div>
             </div>
         </div>
+        </div>
 
     <!-- Sticky Section Navigation Tab Bar (WITH 8% PADDING ON BOTH SIDES) -->
-    <div class="sticky top-0 z-40 bg-white/95 backdrop-blur-md border-b border-slate-200/80 shadow-xs my-6 transition-all">
+    <div class="sticky top-[76px] sm:top-[84px] z-40 bg-white/95 backdrop-blur-md border-b border-slate-200/80 shadow-xs my-6 transition-all">
         <div class="w-full crew-side-padding">
             <div class="flex items-center gap-2 sm:gap-6 overflow-x-auto no-scrollbar py-3 text-xs font-bold text-slate-600">
                 <a href="#about-section" class="nav-tab-btn px-4 py-2 rounded-xl hover:bg-slate-100 hover:text-slate-900 transition-all shrink-0 font-extrabold flex items-center gap-1.5">
@@ -644,7 +648,7 @@
                 <div class="lg:col-span-8 space-y-8">
 
                     <!-- SECTION 1: MY PERSONA (3 TIERS) & WHERE I WORK (MATCHING EXACT USER MOCKUP) -->
-                    <section id="about-section" class="scroll-mt-28 bg-white border border-slate-200/90 rounded-3xl p-6 sm:p-8 md:p-10 shadow-xs space-y-7 sm:space-y-8">
+                    <section id="about-section" class="scroll-mt-40 bg-white border border-slate-200/90 rounded-3xl p-6 sm:p-8 md:p-10 shadow-xs space-y-7 sm:space-y-8">
                         
                         <!-- Header: MY PERSONA (Pink Uppercase Label) -->
                         <div class="space-y-3">
@@ -738,7 +742,7 @@
                     </section>
 
                     <!-- SECTION 2: SKILLS & EXPERTISE (CLEAN, ULTRA-THIN HAIRLINE BORDERS) -->
-                    <section id="skills-section" class="scroll-mt-28 bg-[#090E1A] text-white rounded-3xl p-6 sm:p-8 shadow-2xl space-y-6" style="border: 0.5px solid rgba(255, 255, 255, 0.08) !important;">
+                    <section id="skills-section" class="scroll-mt-40 bg-[#090E1A] text-white rounded-3xl p-6 sm:p-8 shadow-2xl space-y-6" style="border: 0.5px solid rgba(255, 255, 255, 0.08) !important;">
                         <div class="flex items-center justify-between pb-3 skills-thin-border-bottom" style="border-bottom: 0.5px solid rgba(255, 255, 255, 0.08) !important;">
                             <div>
                                 <div class="flex items-center gap-2.5">
@@ -824,7 +828,7 @@
                     </section>
 
                     <!-- SECTION 3: EDUCATION BACKGROUND (ALL SAVED EDUCATION RECORDS) -->
-                    <section id="education-section" class="scroll-mt-28 bg-white border border-slate-200/90 rounded-3xl p-6 sm:p-8 shadow-xs space-y-6">
+                    <section id="education-section" class="scroll-mt-40 bg-white border border-slate-200/90 rounded-3xl p-6 sm:p-8 shadow-xs space-y-6">
                         <div class="flex items-center justify-between pb-3 border-b border-slate-100">
                             <div class="flex items-center gap-2.5">
                                 <span class="w-8 h-8 rounded-full bg-[#FFF6EE] border border-[#FFE7D6] flex items-center justify-center shrink-0 shadow-2xs">
@@ -881,7 +885,7 @@
                     </section>
 
                     <!-- SECTION 4: WORK EXPERIENCE (MATCHING DARK THEME & BORDERS AS SKILLS) -->
-                    <section id="experience-section" class="scroll-mt-28 bg-[#090E1A] text-white rounded-3xl p-6 sm:p-8 shadow-2xl border border-slate-800 space-y-6">
+                    <section id="experience-section" class="scroll-mt-40 bg-[#090E1A] text-white rounded-3xl p-6 sm:p-8 shadow-2xl border border-slate-800 space-y-6">
                         <div class="flex items-center justify-between pb-3 border-b border-slate-800">
                             <div>
                                 <h2 class="text-xl sm:text-2xl font-black text-white tracking-tight m-0">Work Experience</h2>
@@ -937,7 +941,7 @@
                     </section>
 
                     <!-- SECTION 5: PORTFOLIO GALLERY (PROOF OF PROFESSIONALISM) -->
-                    <section id="portfolio-section" class="scroll-mt-28 bg-white border border-slate-200/90 rounded-3xl p-6 sm:p-8 shadow-xs space-y-6">
+                    <section id="portfolio-section" class="scroll-mt-40 bg-white border border-slate-200/90 rounded-3xl p-6 sm:p-8 shadow-xs space-y-6">
                         <div class="flex items-center justify-between pb-3 border-b border-slate-100">
                             <div>
                                 <span class="text-[11px] font-black uppercase tracking-widest text-rose-500 block mb-1">EVIDENCE</span>
@@ -977,7 +981,7 @@
                     </section>
 
                     <!-- SECTION 6: CLIENT REVIEWS & TESTIMONIALS -->
-                    <section id="reviews-section" class="scroll-mt-28 bg-white border border-slate-200/90 rounded-3xl p-6 sm:p-8 shadow-xs space-y-6">
+                    <section id="reviews-section" class="scroll-mt-40 bg-white border border-slate-200/90 rounded-3xl p-6 sm:p-8 shadow-xs space-y-6">
                         <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 border-b border-slate-100 pb-4">
                             <div>
                                 <h2 class="text-xl sm:text-2xl font-black text-slate-900 tracking-tight m-0">What Clients Say</h2>
@@ -1050,7 +1054,7 @@
                 </div>
 
                 <!-- RIGHT COLUMN: Sticky Booking & Stats Sidebar (Col Span 4) -->
-                <div class="lg:col-span-4 lg:sticky lg:top-24 space-y-6">
+                <div class="lg:col-span-4 lg:sticky lg:top-40 space-y-6">
 
                     <!-- CARD 1: Quick Booking Form Widget -->
                     <div class="bg-white border border-slate-200/90 rounded-3xl p-6 shadow-xl space-y-5" id="booking-sidebar">

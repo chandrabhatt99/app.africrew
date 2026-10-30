@@ -8,7 +8,9 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
+use Laravel\Socialite\Contracts\User as SocialiteUser;
 use Laravel\Socialite\Facades\Socialite;
 
 class SocialAuthController extends Controller
@@ -22,7 +24,11 @@ class SocialAuthController extends Controller
             return redirect()->route('home')->with('error', 'Unsupported authentication provider.');
         }
 
-        $type = $request->query('type', 'client'); // client, staff, or hire
+        $type = $request->query('type', 'client');
+        if (!in_array($type, ['client', 'staff', 'hire'], true)) {
+            return redirect()->route('home')->with('error', 'Unsupported account type for social sign-in.');
+        }
+
         session(['social_auth_type' => $type]);
 
         // Check if OAuth client ID is configured for this provider in config/services.php
@@ -30,8 +36,9 @@ class SocialAuthController extends Controller
         $clientSecret = config("services.{$provider}.client_secret");
 
         if (empty($clientId) || empty($clientSecret)) {
-            // Fallback for development / demo mode when live OAuth keys are not set in .env yet
-            return $this->handleMockSocialAuth($provider, $type);
+            Log::error("{$provider} social sign-in is unavailable because its OAuth credentials are not configured.");
+
+            return back()->with('error', ucfirst($provider) . ' sign-in is not configured. Please use email and password or contact support.');
         }
 
         try {
@@ -40,10 +47,21 @@ class SocialAuthController extends Controller
                     ->with(['prompt' => 'select_account'])
                     ->redirect();
             }
+
+            if ($provider === 'facebook') {
+                return Socialite::driver('facebook')
+                    ->scopes(['email', 'public_profile'])
+                    ->redirect();
+            }
+
             return Socialite::driver($provider)->redirect();
         } catch (\Throwable $e) {
-            // If redirect fails (e.g. invalid credentials or network issue), use dev mock fallback
-            return $this->handleMockSocialAuth($provider, $type);
+            Log::error("Unable to start {$provider} social sign-in.", [
+                'exception' => $e::class,
+                'message' => $e->getMessage(),
+            ]);
+
+            return back()->with('error', ucfirst($provider) . ' sign-in could not be started. Please try again or use email and password.');
         }
     }
 
@@ -57,34 +75,111 @@ class SocialAuthController extends Controller
         }
 
         $type = session('social_auth_type', 'client');
+        if (!in_array($type, ['client', 'staff', 'hire'], true)) {
+            $type = 'client';
+        }
+        $errorRoute = match ($type) {
+            'staff' => 'staff.login',
+            'hire' => 'hire.create',
+            default => 'client.login',
+        };
 
-        try {
-            $socialUser = Socialite::driver($provider)->stateless()->user();
-        } catch (\Throwable $e) {
-            return redirect()->route('client.login')->with('error', 'Unable to authenticate with ' . ucfirst($provider) . '. Please try again or log in with email.');
+        // If the user cancelled or denied the authentication request
+        if ($request->has('error')) {
+            $errorDesc = $request->get('error_description', $request->get('error_message', 'Authentication request was cancelled.'));
+            Log::info("Social sign-in cancelled or returned error for {$provider}.", [
+                'error' => $request->get('error'),
+                'description' => $errorDesc,
+            ]);
+
+            return redirect()->route($errorRoute)
+                ->with('error', ucfirst($provider) . ' sign-in was cancelled.');
         }
 
-        return $this->authenticateSocialUser($provider, $socialUser, $type);
+        try {
+            if ($provider === 'facebook') {
+                $socialUser = Socialite::driver('facebook')
+                    ->fields(['name', 'first_name', 'last_name', 'email', 'picture.width(400)'])
+                    ->user();
+            } else {
+                $socialUser = Socialite::driver($provider)->user();
+            }
+        } catch (\Throwable $e) {
+            Log::warning("Unable to complete {$provider} social sign-in.", [
+                'exception' => $e::class,
+                'message' => $e->getMessage(),
+            ]);
+
+            return redirect()->route($errorRoute)
+                ->with('error', 'Unable to authenticate with ' . ucfirst($provider) . '. Please try again or log in with email.');
+        }
+
+        $socialId = trim((string) $socialUser->getId());
+        $socialEmail = strtolower(trim((string) $socialUser->getEmail()));
+        $socialName = trim((string) ($socialUser->getName() ?: $socialUser->getNickname()));
+
+        if ($socialId === '') {
+            return redirect()->route($errorRoute)
+                ->with('error', ucfirst($provider) . ' did not return a valid user identity.');
+        }
+
+        if ($socialName === '') {
+            $socialName = ucfirst($provider) . ' User';
+        }
+
+        // If email was not returned (e.g. phone-only Facebook accounts), attempt lookup or assign fallback
+        $idColumn = $provider . '_id';
+        if ($socialEmail === '' || !filter_var($socialEmail, FILTER_VALIDATE_EMAIL)) {
+            $existing = ($type === 'staff')
+                ? Professional::where($idColumn, $socialId)->first()
+                : User::where($idColumn, $socialId)->first();
+
+            if ($existing && !empty($existing->email)) {
+                $socialEmail = strtolower(trim($existing->email));
+            } else {
+                $socialEmail = "{$provider}_{$socialId}@africrew.ke";
+            }
+        }
+
+        return $this->authenticateSocialUser($provider, $socialUser, $type, $socialEmail, $socialName);
     }
 
     /**
      * Process social user authentication or account creation.
      */
-    protected function authenticateSocialUser(string $provider, $socialUser, string $type): RedirectResponse
-    {
+    protected function authenticateSocialUser(
+        string $provider,
+        SocialiteUser $socialUser,
+        string $type,
+        ?string $emailOverride = null,
+        ?string $nameOverride = null
+    ): RedirectResponse {
         $idColumn = $provider . '_id';
-        $email = (method_exists($socialUser, 'getEmail') ? $socialUser->getEmail() : null) 
-                 ?? ((method_exists($socialUser, 'getId') ? $socialUser->getId() : rand(10000, 99999)) . "@{$provider}.com");
-        $name = (method_exists($socialUser, 'getName') ? $socialUser->getName() : null) 
-                ?? (ucfirst($provider) . ' Member');
-        $avatar = method_exists($socialUser, 'getAvatar') ? $socialUser->getAvatar() : null;
-        $socialId = method_exists($socialUser, 'getId') ? $socialUser->getId() : ('soc_' . rand(10000, 99999));
+        $socialId = (string) $socialUser->getId();
+        $email = $emailOverride ?: strtolower(trim((string) $socialUser->getEmail()));
+        $name = $nameOverride ?: trim((string) ($socialUser->getName() ?: $socialUser->getNickname()));
+        if ($name === '') {
+            $name = ucfirst($provider) . ' User';
+        }
+
+        // Ensure avatar string does not exceed database VARCHAR(255) limits
+        $avatar = $socialUser->getAvatar();
+        if ($avatar && strlen($avatar) > 255) {
+            $avatar = ($provider === 'facebook')
+                ? "https://graph.facebook.com/{$socialId}/picture?type=large"
+                : substr($avatar, 0, 255);
+        }
 
         if ($type === 'staff') {
             // Authenticate Crew / Professional
             $professional = Professional::where($idColumn, $socialId)
                 ->orWhere('email', $email)
                 ->first();
+
+            if ($professional && in_array($professional->status, ['rejected', 'suspended', 'deactivated'], true)) {
+                return redirect()->route('staff.login')
+                    ->with('error', 'This crew account is not currently allowed to sign in. Please contact AfriCrew support.');
+            }
 
             if (!$professional) {
                 $baseUsername = Str::slug($name) ?: 'user' . rand(100, 999);
@@ -98,7 +193,7 @@ class SocialAuthController extends Controller
                     'full_name' => $name,
                     'username' => $username,
                     'email' => $email,
-                    'phone' => '+254 700 000 000',
+                    'phone' => null,
                     'password' => Hash::make(Str::random(24)),
                     'category' => 'Event Ushers',
                     $idColumn => $socialId,
@@ -110,8 +205,10 @@ class SocialAuthController extends Controller
                 ]);
             } else {
                 $professional->update([
+                    'full_name' => $name,
                     $idColumn => $socialId,
                     'auth_provider' => $provider,
+                    'profile_photo' => $avatar ?? $professional->profile_photo,
                     'email_verified_at' => $professional->email_verified_at ?? now(),
                 ]);
             }
@@ -132,6 +229,13 @@ class SocialAuthController extends Controller
                     'auth_provider' => $provider,
                     'email_verified_at' => now(),
                 ]);
+            } elseif ($authUser->role === 'professional') {
+                $authUser->update([
+                    'name' => $name,
+                    $idColumn => $socialId,
+                    'auth_provider' => $provider,
+                    'avatar' => $avatar ?? $authUser->avatar,
+                ]);
             } else {
                 $authUser->update([
                     $idColumn => $socialId,
@@ -139,7 +243,12 @@ class SocialAuthController extends Controller
                     'avatar' => $avatar ?? $authUser->avatar,
                 ]);
             }
-            Auth::login($authUser, true);
+
+            if ($authUser->role === 'professional') {
+                Auth::login($authUser, true);
+            } elseif (Auth::check()) {
+                Auth::logout();
+            }
 
             \App\Services\EmailNotificationService::sendLoginNotification(
                 $professional->email,
@@ -150,7 +259,7 @@ class SocialAuthController extends Controller
             );
 
             if (!$professional->is_onboarded) {
-                return redirect()->route('professional.onboarding')
+                return redirect()->route('professional.profile')
                     ->with('success', 'Logged in via ' . ucfirst($provider) . '! Please complete your crew resume profile.');
             }
 
@@ -162,6 +271,11 @@ class SocialAuthController extends Controller
         $user = User::where($idColumn, $socialId)
             ->orWhere('email', $email)
             ->first();
+
+        if ($user?->is_admin) {
+            return redirect()->route('client.login')
+                ->with('error', 'This account is reserved for administration and cannot be used for client sign-in.');
+        }
 
         if (!$user) {
             $user = User::create([
@@ -176,6 +290,7 @@ class SocialAuthController extends Controller
             ]);
         } else {
             $user->update([
+                'name' => $name,
                 $idColumn => $socialId,
                 'auth_provider' => $provider,
                 'avatar' => $avatar ?? $user->avatar,
@@ -199,33 +314,5 @@ class SocialAuthController extends Controller
 
         return redirect()->route('client.dashboard')
             ->with('success', 'Welcome back, ' . $user->name . '! Logged in with ' . ucfirst($provider) . '.');
-    }
-
-    /**
-     * Fallback mock social authentication for dev testing when API keys are not in .env.
-     */
-    protected function handleMockSocialAuth(string $provider, string $type): RedirectResponse
-    {
-        $mockId = 'demo_' . $provider . '_' . rand(100, 999);
-        $mockEmail = 'demo.' . $provider . '@africrew.com';
-        $mockName = ucfirst($provider) . ' Account User';
-
-        $mockUser = new class($mockId, $mockEmail, $mockName) {
-            private $id;
-            private $email;
-            private $name;
-
-            public function __construct($id, $email, $name) {
-                $this->id = $id;
-                $this->email = $email;
-                $this->name = $name;
-            }
-            public function getId() { return $this->id; }
-            public function getEmail() { return $this->email; }
-            public function getName() { return $this->name; }
-            public function getAvatar() { return null; }
-        };
-
-        return $this->authenticateSocialUser($provider, $mockUser, $type);
     }
 }

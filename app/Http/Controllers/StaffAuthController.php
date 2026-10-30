@@ -55,27 +55,14 @@ class StaffAuthController extends Controller
             ])->onlyInput('email');
         }
 
-        // If candidate's application is still pending admin approval
-        if ($professional->status === 'pending') {
-            if ($professional->interview_status === 'scheduled') {
-                return back()->with([
-                    'status_interview_scheduled' => true,
-                    'interview_date' => $professional->interview_date ? $professional->interview_date->format('l, F j, Y') : 'Date to be confirmed',
-                    'interview_time' => $professional->interview_time ?: '10:00 AM',
-                    'interviewer_name' => $professional->interviewer_name ?: 'AfriCrew Vetting Team',
-                    'interview_link' => $professional->interview_link,
-                    'interview_notes' => $professional->interview_notes,
-                    'info' => 'Your interview has been scheduled! Please check the interview details below.'
-                ])->onlyInput('email');
-            }
-
+        if (is_null($professional->email_verified_at) && $professional->status !== 'approved') {
             return redirect()->route('staff.verify.notice')->with([
                 'pending_email' => $professional->email,
                 'submitted_name' => $professional->full_name,
                 'submitted_email' => $professional->email,
                 'submitted_category' => $professional->category,
                 'ref_id' => 'AFR-CRW-' . str_pad($professional->id, 5, '0', STR_PAD_LEFT),
-                'info' => 'Your application has been received and is currently under review by the AfriCrew admin team. An interview will be scheduled soon.'
+                'error' => 'Please verify your email address before continuing to your crew profile.'
             ]);
         }
 
@@ -98,8 +85,8 @@ class StaffAuthController extends Controller
             $request->userAgent()
         );
 
-        if (!$professional->is_onboarded) {
-            return redirect()->route('professional.onboarding')->with('info', 'Please complete your crew resume wizard to access the portal.');
+        if ($professional->status === 'pending' || !$professional->is_onboarded) {
+            return redirect()->route('professional.profile')->with('info', 'Continue completing your crew profile. You can request review once it is at least 60% complete.');
         }
 
         return redirect()->route('professional.dashboard')->with('success', "Welcome back, {$professional->full_name}!");
@@ -189,6 +176,10 @@ class StaffAuthController extends Controller
         session()->put('pending_email', $professional->email);
         session()->put('verification_token', $newToken);
 
+        if (!\App\Services\EmailNotificationService::sendApplicationReceivedToCrew($professional)) {
+            return back()->with('error', 'We could not send the verification email. Please try again or contact AfriCrew support.');
+        }
+
         return back()->with('success', "A fresh verification link has been sent to {$professional->email}.");
     }
 
@@ -214,6 +205,10 @@ class StaffAuthController extends Controller
 
         session()->put('pending_email', $professional->email);
         session()->put('verification_token', $newToken);
+
+        if (!\App\Services\EmailNotificationService::sendApplicationReceivedToCrew($professional)) {
+            return back()->with('error', 'Your email was updated, but we could not send the verification message. Please try again.');
+        }
 
         return back()->with('success', "Your email address has been updated to {$professional->email}. A new verification link has been dispatched!");
     }

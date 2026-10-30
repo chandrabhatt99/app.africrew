@@ -332,7 +332,8 @@ class EmailNotificationService
 
         try {
             Mail::to($crewEmail)->send(new ApplicationReceivedMail(
-                firstName: $firstName
+                firstName: $firstName,
+                verificationUrl: route('staff.verify.email', ['token' => $professional->verification_token])
             ));
             Log::info("Application received email sent to crew {$crewEmail}");
             return true;
@@ -902,4 +903,3 @@ class EmailNotificationService
         }
     }
 }
-

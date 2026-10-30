@@ -432,7 +432,8 @@ class EmailPreviewController extends Controller
 
             case 'application-received':
                 return (new ApplicationReceivedMail(
-                    firstName: 'Leilani'
+                    firstName: 'Leilani',
+                    verificationUrl: route('staff.verify.email', ['token' => 'preview-token'])
                 ))->render();
 
             case 'booking-cancelled':
@@ -688,7 +689,8 @@ class EmailPreviewController extends Controller
 
             case 'application-received':
                 Mail::to($recipient)->send(new ApplicationReceivedMail(
-                    firstName: 'Valued Crew'
+                    firstName: 'Valued Crew',
+                    verificationUrl: route('staff.verify.email', ['token' => 'preview-token'])
                 ));
                 break;
 

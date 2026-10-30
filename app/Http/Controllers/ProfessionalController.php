@@ -7,7 +7,11 @@ use App\Models\Review;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Validation\Rule;
+use Illuminate\Validation\Rules\Password;
 use Illuminate\View\View;
+use libphonenumber\NumberParseException;
+use libphonenumber\PhoneNumberUtil;
 
 class ProfessionalController extends Controller
 {
@@ -264,13 +268,40 @@ class ProfessionalController extends Controller
 
     public function store(Request $request): RedirectResponse
     {
+        $phoneUtil = PhoneNumberUtil::getInstance();
+
         $data = $request->validate([
             'full_name' => ['required', 'string', 'max:150'],
             'username' => ['required', 'string', 'max:100', 'regex:/^[a-zA-Z0-9_\-]+$/', 'unique:professionals,username'],
             'category' => ['required', 'string', 'max:100'],
             'email' => ['required', 'email', 'max:150', 'unique:professionals,email'],
-            'phone' => ['required', 'string', 'max:30'],
-            'password' => ['required', 'confirmed', 'min:8'],
+            'phone_country_iso2' => ['required', 'string', 'size:2', Rule::in($phoneUtil->getSupportedRegions())],
+            'phone' => [
+                'required',
+                'string',
+                'max:16',
+                'regex:/^\+[1-9]\d{6,14}$/',
+                function (string $attribute, mixed $value, \Closure $fail) use ($phoneUtil, $request): void {
+                    if (!is_string($value)) {
+                        $fail('Enter a valid phone number for the selected country.');
+
+                        return;
+                    }
+
+                    try {
+                        $number = $phoneUtil->parse($value);
+                    } catch (NumberParseException) {
+                        $fail('Enter a valid phone number for the selected country.');
+
+                        return;
+                    }
+
+                    if (!$phoneUtil->isValidNumberForRegion($number, strtoupper($request->input('phone_country_iso2', '')))) {
+                        $fail('Enter a valid phone number for the selected country.');
+                    }
+                },
+            ],
+            'password' => ['required', Password::min(8)->mixedCase()->numbers()->symbols(), 'confirmed'],
             'terms' => ['accepted'],
         ]);
 
@@ -280,7 +311,7 @@ class ProfessionalController extends Controller
             'full_name' => ucwords(mb_strtolower(trim($data['full_name']))),
             'username' => strtolower(trim($data['username'])),
             'email' => strtolower(trim($data['email'])),
-            'phone' => trim($data['phone']),
+            'phone' => $data['phone'],
             'category' => $data['category'],
             'password' => Hash::make($data['password']),
             'verification_token' => $token,
@@ -299,10 +330,12 @@ class ProfessionalController extends Controller
         $request->session()->put('ref_id', 'AFR-CRW-' . str_pad($professional->id, 5, '0', STR_PAD_LEFT));
         $request->session()->put('verification_token', $token);
 
-        // Send application received confirmation email to crew applicant
-        \App\Services\EmailNotificationService::sendApplicationReceivedToCrew($professional);
+        if (!\App\Services\EmailNotificationService::sendApplicationReceivedToCrew($professional)) {
+            return redirect()->route('staff.verify.notice')
+                ->with('error', 'Your account was created, but we could not send the verification email. Please request a new link below.');
+        }
 
-        return redirect()->route('staff.verify.notice')->with('success', 'Application submitted! Your account is currently under review by the AfriCrew administration team.');
+        return redirect()->route('staff.verify.notice')->with('success', 'Account created! Check your email and verify your address to continue building your crew resume.');
     }
 
     /**

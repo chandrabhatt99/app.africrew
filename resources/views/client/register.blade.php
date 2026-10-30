@@ -23,6 +23,9 @@
                 @endforeach
             </div>
         @endif
+        @if(session('error'))
+            <div class="p-4 rounded-2xl bg-rose-50 border border-rose-200 text-rose-800 text-xs font-bold shadow-xs">{{ session('error') }}</div>
+        @endif
 
         <!-- Social Register Options -->
         <div class="space-y-3">
@@ -94,16 +97,23 @@
                 <label class="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1.5">
                     Password
                 </label>
-                <input type="password" name="password" required placeholder="At least 6 characters"
-                    class="w-full bg-slate-50 border border-slate-200 rounded-2xl px-4 py-3 text-slate-900 text-sm placeholder-slate-400 outline-none focus:border-amber-500 focus:bg-white transition-all">
+                <div class="relative">
+                    <input type="password" id="password" name="password" data-password-strength required minlength="8" placeholder="At least 8 characters"
+                        class="w-full bg-slate-50 border border-slate-200 rounded-2xl px-4 pr-12 py-3 text-slate-900 text-sm placeholder-slate-400 outline-none focus:border-amber-500 focus:bg-white transition-all">
+                    @include('components.password-visibility', ['inputId' => 'password'])
+                </div>
+                @include('components.password-strength-checklist', ['inputId' => 'password'])
             </div>
 
             <div>
                 <label class="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1.5">
                     Confirm Password
                 </label>
-                <input type="password" name="password_confirmation" required placeholder="Repeat password"
-                    class="w-full bg-slate-50 border border-slate-200 rounded-2xl px-4 py-3 text-slate-900 text-sm placeholder-slate-400 outline-none focus:border-amber-500 focus:bg-white transition-all">
+                <div class="relative">
+                    <input type="password" id="password_confirmation" name="password_confirmation" required placeholder="Repeat password"
+                        class="w-full bg-slate-50 border border-slate-200 rounded-2xl px-4 pr-12 py-3 text-slate-900 text-sm placeholder-slate-400 outline-none focus:border-amber-500 focus:bg-white transition-all">
+                    @include('components.password-visibility', ['inputId' => 'password_confirmation', 'label' => 'password confirmation'])
+                </div>
             </div>
 
             <button type="submit" class="w-full py-4 rounded-2xl bg-slate-900 hover:bg-slate-800 text-amber-400 font-black text-sm shadow-lg transition-all mt-2">

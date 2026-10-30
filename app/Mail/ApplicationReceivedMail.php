@@ -13,13 +13,14 @@ class ApplicationReceivedMail extends Mailable
     use Queueable, SerializesModels;
 
     public function __construct(
-        public string $firstName
+        public string $firstName,
+        public string $verificationUrl
     ) {}
 
     public function envelope(): Envelope
     {
         return new Envelope(
-            subject: "We've received your application - AfriCrew",
+            subject: 'Verify your email address - AfriCrew',
         );
     }
 
@@ -29,6 +30,7 @@ class ApplicationReceivedMail extends Mailable
             view: 'emails.application-received',
             with: [
                 'firstName' => $this->firstName,
+                'verificationUrl' => $this->verificationUrl,
             ],
         );
     }

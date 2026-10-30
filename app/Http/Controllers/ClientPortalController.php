@@ -9,6 +9,7 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Validation\Rules\Password;
 use Illuminate\View\View;
 
 class ClientPortalController extends Controller
@@ -99,7 +100,7 @@ class ClientPortalController extends Controller
             'email' => ['required', 'email', 'unique:users,email'],
             'phone' => ['nullable', 'string', 'max:50'],
             'company_name' => ['nullable', 'string', 'max:255'],
-            'password' => ['required', 'string', 'min:8', 'confirmed'],
+            'password' => ['required', 'string', Password::min(8)->mixedCase()->numbers()->symbols(), 'confirmed'],
         ]);
 
         $user = User::create([

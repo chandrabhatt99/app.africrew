@@ -121,6 +121,28 @@
             </div>
         </div>
 
+        @if($professional->status === 'pending' && $professional->submitted_for_review_at)
+            <div class="px-5 py-4 bg-blue-50 border-b border-blue-200 text-sm text-blue-950">
+                <strong>Profile awaiting approval.</strong>
+                Your latest profile changes were submitted for review on {{ $professional->submitted_for_review_at->format('M j, Y') }}. They will not be published until approved; public visibility also follows your discoverability setting.
+            </div>
+        @endif
+
+        @if($professional->interview_status === 'scheduled')
+            <div class="px-5 py-4 bg-indigo-50 border-b border-indigo-200 text-sm text-indigo-950">
+                <strong>Interview scheduled:</strong>
+                {{ $professional->interview_date?->format('l, F j, Y') ?? 'Date to be confirmed' }}
+                at {{ $professional->interview_time ?: 'Time to be confirmed' }}
+                with {{ $professional->interviewer_name ?: 'AfriCrew Vetting Team' }}.
+                @if($professional->interview_link)
+                    <a href="{{ $professional->interview_link }}" target="_blank" rel="noopener noreferrer" class="ml-1 font-bold underline">Join / view details</a>
+                @endif
+                @if($professional->interview_notes)
+                    <p class="mt-1 text-xs">{{ $professional->interview_notes }}</p>
+                @endif
+            </div>
+        @endif
+
         <!-- Horizontal Segmented Tabs Bar -->
         <div class="p-3 bg-slate-100/70 flex items-center gap-2 overflow-x-auto text-xs font-extrabold scrollbar-none">
             <button type="button" onclick="showProfileTab('personal', 1)" id="tab-nav-personal"
@@ -1408,17 +1430,19 @@
                     💾 Save as Draft
                 </button>
 
-                <button type="submit" form="profile-main-form" class="w-full sm:w-auto px-8 py-3.5 bg-slate-900 hover:bg-slate-800 text-amber-400 font-black text-xs rounded-2xl shadow-xl transition-all hover:scale-105 flex items-center justify-center gap-2">
-                    <span>💾 Save Profile Changes</span>
-                    <span>✓</span>
-                </button>
+                <div class="flex flex-col sm:flex-row gap-3 w-full sm:w-auto">
+                    <button type="submit" name="action" value="submit_for_review" id="submit-review-button"
+                        @disabled($completionPct < 60)
+                        class="w-full sm:w-auto px-6 py-3.5 bg-emerald-700 hover:bg-emerald-800 text-white font-black text-xs rounded-2xl shadow-md transition-all disabled:bg-slate-300 disabled:text-slate-600 disabled:cursor-not-allowed disabled:shadow-none">
+                        Submit for Review (60% required)
+                    </button>
+                    <button type="submit" name="action" value="save" class="w-full sm:w-auto px-8 py-3.5 bg-slate-900 hover:bg-slate-800 text-amber-400 font-black text-xs rounded-2xl shadow-xl transition-all hover:scale-105 flex items-center justify-center gap-2">
+                        <span>💾 Save Profile Changes</span>
+                        <span>✓</span>
+                    </button>
+                </div>
             </div>
         </div>
-    </form>
-
-    <!-- Separate Form to Submit for Review -->
-    <form id="submit-review-form" method="POST" action="{{ route('professional.submit-review-request') }}">
-        @csrf
     </form>
 </div>
 
@@ -1553,6 +1577,33 @@
         if (tabInput) tabInput.value = tabName;
     }
 
+    function updateReviewButton() {
+        const form = document.getElementById('profile-main-form');
+        const button = document.getElementById('submit-review-button');
+        if (!form || !button) return;
+
+        const value = (selector) => form.querySelector(selector)?.value?.trim() || '';
+        const hasValue = (selector) => Array.from(form.querySelectorAll(selector)).some((field) => field.value.trim());
+        const complete = [
+            Boolean(value('[name="full_name"]') && (value('[name="phone"]') || value('[name="email"]'))),
+            value('[name="about"]').length >= 15,
+            hasValue('[name^="skills_arr"], [name$="[employer]"], [name$="[role]"], [name$="[institution]"], [name$="[degree]"]'),
+            form.dataset.hasPortfolio === '1' || hasValue('[name="gallery_photos[]"]'),
+            Boolean(value('[name="country"]') || value('[name="city"]')),
+            Boolean(value('[name="full_day_rate"]') || value('[name="hourly_rate"]') || value('[name="one_day_rate"]') || value('[name="half_day_rate"]'))
+        ].filter(Boolean).length;
+
+        button.disabled = Math.floor((complete / 6) * 100) < 60;
+    }
+
+    const profileForm = document.getElementById('profile-main-form');
+    if (profileForm) {
+        profileForm.dataset.hasPortfolio = @json($professional->profile_photo || count($professional->gallery_photos ?? []) > 0 ? '1' : '0');
+        profileForm.addEventListener('input', updateReviewButton);
+        profileForm.addEventListener('change', updateReviewButton);
+        updateReviewButton();
+    }
+
     function uploadHeaderCover(input) {
         if (input.files && input.files[0]) {
             const file = input.files[0];
@@ -1610,6 +1661,11 @@
                 method: 'POST',
                 body: formData
             }).then(res => res.json()).then(data => {
+                const profileForm = document.getElementById('profile-main-form');
+                if (profileForm) {
+                    profileForm.dataset.hasPortfolio = '1';
+                    updateReviewButton();
+                }
                 const indicator = document.getElementById('autosave-indicator');
                 if (indicator) {
                     indicator.textContent = 'Avatar updated!';
