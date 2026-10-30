@@ -1,6 +1,31 @@
 @extends('layouts.app')
 
 @section('content')
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/intl-tel-input@25.12.2/build/css/intlTelInput.css">
+<style>
+    .iti {
+        display: block;
+        width: 100%;
+    }
+
+    #client-phone-input {
+        box-sizing: border-box;
+        height: 48px;
+        padding-left: 112px !important;
+        padding-right: 16px !important;
+    }
+
+    .iti__country-container {
+        padding: 4px;
+    }
+
+    .iti__selected-country {
+        height: 100%;
+        border-right: 1px solid #e2e8f0;
+        border-radius: 0.55rem 0 0 0.55rem;
+    }
+</style>
+
 <div class="min-h-[calc(100vh-140px)] flex items-center justify-center py-10 px-4 sm:px-6 bg-slate-50 text-slate-900 relative overflow-hidden">
     <!-- Ambient Background Glows -->
     <div class="absolute -top-40 -left-40 w-96 h-96 bg-amber-500/10 rounded-full blur-3xl pointer-events-none"></div>
@@ -58,7 +83,7 @@
             </div>
         </div>
 
-        <form method="POST" action="{{ route('client.register.submit') }}" class="space-y-4">
+        <form id="client-registration-form" method="POST" action="{{ route('client.register.submit') }}" class="space-y-4">
             @csrf
             
             <div>
@@ -89,8 +114,11 @@
                 <label class="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1.5">
                     Phone Number
                 </label>
-                <input type="text" name="phone" value="{{ old('phone') }}" required placeholder="+254 712 345678"
+                <input type="tel" id="client-phone-input" required inputmode="tel" autocomplete="tel" placeholder="Enter your phone number"
                     class="w-full bg-slate-50 border border-slate-200 rounded-2xl px-4 py-3 text-slate-900 text-sm placeholder-slate-400 outline-none focus:border-amber-500 focus:bg-white transition-all">
+                <input type="hidden" id="client-phone-number" name="phone" value="{{ old('phone') }}">
+                <input type="hidden" id="client-phone-country" name="phone_country_iso2" value="{{ old('phone_country_iso2', 'KE') }}">
+                <p id="client-phone-error" class="mt-1 text-xs text-rose-600" aria-live="polite"></p>
             </div>
 
             <div>
@@ -116,7 +144,7 @@
                 </div>
             </div>
 
-            <button type="submit" class="w-full py-4 rounded-2xl bg-slate-900 hover:bg-slate-800 text-amber-400 font-black text-sm shadow-lg transition-all mt-2">
+            <button id="client-register-submit" type="submit" class="w-full py-4 rounded-2xl bg-slate-900 hover:bg-slate-800 text-amber-400 font-black text-sm shadow-lg transition-all mt-2">
                 Register Client Account →
             </button>
         </form>
@@ -128,4 +156,63 @@
 
     </div>
 </div>
+
+<script src="https://cdn.jsdelivr.net/npm/intl-tel-input@25.12.2/build/js/intlTelInput.min.js"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const phoneInput = document.getElementById('client-phone-input');
+        const phoneNumber = document.getElementById('client-phone-number');
+        const phoneCountry = document.getElementById('client-phone-country');
+        const phoneError = document.getElementById('client-phone-error');
+        const form = document.getElementById('client-registration-form');
+        const submitButton = document.getElementById('client-register-submit');
+
+        if (!window.intlTelInput) {
+            phoneError.textContent = 'The country selector could not be loaded. Please refresh the page and try again.';
+            submitButton.disabled = true;
+            return;
+        }
+
+        const phoneInputInstance = window.intlTelInput(phoneInput, {
+            initialCountry: phoneCountry.value.toLowerCase(),
+            separateDialCode: true,
+            nationalMode: true,
+            countrySearch: true,
+            showFlags: true,
+            validationNumberType: null,
+            loadUtils: () => import('https://cdn.jsdelivr.net/npm/intl-tel-input@25.12.2/build/js/utils.js'),
+        });
+
+        phoneInputInstance.promise.then(() => {
+            if (phoneNumber.value) {
+                phoneInputInstance.setNumber(phoneNumber.value);
+            }
+        });
+
+        phoneInput.addEventListener('countrychange', () => {
+            phoneCountry.value = phoneInputInstance.getSelectedCountryData().iso2.toUpperCase();
+        });
+
+        phoneInput.addEventListener('input', () => {
+            phoneInput.setCustomValidity('');
+            phoneError.textContent = '';
+        });
+
+        form.addEventListener('submit', async (event) => {
+            event.preventDefault();
+            await phoneInputInstance.promise;
+
+            if (!phoneInput.value.trim() || !phoneInputInstance.isValidNumber()) {
+                phoneInput.setCustomValidity('Enter a valid phone number for the selected country.');
+                phoneInput.reportValidity();
+                phoneError.textContent = 'Enter a valid phone number for the selected country.';
+                return;
+            }
+
+            phoneNumber.value = phoneInputInstance.getNumber();
+            phoneCountry.value = phoneInputInstance.getSelectedCountryData().iso2.toUpperCase();
+            form.submit();
+        });
+    });
+</script>
 @endsection

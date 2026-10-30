@@ -9,7 +9,10 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Validation\Rule;
 use Illuminate\Validation\Rules\Password;
+use libphonenumber\NumberParseException;
+use libphonenumber\PhoneNumberUtil;
 use Illuminate\View\View;
 
 class ClientPortalController extends Controller
@@ -95,10 +98,37 @@ class ClientPortalController extends Controller
 
     public function register(Request $request): RedirectResponse
     {
+        $phoneUtil = PhoneNumberUtil::getInstance();
+
         $data = $request->validate([
             'name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'email', 'unique:users,email'],
-            'phone' => ['nullable', 'string', 'max:50'],
+            'phone_country_iso2' => ['required', 'string', 'size:2', Rule::in($phoneUtil->getSupportedRegions())],
+            'phone' => [
+                'required',
+                'string',
+                'max:16',
+                'regex:/^\+[1-9]\d{6,14}$/',
+                function (string $attribute, mixed $value, \Closure $fail) use ($phoneUtil, $request): void {
+                    if (!is_string($value)) {
+                        $fail('Enter a valid phone number for the selected country.');
+
+                        return;
+                    }
+
+                    try {
+                        $number = $phoneUtil->parse($value);
+                    } catch (NumberParseException) {
+                        $fail('Enter a valid phone number for the selected country.');
+
+                        return;
+                    }
+
+                    if (!$phoneUtil->isValidNumberForRegion($number, strtoupper($request->input('phone_country_iso2', '')))) {
+                        $fail('Enter a valid phone number for the selected country.');
+                    }
+                },
+            ],
             'company_name' => ['nullable', 'string', 'max:255'],
             'password' => ['required', 'string', Password::min(8)->mixedCase()->numbers()->symbols(), 'confirmed'],
         ]);
